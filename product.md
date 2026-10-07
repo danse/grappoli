@@ -72,7 +72,7 @@ output above the abstraction the project exists to produce.
 
 ## Decided
 
-The build order and the reasoning behind each step are in `agenda.md`.
+The build order and the reasoning behind each step are in `roadmap.md`.
 The decisions taken before any code exists:
 
 **Regions are communities in a note-similarity graph.** Build a k-nearest
