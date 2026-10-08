@@ -96,12 +96,14 @@ name = "grappoli"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "networkx" },
     { name = "numpy" },
     { name = "ollama" },
     { name = "scikit-learn" },
     { name = "sentence-transformers" },
     { name = "torch", version = "2.14.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'darwin'" },
     { name = "torch", version = "2.14.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
+    { name = "tqdm" },
 ]
 
 [package.dev-dependencies]
@@ -111,11 +113,13 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "networkx", specifier = ">=3.7" },
     { name = "numpy", specifier = ">=2" },
     { name = "ollama", specifier = ">=0.4" },
     { name = "scikit-learn", specifier = ">=1.5" },
     { name = "sentence-transformers", specifier = ">=3" },
     { name = "torch", specifier = ">=2.2", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "tqdm", specifier = ">=4.70.1" },
 ]
 
 [package.metadata.requires-dev]

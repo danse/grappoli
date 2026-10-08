@@ -68,6 +68,27 @@ Graph construction makes no model calls of any kind. Cosine similarity
 is arithmetic over vectors; regions, edges and representatives are all
 fixed before Ollama is asked anything.
 
+The rule has knobs — neighbourhood size, reciprocal-edge filtering,
+louvain resolution and weighting — and they decide whether a map holds
+together. `scripts/benchmark_structure.py` sweeps them against a corpus
+and, given a reference map to score against, names a winner with
+adjusted Rand index; the winning settings become `build_map`'s
+defaults, the same way measurement has driven them so far. Without a
+reference the sweep reports and decides nothing — the measures that
+need no reference (silhouette, leave-one-out stability) demonstrably do
+not reproduce structure match (`benchmarks/structure.md`).
+
+The sweep runs per corpus, and the two fixture shapes disagree. The
+saturated corpus's winner is k=5 plus the mutual filter (ARI 0.675); on
+the heterogeneous corpus that same rule scores 0.381, whose own winner
+is a small plain neighbourhood at higher resolution (ARI 1.000) —
+`benchmarks/structure-heterogeneous.md`. The defaults are therefore
+neither winner, but the best worst-case row across both: bge, k=5,
+mutual, weighted, resolution 2.0 — 0.588 in-domain, 0.729
+heterogeneous, and no single setting scores better in the worst case.
+A scored corpus more representative than the fixtures rebakes them,
+the same mechanism with a third reference.
+
 The model meets this structure only afterwards, in Stage 3 — and only
 to state, in words, what the graph's edges already assert.
 

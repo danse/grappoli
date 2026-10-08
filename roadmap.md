@@ -8,27 +8,6 @@ and describe the behaviour rather than merely exercise it. Finished
 stages are removed entirely, not marked; what they learned stays in
 the tests and in `benchmarks/`.
 
-## Stage 1 — Structure, no model
-
-`notes → similarity (bge-small ∥ TF-IDF) → kNN graph → community
-detection → regions → representative selection → map.json`
-
-No generation calls, per the spec: selection is a computation over the
-corpus before any model is consulted. TF-IDF runs beside the encoder as
-the control — if learned vectors do not beat bag-of-words on structure
-match, they are not earning their place.
-
-Regions are the graph's communities; the edges between them are the
-cross-community edges, so both figures come from one computation.
-
-**Tests pin:** every note has a home or is explicitly flagged
-standalone; the region rule is deterministic on a fixed corpus; edges
-are derived from the graph rather than hand-listed; selection makes no
-model calls; the stage reports progress per note and cluster batch.
-
-**Answered when:** the map holds together with no model involved — the
-claim that structure does the global work.
-
 ## Stage 2 — Characterisation, one region at a time
 
 Five representative notes → prompt → structured characterisation,
@@ -127,3 +106,22 @@ decided primarily on faithfulness.
 **Answered when:** every row of `architecture.md`'s provisional table
 is confirmed or replaced by a number, and anything still open is left
 stated rather than implied.
+
+# Agenda
+
+Items to be done after the stages
+
+- corpus.load_corpus: change so that notes can be text files
+  regardless of extension
+- A `tune` tool for corpus-adaptive knobs (k, resolution, and whether
+  the evidence ever makes mutual depend on the corpus). Not now, for
+  two recorded reasons: mutual needs no picking — its best beats
+  plain's best on both fixture shapes (0.675/1.000 vs 0.435/1.000) —
+  while the knobs that do vary, k and resolution, have only two shapes
+  to fit a rule from; and the reference-free saturation signal a tune
+  would need is unestablished (`benchmarks/structure.md`, "Against
+  deciding without a reference"). Revisit when Stage 4's structure
+  match can validate a rule against more scored corpora. Note the
+  standing decisions it would meet: no config layer, so its only
+  output could be per-run flag advice; sweep machinery lives in
+  `scripts/`.

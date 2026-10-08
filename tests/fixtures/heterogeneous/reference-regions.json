@@ -1,0 +1,28 @@
+{
+  "regions": {
+    "hiking-and-trails": [
+      "south-ridge-trail-log.md",
+      "hiking-gear-layering.md",
+      "route-planning-and-weather.md"
+    ],
+    "git-workflow": [
+      "rebasing-git-history.md",
+      "pre-commit-hook-checklist.md",
+      "commit-message-guide.md"
+    ],
+    "houseplant-care": [
+      "watering-houseplants.md",
+      "propagating-by-cuttings.md",
+      "houseplant-pests.md"
+    ],
+    "bike-maintenance": [
+      "bike-chain-care.md",
+      "brake-pad-replacement.md",
+      "commuting-tyre-notes.md"
+    ]
+  },
+  "standalone": [
+    "community-garden-rota.md",
+    "library-shelving-notes.md"
+  ]
+}
