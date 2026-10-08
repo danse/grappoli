@@ -1,0 +1,43 @@
+[project]
+name = "grappoli"
+version = "0.1.0"
+description = "Maps a branch of notes: which regions there are, what each is about, and how they touch."
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2",
+    "ollama>=0.4",
+    "scikit-learn>=1.5",
+    "sentence-transformers>=3",
+    "torch>=2.2",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/grappoli"]
+
+# The default PyPI torch wheel is the CUDA build and drags in the whole
+# nvidia toolkit. This machine has no GPU (architecture.md), so torch is
+# pinned to the CPU index. Two subtleties, both learned the hard way:
+#
+#   * the pin must reference a package project — with `package = false`
+#     uv silently ignores [tool.uv.sources] and uses the default index;
+#   * an `index` source applies to direct dependencies only. torch must
+#     be declared here directly; if it arrives only transitively (via
+#     sentence-transformers), uv resolves it from PyPI regardless of the
+#     pin, and nvidia wheels come along.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

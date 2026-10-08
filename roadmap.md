@@ -4,26 +4,9 @@ The build order for `grappoli`. `product.md` states what it is and why;
 `architecture.md` pins the decisions. This file is when each step
 happens, what it has to answer, and what its tests have to pin. Stages
 run in order — a stage is not finished until its tests are in `tests/`
-and describe the behaviour rather than merely exercise it.
-
-## Stage 0 — Environment and throughput
-
-Create the project venv and the fixture corpus: a small branch of
-markdown notes, hand-written so the correct regions are known in
-advance. Stage 4's structure match scores against it.
-
-Then **measure how fast the model actually is.** One representative
-request — prompt of a few hundred tokens, generation of a few hundred —
-recorded as prefill and generation tokens per second. The probe so far
-gave 2.1 tok/s prefill and 1.3 tok/s generation, 106 s for a trivial
-call, which is either a real limit of 2 cores or thread starvation; find
-out which here. Every later stage is sized by this number: how many
-rounds Stage 3 can afford, how many regions Stage 2 can characterise,
-whether generation calls are affordable at all.
-
-**Answered when:** the suite runs, the fixture corpus exists with its
-reference regions, `bge-small` produces vectors for them, and there is a
-throughput figure on the record.
+and describe the behaviour rather than merely exercise it. Finished
+stages are removed entirely, not marked; what they learned stays in
+the tests and in `benchmarks/`.
 
 ## Stage 1 — Structure, no model
 
@@ -41,7 +24,7 @@ cross-community edges, so both figures come from one computation.
 **Tests pin:** every note has a home or is explicitly flagged
 standalone; the region rule is deterministic on a fixed corpus; edges
 are derived from the graph rather than hand-listed; selection makes no
-model calls.
+model calls; the stage reports progress per note and cluster batch.
 
 **Answered when:** the map holds together with no model involved — the
 claim that structure does the global work.
@@ -53,17 +36,21 @@ validated. Retry on malformed output, log the failures rather than
 swallowing them.
 
 Structured output goes through the model's native tool-call mechanism,
-which the Stage 0 probe confirmed works at 0.5B: it emitted a correct
-name and correct arguments with empty content. JSON-in-content stays
-the fallback if a particular schema trips it. The model sits behind a
-single interface so Stage 5 can swap it without rework.
+which the probe in `benchmarks/throughput.md` confirmed works at 0.5B:
+it emitted a correct name and correct arguments with empty content.
+JSON-in-content stays the fallback if a particular schema trips it.
+The model sits behind a single interface so Stage 5 can swap it
+without rework.
 
-Retries cost real seconds at measured throughput, so they are capped
-and their cost logged alongside the failure.
+Retries cost roughly four minutes of generation each at measured
+throughput — one characterisation is a nontrivial expense and three
+schemas failures in a row is an afternoon. They are capped, and their
+cost is logged alongside the failure.
 
 **Tests pin:** parsing, retry and cap behaviour; what the model
 actually gets wrong, recorded as observed failures rather than
-expected ones.
+expected ones; progress is shown per region being characterised, and
+an interrupted run resumes without regenerating completed regions.
 
 **Answered when:** the chosen model's failure modes are on record — the
 faithfulness row of `architecture.md`'s provisional table now has
@@ -79,15 +66,23 @@ mechanism is the point.
 The agent sees characterisations and never raw notes — enforced by the
 tool surface, since no tool returns one, rather than by instruction.
 
-Round budget is set by Stage 0's throughput figure, with a hard cap
-regardless: at 1.3 tok/s an unbounded loop is not a bug, it is a hung
-machine.
+Round budget is set by the measured throughput — ≈3 tok/s prefill,
+≈2.3 tok/s generation, `benchmarks/throughput.md` — with a hard cap
+regardless: an unbounded loop is not a bug, it is a hung machine. The
+pipeline does not touch thread counts: the benchmark showed
+`num_thread=4` collapses decode on two cores to 0.5 tok/s.
+
+**Granularity is open, and now costable.** One loop for the whole map,
+one per region, or one per edge differs in conversation cost by
+factors at measured throughput. Decide it in this stage with numbers
+against the fixture — not by preference.
 
 **Tests pin:** the loop terminates under adversarial tool output; tool
 errors are recoverable; no path reaches a raw note; relations are
 written between characterisations only. The model is stubbed with a
 scripted call sequence so all of this runs without Ollama and without
-nondeterminism.
+nondeterminism. Progress is shown for each round and relation; an
+interrupted run resumes without regenerating completed relations.
 
 **Answered when:** relations can be characterised without any step
 seeing the corpus whole.

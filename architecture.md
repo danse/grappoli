@@ -24,6 +24,25 @@ confused. No model runs after Stage 3 — making the document from
 build-time worker: it walks the graph once while the map is being made,
 and is gone before anything is read.
 
+## Progress and logging
+
+The pipeline is slow by design: a characterisation runs roughly four
+minutes, and generation never exceeds about 2.3 tok/s
+(`benchmarks/throughput.md`). A build must be observable while it runs
+and able to survive an interrupt.
+
+- **Every stage reports its own progress.** Each stage's unit is its
+  item: Stage 1 reports embedded and clustered notes, Stage 2 the
+  region in hand (region 3 of 16), Stage 3 the agent's round or the
+  edge in hand (relation 5 of 9) — each with an ETA derived from the
+  throughput record. Progress writes to stderr and never enters the
+  output artefact.
+- **Artefacts append; runs resume.** `characterisations` and
+  `relations` are append-only line files, one item per line. An
+  interrupt at region 12 of 16 resumes at region 12; a completed item
+  is never regenerated. This is why they are line files and not one
+  overwritten JSON document.
+
 ## Similarity
 
 Note vectors from `BAAI/bge-small-en-v1.5` — small, fast on CPU, strong
@@ -89,3 +108,6 @@ for the agent.
 
 Generation goes through Ollama (`qwen2.5:0.5b`). Its server has no
 embedding support and is left as it is.
+
+Generation runs at roughly 2.3 tok/s with 3 tok/s prefill on this
+hardware, and stages are sized against that (`benchmarks/throughput.md`).

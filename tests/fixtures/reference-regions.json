@@ -1,0 +1,28 @@
+{
+  "regions": {
+    "brine-and-pickling": [
+      "quick-pickles-vinegar-ratio.md",
+      "salt-brine-basics.md",
+      "cucumber-pickling-log.md"
+    ],
+    "fermentation-biology": [
+      "lacto-fermentation-101.md",
+      "sourdough-starter-rhythm.md",
+      "kimchi-microbiology.md"
+    ],
+    "preservation-chemistry": [
+      "ph-and-spoilage.md",
+      "osmosis-and-salt.md",
+      "vinegar-chemistry.md"
+    ],
+    "equipment-and-storage": [
+      "jar-inventory.md",
+      "airlock-checks.md",
+      "cellar-temperature-notes.md"
+    ]
+  },
+  "standalone": [
+    "book-recommendations.md",
+    "neighbour-garden-trade.md"
+  ]
+}
