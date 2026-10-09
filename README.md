@@ -11,8 +11,8 @@ locally — embeddings, a small local model, and arithmetic.
 uv sync
 uv tool install .
 
-# map a branch of notes
-grappoli map notes/
+# read a branch of notes
+grappoli read notes/
 ```
 
 ## Where things live

@@ -16,6 +16,13 @@ notes ──(Stage 1, arithmetic)──▶ regions + edges
       ──(render)──▶ document          ← no model after this point
 ```
 
+The stages' working files are written under `<branch>/.grappoli/` —
+the map and the append-only characterisations. That directory is a
+build directory, not an output: `grappoli read` writes it, and what a
+reader eventually sees is the rendered document, never these. Keeping
+them in one hidden place means a branch is not littered with
+intermediates and a rerun finds its own resume state.
+
 Each arrow is a component named for the artefact it produces, with the
 `roadmap.md` stage that builds it; the artefact names and the stage
 numbers are two ways of referencing the same work, and are not to be
@@ -92,6 +99,28 @@ the same mechanism with a third reference.
 The model meets this structure only afterwards, in Stage 3 — and only
 to state, in words, what the graph's edges already assert.
 
+## Model interface
+
+Generation goes through one function, `grappoli.model.structured`: it
+sends a prompt with a tool schema and a JSON `format`, reads a native
+tool call if there is one, and otherwise reads JSON in the content. On a
+real region prompt 0.5B answers in content — the tool fires only on
+trivial prompts — so the content path is the normal one, and `format` is
+what keeps it JSON rather than prose (`benchmarks/characterisation.md`).
+The tool is still offered first, because a larger model may take it and
+the interface must let Stage 5 find out. It is the only place `ollama` is
+imported, so Stage 5 compares models by replacing it rather than by
+editing the stages; the import is lazy, so building a map still pulls no
+generation machinery into the process.
+
+Stage 2 sits on top of it in `grappoli.characterise`: the prompt is the
+region's representatives and nothing else, the answer is validated
+structurally, a malformed one is retried up to three attempts total, and
+each completed region is appended to the line file. A region that
+exhausts its attempts is logged from its own measurements — attempts and
+wall-clock seconds — rather than swallowed, so a build records where it
+spent generation and failed (`roadmap.md`, Stage 2).
+
 ## Agent tools
 
 The tools are Python functions in our own process; Ollama only ever
@@ -120,6 +149,12 @@ them:
 | Flat map | structure match, Stage 5 |
 | bge-small over TF-IDF | structure match, Stage 4 |
 | qwen2.5:0.5b | faithfulness, Stage 5 |
+
+Stage 2 put 0.5B's failure modes on record — the tool ignored on a real
+prompt, prose instead of JSON without `format`, an over-long answer that
+truncates under a cap (`benchmarks/characterisation.md`). That is the
+ground the faithfulness row now stands on; the choice of model is still
+Stage 5's to overturn with the measurement.
 
 ## Environment
 

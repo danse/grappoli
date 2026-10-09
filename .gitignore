@@ -6,6 +6,4 @@ __pycache__/
 
 # Build artifacts — reproducible from source, not for committing
 build.log
-map.json
-characterisations
-relations
+.grappoli/

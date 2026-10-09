@@ -1,7 +1,9 @@
 """grappoli — maps a branch of notes.
 
-Stage 0: this package is a skeleton. The point of its existence today is
-that uv only honours `[tool.uv.sources]` for a package project, so the
-CPU-only torch pin (pyproject.toml) depends on it. The code arrives in
-later stages.
+The command is `grappoli.cli` (`read NOTES`); the pipeline is `map`
+(Stage 1, arithmetic) then `characterise` (Stage 2, one model call per
+region), with generation behind the single interface in `model`. The
+reason this is a package rather than a bare script is pyproject.toml's
+CPU-only torch pin: uv honours `[tool.uv.sources]` only for a package
+project.
 """

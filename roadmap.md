@@ -8,33 +8,6 @@ and describe the behaviour rather than merely exercise it. Finished
 stages are removed entirely, not marked; what they learned stays in
 the tests and in `benchmarks/`.
 
-## Stage 2 — Characterisation, one region at a time
-
-Five representative notes → prompt → structured characterisation,
-validated. Retry on malformed output, log the failures rather than
-swallowing them.
-
-Structured output goes through the model's native tool-call mechanism,
-which the probe in `benchmarks/throughput.md` confirmed works at 0.5B:
-it emitted a correct name and correct arguments with empty content.
-JSON-in-content stays the fallback if a particular schema trips it.
-The model sits behind a single interface so Stage 5 can swap it
-without rework.
-
-Retries cost roughly four minutes of generation each at measured
-throughput — one characterisation is a nontrivial expense and three
-schemas failures in a row is an afternoon. They are capped, and their
-cost is logged alongside the failure.
-
-**Tests pin:** parsing, retry and cap behaviour; what the model
-actually gets wrong, recorded as observed failures rather than
-expected ones; progress is shown per region being characterised, and
-an interrupted run resumes without regenerating completed regions.
-
-**Answered when:** the chosen model's failure modes are on record — the
-faithfulness row of `architecture.md`'s provisional table now has
-something behind it.
-
 ## Stage 3 — The agentic loop
 
 A hand-rolled loop, roughly 150 lines: the model returns a tool call,
