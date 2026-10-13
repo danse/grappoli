@@ -1,13 +1,14 @@
 """Probe one model on the regions of a corpus, first attempt each.
 
-Stage 2's question: what does the chosen model actually get wrong when
-asked to characterise a region? The pipeline retries a malformed answer
+The characteriser's question: what does the chosen model actually get
+wrong when asked to characterise a region? The pipeline retries a
+malformed answer
 (`characterise.py`), which is exactly what hides the failure being
 recorded here, so this script sends each region's prompt once and
 reports the raw reply, the extraction path (native tool call or content
 JSON), and whether the answer validates. It is the instrument behind
-`benchmarks/characterisation.md` and the place a Stage 5 model
-comparison is taken.
+`benchmarks/characterisation.md` and the place the model comparison is
+taken.
 
 Usage:
     uv run python scripts/benchmark_characterisation.py NOTES

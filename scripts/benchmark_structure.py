@@ -21,7 +21,6 @@ Usage:
 """
 
 import argparse
-import json
 import sys
 from datetime import date
 from pathlib import Path
@@ -30,6 +29,7 @@ import numpy as np
 from sklearn.metrics import adjusted_rand_score
 
 from grappoli.graph import knn_edges, mutual_edges, partition
+from grappoli.measure import reference_labels as _reference_labels
 from grappoli.similarity import build_vectors
 
 PROVIDERS = ("bge", "tfidf")
@@ -41,7 +41,7 @@ def sweep(notes: dict[str, str], reference: Path | None,
           ks=KS, resolutions=RESOLUTIONS) -> dict:
     names = list(notes)
     texts = [notes[n] for n in names]
-    ref_labels = _reference_labels(reference, names)
+    ref_labels = _reference_labels(reference, names) if reference is not None else None
 
     rows = []
     partitions: dict[str, list[list[str]]] = {}
@@ -117,46 +117,6 @@ def _similarity_stats(similarities: np.ndarray, ref_labels) -> dict:
         "mean_intra": float(np.mean(intra)) if intra else float("nan"),
         "mean_inter": float(np.mean(inter)) if inter else float("nan"),
     }
-
-
-def _reference_labels(reference: Path | None, names: list[str]):
-    """Validate a reference map against a corpus and return labels.
-
-    A reference is the ground a report is scored against; one that
-    double-lists a note, names a note the corpus lacks, or omits a
-    corpus note would record a decision input taken from a broken
-    ground. Every corpus each fork of the sweep is run on pays this
-    check, so fixture corpora are validated here, where references are
-    consumed, rather than in tests (fixtures/README.md).
-    """
-    if reference is None:
-        return None
-    try:
-        data = json.loads(Path(reference).read_text())
-    except (OSError, json.JSONDecodeError) as err:
-        raise ValueError(f"{reference}: not a readable reference map ({err})") from err
-    labels = {}
-    for rid, members in data.get("regions", {}).items():
-        for member in members:
-            if member in labels:
-                raise ValueError(
-                    f"{reference}: {member} is listed in two regions "
-                    f"({labels[member]} and {rid})"
-                )
-            labels[member] = rid
-    for member in data.get("standalone", []):
-        if member in labels:
-            raise ValueError(
-                f"{reference}: {member} is listed as standalone and in {labels[member]}"
-            )
-        labels[member] = "standalone"
-    missing = [n for n in names if n not in labels]
-    if missing:
-        raise ValueError(f"reference has no label for: {', '.join(missing)}")
-    extra = [n for n in labels if n not in names]
-    if extra:
-        raise ValueError(f"reference labels notes the corpus does not hold: {', '.join(extra)}")
-    return np.array([labels[n] for n in names])
 
 
 def render(report: dict) -> str:

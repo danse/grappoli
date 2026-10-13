@@ -1,6 +1,6 @@
 """Find a prompt shape that makes a small model name a tool.
 
-Stage 3's loop stalls on qwen2.5:0.5b because on a real task prompt it
+The relation loop stalls on qwen2.5:0.5b because on a real task prompt it
 narrates instead of emitting `<tool_call>`; it fires only on a near-literal
 "Call the X tool with <args>" command (`benchmarks/relations.md`). The
 question this script answers is whether a *cue* can carry real content and

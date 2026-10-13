@@ -1,4 +1,4 @@
-"""Drive the real Stage 3 loop with a real model, whole map.
+"""Drive the real relation loop with a real model, whole map.
 
 The loop's tools and storage are settled and tested against the stub
 (`relations.py`); what is not measured is whether a local model can drive

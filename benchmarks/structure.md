@@ -161,7 +161,7 @@ strays exactly but shreds equipment-and-storage — cellar-temperature's
 top neighbours are biology notes, so the equipment region splits into
 singletons. tfidf finds the equipment region perfectly and mangles the
 rest. The embedder's weakness is localised, and scoring it is exactly
-what Stage 4's structure match exists for.
+what structure match exists for.
 
 ## Against deciding without a reference
 

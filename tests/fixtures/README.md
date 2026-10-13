@@ -2,8 +2,8 @@
 
 Two corpora, written by hand, one fixture per shape. A fixture is a
 measurement instrument: the defaults in `build_map`, the provider
-choice, and Stage 4's structure-match baseline are all decided on one
-of these corpora. Their shape therefore *is* the assumed shape of the
+choice, and the structure-match baseline are all decided on one of
+these corpora. Their shape therefore *is* the assumed shape of the
 target corpus, so the shape is stated here instead of silently
 assumed. The measured sweep for each corpus lives in `benchmarks/`
 (`structure.md` for in-domain, `structure-heterogeneous.md` for
@@ -66,5 +66,5 @@ follow from it.
   about organising people; the library note shares nothing.
 
 The reference in each `reference-regions.json` is the map a careful
-reader would write by hand. Stage 4's structure match scores candidate
-maps against it.
+reader would write by hand. Structure match scores candidate maps
+against it.

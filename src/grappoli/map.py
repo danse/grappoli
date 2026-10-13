@@ -1,6 +1,6 @@
 """Assemble the map.
 
-`build_map` runs the whole Stage 1 pipeline — similarity, graph,
+`build_map` runs the whole map pipeline — similarity, graph,
 regions, representatives — and returns the map without a single
 generation call. The structure of what it returns:
 
@@ -25,7 +25,7 @@ beats plain's on both shapes (0.675/1.000 vs 0.435/1.000). The sweep
 revisits all of these against any corpus you can score
 (`benchmarks/structure.md`, `benchmarks/structure-heterogeneous.md`).
 `progress` is a callback (label, done, total) for the per-item display
-that every stage must provide (architecture.md, Progress and logging).
+that every step must provide (architecture.md, Progress and logging).
 """
 
 import numpy as np

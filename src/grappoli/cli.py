@@ -1,12 +1,16 @@
 """The `grappoli` command.
 
 * `grappoli read NOTES` — read a branch of notes: build the map
-  (Stage 1, arithmetic), characterise every region (Stage 2, one model
-  call per region), then relate the touching pairs (Stage 3, one agent
-  loop), in that order. The stages' working files — `map.json`, the
-  append-only `characterisations` and the append-only `relations` — live
-  under `NOTES/.grappoli/`, which is not part of what the reader is meant
+  (arithmetic), characterise every region (one model call per region),
+  then relate the touching pairs (one agent loop), in that order. The
+  pipeline's working files — `map.json`, the append-only
+  `characterisations` and the append-only `relations` — live under
+  `NOTES/.grappoli/`, which is not part of what the reader is meant
   to see; the command's own output is progress on stderr.
+* `grappoli measure NOTES` — score a map already built there: the four
+  measurements, read from the same working files. It builds nothing,
+  so it measures the candidate the branch holds; `--reference` scores
+  structure match, without which that one number is not produced.
 
 The map's rule is the built-in default in `grappoli/map.py`, overridden
 per-run by the flags; `scripts/benchmark_structure.py` is what re-decides
@@ -15,11 +19,14 @@ default changes, and there is no per-corpus settings file. Progress goes
 to stderr as plain lines and never into an artefact.
 
 The model is the single interface in `grappoli/model.py`, injected here
-so a run can be exercised without Ollama: `structured` for Stage 2 and
-`converse` for the Stage 3 loop, both bound to `--model`. A region that
-exhausts its attempts is logged and skipped, and the run exits non-zero
-so the failure is not mistaken for a finished map; a loop that stops with
-pairs still unrelating does the same, since the build is then partial.
+so a run can be exercised without Ollama: `structured` for
+characterisation and the faithfulness judge, `converse` for the relation
+loop, both bound to `--model`. A region that exhausts its attempts is
+logged and skipped, and
+the run exits non-zero so the failure is not mistaken for a finished map;
+a loop that stops with pairs still unrelating does the same, since the
+build is then partial. `measure` reports its numbers on stdout, since a
+measurement's output is not progress.
 """
 
 import argparse
@@ -31,15 +38,16 @@ from pathlib import Path
 from .characterise import characterise_regions, read_characterisations
 from .corpus import load_corpus
 from .map import build_map
+from .measure import measure as measure_map
 from .model import converse, structured
 from .relations import read_relations, relate_regions
 
 PROVIDERS = ("bge", "tfidf")
 
 
-def main(argv=None, *, llm=structured, agent_llm=converse) -> int:
+def main(argv=None, *, llm=structured, agent_llm=converse, compare=None) -> int:
     # Weights are part of this machine's environment; a cached model
-    # must not fight DNS on every run (observed during Stage 1). Offline
+    # must not fight DNS on every run (observed while building maps). Offline
     # by default; HF_HUB_OFFLINE=0 forces a re-fetch.
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     parser = argparse.ArgumentParser(prog="grappoli", description="Map a branch of notes.")
@@ -54,7 +62,16 @@ def main(argv=None, *, llm=structured, agent_llm=converse) -> int:
     read_cmd.add_argument("--model", help="generation model (default: qwen2.5:0.5b)")
     read_cmd.set_defaults(run=_run_read)
 
+    measure_cmd = sub.add_parser("measure", help="score the map built under NOTES/.grappoli")
+    measure_cmd.add_argument("notes", help="path to the branch of notes")
+    measure_cmd.add_argument("--reference",
+                             help="reference regions to score structure match against "
+                                  "(same shape as tests/fixtures/in-domain/reference-regions.json)")
+    measure_cmd.add_argument("--model", help="judge model (default: qwen2.5:0.5b)")
+    measure_cmd.set_defaults(run=_run_measure)
+
     args = parser.parse_args(argv)
+    args.compare = compare
     return args.run(args, llm, agent_llm)
 
 
@@ -107,6 +124,65 @@ def _run_read(args, llm, agent_llm) -> int:
           f"{len(read_relations(work / 'relations'))} relations; "
           f"working files under {work}", file=sys.stderr)
     return 1 if (failed or missing) else 0
+
+
+def _run_measure(args, llm, agent_llm) -> int:
+    llm = _with_model(llm, args.model)
+    notes = load_corpus(args.notes)
+    if not notes:
+        print(f"grappoli: no markdown notes under {args.notes}", file=sys.stderr)
+        return 1
+
+    work = Path(args.notes) / ".grappoli"
+    map_path = work / "map.json"
+    if not map_path.exists():
+        print(f"grappoli: no map under {work} — run `grappoli read {args.notes}` first",
+              file=sys.stderr)
+        return 1
+    mapping = json.loads(map_path.read_text())
+    characterisations = read_characterisations(work / "characterisations")
+
+    def progress(label, done, total):
+        print(f"{label}: {done}/{total}", file=sys.stderr)
+
+    def log(line):
+        print(line, file=sys.stderr)
+
+    reference = Path(args.reference) if args.reference else None
+    try:
+        result = measure_map(mapping, characterisations, notes, reference,
+                             llm=llm, compare=args.compare, progress=progress, log=log)
+    except ValueError as err:
+        print(f"grappoli: {err}", file=sys.stderr)
+        return 1
+    print(_report(result))
+    return 0
+
+
+def _report(result: dict) -> str:
+    """The four numbers as a reader reads them, with what each rests on."""
+    detail = result["faithfulness_detail"]
+    lines = [
+        f"notes: {result['notes']}  regions: {result['regions']}  "
+        f"standalone: {result['standalone']}",
+        f"comprehensiveness: {result['comprehensiveness']:.3f}",
+        f"redundancy: {result['redundancy']:.3f}",
+    ]
+    if result["faithfulness"] is None:
+        lines.append(f"faithfulness: n/a ({detail['total']} claims, none judged)")
+    else:
+        judged = detail["supported"] + detail["unsupported"]
+        line = (f"faithfulness: {result['faithfulness']:.3f} "
+                f"({detail['supported']}/{judged} claims supported")
+        if detail["undecided"]:
+            line += f", {detail['undecided']} undecided"
+        lines.append(line + ")")
+    if result["structure_match"] is None:
+        lines.append("structure match: n/a (no reference given)")
+    else:
+        lines.append(f"structure match: {result['structure_match']:.3f} "
+                     f"(against {result['reference']})")
+    return "\n".join(lines)
 
 
 def _human(seconds: float) -> str:

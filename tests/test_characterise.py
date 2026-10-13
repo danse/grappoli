@@ -1,4 +1,4 @@
-"""Stage 2: one region at a time, validated, retried, and resumable.
+"""Characterising one region at a time: validated, retried, and resumable.
 
 The model is a stub, so these pin the behaviour around generation — the
 prompt holds only the representatives, an answer is validated
@@ -78,9 +78,9 @@ def test_valid_characterisation_passes_through():
 def test_six_topics_are_accepted():
     """No count bound: the prompt asks 3-5, but a retry costs four minutes.
 
-    The decision (roadmap.md, Stage 2) is structural validation only;
-    bounding the list would spend a whole generation to reject an answer
-    that is not wrong.
+    The decision (architecture.md, Model interface) is structural
+    validation only; bounding the list would spend a whole generation to
+    reject an answer that is not wrong.
     """
     six = {**VALID, "topics": ["a", "b", "c", "d", "e", "f"]}
     assert validate(six)["topics"] == ["a", "b", "c", "d", "e", "f"]
@@ -112,7 +112,7 @@ def test_prompt_carries_only_the_representatives():
 
 
 def test_region_is_retried_up_to_the_cap_then_fails():
-    """Three attempts total (roadmap.md): 1 plus 2 retries, no further."""
+    """Three attempts total (architecture.md, Model interface): 1 plus 2 retries, no further."""
     llm = StubLLM(ModelError("bad"), ModelError("bad"), ModelError("bad"))
     with pytest.raises(CharacterisationFailed) as caught:
         characterise_region(0, ["n0"], NOTES, llm)

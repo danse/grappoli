@@ -30,9 +30,9 @@ is real, but it is moot until the tool channel works.
 
 ## The tool-call gap (2026-10-09)
 
-The saved Stage 2 probe had `qwen2.5:0.5b` emit a tool call, and the real
-prompts never did. `scripts/probe_tool_calls.py --suite length` holds the
-phrasing fixed and adds one note at a time.
+The saved characterisation probe had `qwen2.5:0.5b` emit a tool call, and
+the real prompts never did. `scripts/probe_tool_calls.py --suite length`
+holds the phrasing fixed and adds one note at a time.
 
 | what was sent | prompt tok | tool calls | done |
 |---|---|---|---|
@@ -78,15 +78,15 @@ about text, the topic list, a placeholder or the echoed prompt — never a
 relation drawn from the two regions. The channel and the content are
 separate problems; this records the channel. The `characterise_region`
 cue is refused even at cap 128 (128 tokens of content that renders
-empty), but Stage 2 does not need it natively: `format` already reaches
-it.
+empty), but characterisation does not need it natively: `format` already
+reaches it.
 
 Two consequences for the loop. A cue that *names* the tool tells the
 model what to do but removes the choice the loop exists to make; the one
 cue that let the model pick (`react-tool-list`) is untested across
 rounds. And the reliable structured path stays `format`-constrained JSON
-in content — what Stage 2 ran 4/4 on, and what a `few-shot` cue here put
-in content rather than a tool call.
+in content — what characterisation ran 4/4 on, and what a `few-shot` cue
+here put in content rather than a tool call.
 
 ## A bigger model, native (2026-10-09)
 
@@ -118,10 +118,11 @@ channel decision into a measurement rather than a hope about model size.
 
 ## The channel: native against structured (2026-10-09)
 
-Same prompts, `--channel structured`: the Stage 2 path — a tool schema
-*and* a JSON `format`, native call preferred, content JSON otherwise.
-`format` constrains the answer to the schema, so the shape failures that
-sank the native runs cannot occur, and the numbers bear that out.
+Same prompts, `--channel structured`: the characterisation path — a tool
+schema *and* a JSON `format`, native call preferred, content JSON
+otherwise. `format` constrains the answer to the schema, so the shape
+failures that sank the native runs cannot occur, and the numbers bear
+that out.
 
 | model | approach | valid relation | seconds |
 |---|---|---|---|
@@ -133,7 +134,7 @@ sank the native runs cannot occur, and the numbers bear that out.
 With `format`, **0.5B produces a valid relation per edge** — the weakest
 local model, on the real task, first attempt. That is the strongest
 single result in this file: the channel, not the model size, was the
-blocker, and it matches Stage 2's 4/4.
+blocker, and it matches characterisation's 4/4.
 
 | channel | many relations in one conversation? | valid arguments? |
 |---|---|---|
@@ -191,7 +192,8 @@ Two things the run also exposes, for the orchestration still to build:
   relation") has to be enforced by the orchestration or the toolbox, and
   currently is not.
 - the same run makes the model question concrete: at 1b the whole-map
-  loop does not carry, which is the row Stage 5 settles. The equivalent
+  loop does not carry, which is the row the model decision settles. The
+  equivalent
   `qwen2.5:0.5b` run was stopped for a machine shutdown at round 8 and
   is not recorded here; it should be rerun.
 
@@ -363,8 +365,8 @@ What it still cannot do:
 - **stop**: it tried to call a `done` tool `TOOL_SCHEMAS` does not define,
   so the attempt arrived as content and the loop stopped for the wrong
   reason. The action-object schema had `done`; natively the stop is a
-  message naming no tool (`roadmap.md`, Stage 3), and the prompt says
-  "call done", which no tool answers.
+  message naming no tool (`architecture.md`, Agent tools), and the prompt
+  says "call done", which no tool answers.
 - **dedup**: (0,1) was appended twice — the resume gap again.
 
 Reading: native is the channel that lets the loop work — the only
@@ -376,8 +378,8 @@ no tool answers.
 ## The shipped loop, live (llama3.2:latest, 2026-10-13)
 
 Every row above drove `run_agent` from `scripts/`; these are the first
-runs of `grappoli read` itself — Stage 1, Stage 2 resumed from disk, then
-the shipped Stage 3 prompt and budget (16 rounds), writing
+runs of `grappoli read` itself — the map, characterisation resumed from
+disk, then the shipped relation prompt and budget (16 rounds), writing
 `NOTES/.grappoli/relations`. Same fixture, same characterisations.
 
 Both named `list_regions` natively and then stopped, **0 of 6**:
@@ -413,5 +415,5 @@ the map's **content** is reachable (the reduced loop, 6/6) but the model
 does not drive the whole-map tools **unassisted** — it lists the map, then
 writes in the wrong channel without reading. Whole-map autonomous native
 is out of this model's reach on this hardware; guided to one pair a round
-it is not. That is the row Stage 5 settles, and it is now a measurement
-rather than a hope about size.
+it is not. That is the row the model decision settles, and it is now a
+measurement rather than a hope about size.

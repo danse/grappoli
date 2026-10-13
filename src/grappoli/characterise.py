@@ -1,18 +1,18 @@
-"""Stage 2 — characterise one region at a time.
+"""Characterise one region at a time.
 
 The representatives of a region go to the model, which returns `about`,
 `topics` and `key_claims`; the answer is validated and appended to a
-line file. The stage never holds the corpus in view: it is handed the
+line file. The step never holds the corpus in view: it is handed the
 representatives, and no other note reaches the prompt (`product.md`,
 Approach).
 
 A malformed answer is retried, up to `MAX_ATTEMPTS` total. A region that
 exhausts them is logged with what it cost, skipped, and left out of the
 file, so the run can finish and the next run retries exactly it
-(`roadmap.md`, Stage 2). Completed regions are read back from the line
-file first and never regenerated, which is why the file is appended a
-line at a time rather than rewritten (`architecture.md`, Progress and
-logging).
+(`architecture.md`, Model interface). Completed regions are read back
+from the line file first and never regenerated, which is why the file is
+appended a line at a time rather than rewritten (`architecture.md`,
+Progress and logging).
 """
 
 import time

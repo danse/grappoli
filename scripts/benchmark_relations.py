@@ -1,17 +1,18 @@
 """Probe a model on the relation task at each conversation size.
 
-Stage 3's open decision is granularity: one loop over the whole map, one
-per region, or one per edge. The roadmap says decide it with numbers.
-Conversation cost is one number; whether the model actually answers is
-another — Stage 2 showed 0.5B calls tools on short prompts and reverts to
-prose on long ones (`benchmarks/characterisation.md`), so a larger
-conversation can be both dearer and worse.
+The relation loop's open decision is granularity: one loop over the
+whole map, one per region, or one per edge. The decision is settled with
+numbers, not taste. Conversation cost is one number; whether the model
+actually answers is another — characterisation showed 0.5B calls tools on
+short prompts and reverts to prose on long ones
+(`benchmarks/characterisation.md`), so a larger conversation can be both
+dearer and worse.
 
 This sends the same task at three sizes and records, per size, the prompt
 tokens, whether a tool call fired, and whether a well-formed relation came
 back. It is the instrument behind the granularity decision in
-`benchmarks/relations.md`, and the place a Stage 5 model comparison for
-this stage is taken.
+`benchmarks/relations.md`, and the place the model comparison for the
+relation loop is taken.
 
 Usage:
     uv run python scripts/benchmark_relations.py NOTES --characterisations PATH
@@ -84,7 +85,7 @@ def _valid_relation(arguments) -> bool:
 
     The three fields present, ids as distinct integers, statement a
     non-empty sentence. Whether the sentence is *true of the two regions*
-    is Stage 4's question, so this checks only the shape.
+    is the faithfulness judge's question, so this checks only the shape.
     """
     return (
         isinstance(arguments, dict)
@@ -128,7 +129,7 @@ def probe(prompt: str, model: str) -> dict:
 
 
 def probe_structured(prompt: str, model: str) -> dict:
-    """The Stage 2 channel: `format`-constrained JSON, native call preferred."""
+    """The `structured` channel: `format`-constrained JSON, native call preferred."""
     from grappoli.model import ModelError, structured
 
     started = time.monotonic()

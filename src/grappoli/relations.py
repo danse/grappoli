@@ -1,6 +1,6 @@
-"""Stage 3 — state, in words, how two regions touch.
+"""State, in words, how two regions touch.
 
-The map's edges already assert that regions touch; this stage is what
+The map's edges already assert that regions touch; this step is what
 puts that into sentences. Each relation is derived from the two
 characterisations, never from the notes: the agent's whole world is the
 `Toolbox` below, which holds the map structure and the stored
@@ -11,13 +11,13 @@ note, so the corpus is out of reach however the agent asks
 A relation is one appended line, keyed by the unordered pair it names,
 so an interrupted run resumes at the first missing pair and never
 regenerates a completed one. Relations are only ever written between
-regions that already have a characterisation: an edge to a region that
-failed Stage 2 has nothing to characterise it from.
+regions that already have a characterisation: an edge to a region with
+no characterisation has nothing to characterise it from.
 
 `run_agent` is the hand-rolled loop — the model names a tool, we run it,
 append the result and ask again, until it names none or the round cap is
-reached (`roadmap.md`, Stage 3). The tool surface, not an instruction, is
-what keeps the corpus out of view.
+reached (`architecture.md`, Agent tools). The tool surface, not an
+instruction, is what keeps the corpus out of view.
 
 `relate_regions` is the orchestration on top: it reads the relations
 already on disk, bounds the loop with a round budget drawn from the
@@ -227,9 +227,10 @@ class Toolbox:
 
 # --- the loop -------------------------------------------------------------
 #
-# The model names a tool, we run it, append the result and ask again,
-# until it names none or the round cap is reached. A tool error is just
-# another result, so a bad round is recoverable (roadmap.md, Stage 3).
+# The loop. The model names a tool, we run it, append the result and ask
+# again, until it names none or the round cap is reached. A tool error is
+# just another result, so a bad round is recoverable
+# (architecture.md, Agent tools).
 
 
 @dataclass
@@ -303,16 +304,16 @@ def run_agent(prompt: str, toolbox: Toolbox, llm=converse, *, max_rounds: int,
 
 # --- orchestration --------------------------------------------------------
 #
-# Stage 3's own bound and its prompt. A round is a model call plus the tool
-# it names; at throughput.md's rates — ≈3 tok/s prefill, ≈2.3 tok/s
-# generation — the conversation's growth and a short answer make a round
-# about three minutes, and a map needs a round per relatable edge plus a
-# few to find and read it. HARD_CAP bounds it whatever the map and the
-# arithmetic say: an unbounded loop is not a bug, it is a hung machine
-# (roadmap.md, Stage 3).
+# The relation step's own bound and its prompt. A round is a model call
+# plus the tool it names; at throughput.md's rates — ≈3 tok/s prefill,
+# ≈2.3 tok/s generation — the conversation's growth and a short answer
+# make a round about three minutes, and a map needs a round per relatable
+# edge plus a few to find and read it. HARD_CAP bounds it whatever the map
+# and the arithmetic say: an unbounded loop is not a bug, it is a hung
+# machine (architecture.md, Agent tools).
 
 SECONDS_PER_ROUND = 180.0
-STAGE_SECONDS = 60 * 60.0
+LOOP_SECONDS = 60 * 60.0
 HARD_CAP = 20
 
 PROMPT = """You are relating the regions of a map of notes. The map is already \
@@ -339,20 +340,20 @@ reply without calling a tool — that is the only turn that is not a tool call.
 def round_budget(edges: int) -> int:
     """Rounds allowed for a map with `edges` relatable edges.
 
-    Drawn from the measured throughput so the stage's generation is
+    Drawn from the measured throughput so the loop's generation is
     bounded in time, and hard-capped however large the map is.
     """
-    timed = int(STAGE_SECONDS / SECONDS_PER_ROUND)
+    timed = int(LOOP_SECONDS / SECONDS_PER_ROUND)
     needed = 4 + 2 * edges
     return max(1, min(timed, HARD_CAP, needed))
 
 
 def build_prompt() -> str:
-    """Stage 3's whole-map task prompt.
+    """The whole-map task prompt.
 
     It names no region and no pair: finding them is what `list_regions`
     is for, and that the model chooses which to read and relate is the
-    behaviour this stage exists to produce (`architecture.md`, Agent
+    behaviour the relation loop exists to produce (`architecture.md`, Agent
     tools). A pair already on disk is not named either; the model finds
     that from `list_regions` too, which is what lets a resumed run pick up
     where the last one stopped.
@@ -392,9 +393,10 @@ def relate_regions(mapping: dict, characterisations: dict[int, dict], path: Path
             progress("round", number, cap, (cap - number) * SECONDS_PER_ROUND)
 
     def on_call(name, arguments, result):
-        # The model's choice is the behaviour this stage exists to
+        # The model's choice is the behaviour the relation loop exists to
         # produce, so a stalled loop must be readable from the run: the
-        # tool it named and the answer it got (roadmap.md, Stage 3).
+        # tool it named and the answer it got
+        # (architecture.md, Progress and logging).
         if log is not None:
             outcome = result.get("error") if "error" in result else "ok"
             log(f"  {name}({_brief(arguments)}) → {outcome}")

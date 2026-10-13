@@ -1,6 +1,6 @@
 """Ask a model for the whole map in one structured call.
 
-Stage 3's loop is the agentic shape, but before building orchestration on
+The relation loop is the agentic shape, but before building orchestration on
 it, it is worth knowing the ceiling: given every region's characterisation
 and the touching pairs, can a local model return *all* the relations in a
 single `format`-constrained answer? A loop that has to hold state across

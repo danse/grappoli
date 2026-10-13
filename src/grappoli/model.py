@@ -1,7 +1,7 @@
 """The model interface — the one place generation is called.
 
-Stage 5 compares models by replacing the function here, not by editing
-the stages (`architecture.md`, Provisional: qwen2.5:0.5b). Nothing else
+The model comparison (`architecture.md`, Provisional) replaces models
+by replacing the function here, not by editing the pipeline. Nothing else
 in the package imports `ollama`; `build_map` never does, and this module
 imports it lazily inside `structured`, so importing the package still
 pulls no generation machinery into the process.
@@ -74,7 +74,7 @@ def converse(messages: list[dict], tools: list[dict], model: str = DEFAULT_MODEL
     """One turn of a tool-using conversation; the assistant message back.
 
     `structured` forces a single JSON shape through `format`; a turn in
-    the Stage 3 loop may instead name one of `tools`, so no `format` is
+    the relation loop may instead name one of `tools`, so no `format` is
     imposed — the tool schemas are the contract. The message is returned
     unread, because the loop is what decides whether it holds a tool call
     or the model has stopped, and a content answer is a stop rather than

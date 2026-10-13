@@ -1,8 +1,9 @@
 # Characterisation
 
 Record of what a model actually returns when asked to characterise a
-region, one run per configuration. Stage 2's question is what the chosen
-model gets wrong; `scripts/benchmark_characterisation.py` sends each
+region, one run per configuration. The characteriser's question is what
+the chosen model gets wrong; `scripts/benchmark_characterisation.py` sends
+each
 region's prompt once and keeps the raw reply, because the pipeline's
 retry is precisely what hides the failure being recorded. Rows are
 decision inputs, not every probe — a run earns one when it changed what
@@ -50,11 +51,11 @@ The prompt is the region's five representatives and nothing else.
   and a cap keeps a runaway answer bounded at the record's cost rather
   than the context limit.
 
-### What this says for later stages
+### What this says for the rest of the pipeline
 
 - A capped attempt is ≈4 minutes, so the three-attempt cap is ≈12
-  minutes for a region that fails all of them. Stage 3's round budget
-  inherits this.
+  minutes for a region that fails all of them. The relation loop's round
+  budget inherits this.
 - The "fluent prose that is not the asked-for shape" failure is exactly
   what the faithfulness measurement exists to catch; the model reaches
   the shape here, but not by itself.

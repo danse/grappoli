@@ -1,4 +1,4 @@
-"""Stage 3's tools, its relation file, and its orchestration.
+"""The relation loop's tools, its relation file, and its orchestration.
 
 The agent's tools are ordinary Python, so these pin what the agent can
 reach without a model in the loop: the toolbox is built from the map and
@@ -149,10 +149,11 @@ def test_write_relation_appends_one_normalised_line(tmp_path):
 
 
 def test_write_relation_refuses_an_uncharacterised_endpoint(tmp_path):
-    """A relation is written between characterisations only (roadmap.md).
+    """A relation is written between characterisations only
+    (architecture.md, Agent tools).
 
-    Region 1 failed Stage 2, so there is nothing to characterise a
-    relation to it from; the call comes back an error, not a line.
+    Region 1 has no characterisation, so there is nothing to characterise
+    a relation to it from; the call comes back an error, not a line.
     """
     path = tmp_path / "relations"
     result = Toolbox(MAPPING, {0: CHARS[0]}, path).write_relation(0, 1, "x")
@@ -161,7 +162,7 @@ def test_write_relation_refuses_an_uncharacterised_endpoint(tmp_path):
 
 
 def test_write_relation_refuses_a_pair_already_on_disk(tmp_path):
-    """A completed relation is never regenerated (roadmap.md, Stage 3).
+    """A completed relation is never regenerated (architecture.md, Agent tools).
 
     The file is the resume state, so rewriting a pair would both spend
     generation and overwrite a line that is already right. The refusal is
@@ -246,7 +247,8 @@ def test_loop_is_bounded_when_the_model_never_stops(tmp_path):
     """An adversarial model that keeps calling tools hits the cap, not run.
 
     The cap is the guarantee that an unbounded loop cannot hang the
-    machine (roadmap.md, Stage 3); running into it is a bounded result,
+    machine (architecture.md, Agent tools); running into it is a bounded
+    result,
     not an exception.
     """
     model = ScriptedModel(*[assistant(("list_regions", {})) for _ in range(100)])
@@ -332,10 +334,10 @@ def test_progress_is_reported_for_each_round_and_relation(tmp_path):
 def test_each_call_is_reported_with_its_arguments_and_outcome(tmp_path):
     """A stalled loop is readable: which tool, with what, and the answer.
 
-    The model's choice is what Stage 3 exists to produce, so the trace
-    names the tool and its arguments and says when the tool refused — an
-    error repeated across rounds is how a fixation shows up (roadmap.md,
-    Stage 3).
+    The model's choice is what the relation loop exists to produce, so
+    the trace names the tool and its arguments and says when the tool
+    refused — an error repeated across rounds is how a fixation shows up
+    (architecture.md, Progress and logging).
     """
     calls = []
     model = ScriptedModel(
@@ -355,7 +357,7 @@ def test_the_message_that_stopped_the_loop_is_reported(tmp_path):
 
     A loop that ends in prose after one tool call is not the same failure
     as one that ends when every pair is related, so the caller can see
-    the message that ended it (roadmap.md, Stage 3).
+    the message that ended it (architecture.md, Progress and logging).
     """
     stops = []
     ending = {"role": "assistant", "content": "The regions are 0, 1, 2 and 3."}
@@ -370,7 +372,7 @@ def test_round_budget_is_bounded_by_the_hard_cap():
     """A huge map still gets a bounded loop: hung machines are not bugs.
 
     The budget grows with the edges so a real map can be covered, but
-    never past HARD_CAP (roadmap.md, Stage 3).
+    never past HARD_CAP (architecture.md, Agent tools).
     """
     assert round_budget(1000) == HARD_CAP
     assert 1 <= round_budget(1) < HARD_CAP
@@ -442,7 +444,7 @@ def test_relate_regions_reports_a_pair_the_model_never_wrote(tmp_path):
 
 
 def test_relate_regions_ignores_edges_to_uncharacterised_regions(tmp_path):
-    """An edge to a region that failed Stage 2 has nothing to relate.
+    """An edge to a region with no characterisation has nothing to relate.
 
     It is not a missing relation to chase, so it never counts against the
     run: only pairs whose two regions are characterised are attempted.
@@ -468,7 +470,7 @@ def test_relate_regions_does_nothing_when_every_pair_is_done(tmp_path):
 
 
 def test_relate_regions_reports_progress_per_round_and_relation(tmp_path):
-    """Stage 3's progress is its round and the relation in hand."""
+    """The relation loop's progress is its round and the relation in hand."""
     rounds, relations = [], []
 
     def progress(label, done, total, eta):
@@ -488,7 +490,7 @@ def test_relate_regions_logs_the_tool_it_named(tmp_path):
 
     The summary counts relations; when a loop stalls, what is missing
     from it is the choice that stalled, so each executed call is logged
-    with the tool it named (roadmap.md, Stage 3).
+    with the tool it named (architecture.md, Progress and logging).
     """
     lines = []
     model = ScriptedModel(

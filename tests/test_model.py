@@ -1,7 +1,7 @@
 """The model interface: how a structured answer is read out of a reply.
 
-`model.structured` is the single seam Stage 5 swaps (architecture.md,
-Provisional). It must turn either a native tool call or a JSON answer in
+`model.structured` is the single seam the model comparison swaps
+(architecture.md, Provisional). It must turn either a native tool call or a JSON answer in
 content into arguments, and call everything else a malformed attempt so
 the retry in `characterise` can count it. These tests inject a fake
 `ollama` into `sys.modules` — never the real one — so pinning the

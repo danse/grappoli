@@ -1,7 +1,7 @@
-"""Stage 0: the environment and the fixture corpus hold together.
+"""The environment and the fixture corpus hold together.
 
-These are the first tests and the base for everything after: Stage 1
-clusters these notes, Stage 4 scores candidate maps against the
+These are the first tests and the base for everything after: the map
+clusters these notes, the measurements score candidate maps against the
 reference regions. A failure here means the ground is wrong, not the
 pipeline.
 
@@ -111,7 +111,7 @@ def test_reference_has_the_intended_shape(corpus_dir):
 def test_bge_small_embeds_every_note(corpus, embedder):
     """bge-small returns vectors of its known dimension for the whole corpus.
 
-    Stage 1 builds its graph on these vectors; a loader failure here
+    The map builds its graph on these vectors; a loader failure here
     would surface downstream as a clustering artifact and be blamed on
     the wrong component.
     """

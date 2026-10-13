@@ -1,8 +1,8 @@
 """Measure generation throughput for one model on one representative request.
 
-Stage 0's question: how fast is the model on the kind of prompt the
-pipeline will actually send? From the answer, Stage 2 sizes how many
-characterisations it can afford and Stage 3 how many agent rounds are
+The first question: how fast is the model on the kind of prompt the
+pipeline will actually send? From the answer, characterisation sizes how
+many regions it can afford and the relation loop how many rounds are
 safe. The script prints one markdown table row, ready to append to
 benchmarks/throughput.md.
 

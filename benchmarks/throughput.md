@@ -1,8 +1,8 @@
 # Throughput
 
-Record of measured generation speed, one row per run. Stage 0's figure
-decides how many characterisations Stage 2 can afford and how many
-rounds the Stage 3 agent may run. Rows are produced by
+Record of measured generation speed, one row per run. The figure decides
+how many regions characterisation can afford and how many rounds the
+relation agent may run. Rows are produced by
 `scripts/benchmark_throughput.py`; not every run of the script earns a
 row — a row is a decision input.
 
@@ -23,4 +23,4 @@ mistake.
 
 One region characterisation (≈450-token prompt, ≈150-token answer) is
 roughly four minutes; sixteen regions is about an hour of generation.
-The Stage 3 agent round budget derives from these figures.
+The relation agent's round budget derives from these figures.

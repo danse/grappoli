@@ -1,4 +1,4 @@
-"""The append-only line files both model-driven stages write.
+"""The append-only line files the two model-driven writers keep.
 
 `characterisations` and `relations` are line files: one JSON record per
 line, appended and flushed as each item completes, resumed by reading

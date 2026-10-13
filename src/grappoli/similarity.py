@@ -8,7 +8,7 @@ Both return L2-normalised row vectors, so cosine between rows is a dot
 product and the graph step is uniform across providers.
 
 Encoding is batched and reports progress through the `progress`
-callback — a note at a time at Stage 1 cost.
+callback — a note at a time, at the cost the throughput record gives.
 """
 
 import numpy as np

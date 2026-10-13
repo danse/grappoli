@@ -1,10 +1,10 @@
-"""Stage 1: the map holds together with no model involved.
+"""The map holds together with no model involved.
 
 These tests pin the behaviour the roadmap requires of the structure
 step — coverage, determinism, provenance of edges from the graph, no
 generation calls, and observable progress. What the regions *ought* to
-be is a Stage 4 question (structure match); here we pin that the
-structure step is honest, not that it is correct.
+be is what structure match answers; here we pin that the structure step
+is honest, not that it is correct.
 """
 
 import json
@@ -70,8 +70,8 @@ def test_map_covers_corpus_exactly_with_tfidf(notes_dir):
 def test_region_rule_is_deterministic(corpus):
     """Same corpus, same map.
 
-    Stage 4 compares maps against a reference across runs. If the
-    structure step were nondeterministic, structure match would be
+    Structure match compares maps against a reference across runs. If
+    the structure step were nondeterministic, structure match would be
     measuring the shuffle, and no metric could be trusted from it.
     """
     first = build_map(corpus, provider="bge")
@@ -86,7 +86,7 @@ def test_edges_are_derived_from_the_graph(corpus):
     neighbourhood graph — product.md: 'stated rather than implied' but
     still *derived*. A relation between two regions with no note-level
     edge between them would be invented, not derived, which is exactly
-    what this stage must not do.
+    what the map step must not do.
     """
     mapping = build_map(corpus, provider="bge")
     names = list(corpus)
@@ -123,11 +123,11 @@ def test_selection_takes_no_generation_calls(corpus):
 
 
 def test_progress_is_reported_per_item(corpus):
-    """The stage reports where it is, per embedding batch and per cluster.
+    """The map step reports where it is, per embedding batch and per cluster.
 
     Characterisation runs four minutes a region; structure runs fast on
     this fixture but slowly on a real corpus. The user must be able to
-    see which item a stage is on (architecture.md, Progress and
+    see which item a step is on (architecture.md, Progress and
     logging), so the callback is part of the behaviour, not an option.
     """
     events = []

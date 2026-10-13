@@ -1,13 +1,13 @@
 """The `grappoli read` command.
 
 The command has no settings file: defaults live in `build_map`, driven by
-the structure benchmark, and per-run flags override them. `read` runs all
-three stages — the map, one model call per region, then one agent loop
-over the touching pairs — and keeps their working files under
+the structure benchmark, and per-run flags override them. `read` runs the
+whole pipeline — the map, one model call per region, then one agent loop
+over the touching pairs — and keeps the working files under
 `NOTES/.grappoli/`, out of the reader's way. Both model interfaces are
-injected (`structured` for Stage 2, `converse` for the Stage 3 loop), so
-these pin the wiring — which stage wrote what, the flags, the exit code —
-without Ollama, and the stage behaviour itself is pinned in
+injected (`structured` for characterisation, `converse` for the relation
+loop), so these pin the wiring — which step wrote what, the flags, the
+exit code — without Ollama, and the step behaviour itself is pinned in
 test_characterise.py and test_relations.py.
 """
 
@@ -35,7 +35,7 @@ def _call(name, **arguments):
 
 
 def _relating_agent():
-    """A scripted Stage 3 loop: list the map, write each pair once, stop.
+    """A scripted relation loop: list the map, write each pair once, stop.
 
     It reads the pairs out of its own `list_regions` result, so the test
     drives the shipped tool surface rather than being handed the map.
@@ -77,7 +77,7 @@ def _artefacts(branch):
 
 
 def test_read_builds_map_and_characterisations_with_decided_defaults(branch):
-    """A bare `grappoli read` runs both stages with the decided rule.
+    """A bare `grappoli read` runs the pipeline with the decided rule.
 
     The defaults are the point: measurement (benchmarks/structure.md)
     re-makes them, and the command exists to apply them. The map records
@@ -100,7 +100,7 @@ def test_read_builds_map_and_characterisations_with_decided_defaults(branch):
 
 
 def test_read_flags_override_defaults(branch):
-    """The flags are the escape hatch for a single run at Stage 1.
+    """The flags are the escape hatch for a single run's map.
 
     The TF-IDF control exists precisely so a map can be built without
     the encoder; the flags must reach the same knobs the defaults
@@ -171,7 +171,7 @@ def test_read_exits_nonzero_when_a_region_cannot_be_characterised(branch):
 
 
 def test_read_relates_every_touching_pair(branch):
-    """Stage 3 runs after Stage 2 and writes one line per edge.
+    """The relation loop runs after characterisation and writes one line per edge.
 
     The pairs come from the map the run just built, so the relations
     file's pairs are exactly the map's edges; the run is a finished read
@@ -211,22 +211,23 @@ def test_read_resumes_relations_without_regenerating_them(branch):
 
 
 def test_read_model_flag_reaches_both_interfaces(branch):
-    """`--model` binds both `structured` and `converse`, not just one stage.
+    """`--model` binds both `structured` and `converse`, not just one step.
 
-    The model is a Stage 5 decision; the flag exists so a run can pick
-    one now, and it would be a trap if it moved only the characteriser.
+    The model is an open decision (architecture.md, Provisional); the
+    flag exists so a run can pick one now, and it would be a trap if it
+    moved only the characteriser.
     """
     seen = []
 
-    def stage2(prompt, schema, model=None):
-        seen.append(("stage2", model))
+    def structure_llm(prompt, schema, model=None):
+        seen.append(("structure", model))
         return dict(VALID)
 
-    def stage3(messages, tools, model=None):
-        seen.append(("stage3", model))
+    def relation_llm(messages, tools, model=None):
+        seen.append(("relation", model))
         return {"role": "assistant", "content": ""}
 
     main(["read", str(branch), "--model", "llama3.2:latest"],
-         llm=stage2, agent_llm=stage3)
-    assert ("stage2", "llama3.2:latest") in seen
-    assert ("stage3", "llama3.2:latest") in seen
+         llm=structure_llm, agent_llm=relation_llm)
+    assert ("structure", "llama3.2:latest") in seen
+    assert ("relation", "llama3.2:latest") in seen
