@@ -15,10 +15,10 @@ line at a time rather than rewritten (`architecture.md`, Progress and
 logging).
 """
 
-import json
 import time
 from pathlib import Path
 
+from . import linefile
 from .model import ModelError, structured
 
 MAX_ATTEMPTS = 3
@@ -151,35 +151,12 @@ def read_characterisations(path: Path) -> dict[int, dict]:
     was meant to hold is simply not marked done, so it is regenerated
     (architecture.md, Progress and logging).
     """
-    path = Path(path)
-    if not path.exists():
-        return {}
     done = {}
-    for line in path.read_text().splitlines():
-        if not line.strip():
-            continue
-        try:
-            record = json.loads(line)
-            region_id = record["region"]
-        except (json.JSONDecodeError, KeyError, TypeError):
-            continue
-        done[region_id] = record
+    for record in linefile.read_records(path):
+        region_id = record.get("region")
+        if isinstance(region_id, int):
+            done[region_id] = record
     return done
-
-
-def _drop_torn_tail(path: Path) -> None:
-    """Truncate a last line left incomplete by an interrupt.
-
-    Appending to a file whose final line has no newline would glue the
-    next record onto the fragment and corrupt both, so the incomplete
-    tail is removed before the run appends anything. Completed lines are
-    untouched.
-    """
-    if not path.exists():
-        return
-    data = path.read_bytes()
-    if data and not data.endswith(b"\n"):
-        path.write_bytes(data[: data.rfind(b"\n") + 1])
 
 
 def characterise_regions(mapping: dict, notes: dict[str, str], path: Path,
@@ -196,7 +173,7 @@ def characterise_regions(mapping: dict, notes: dict[str, str], path: Path,
     """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    _drop_torn_tail(path)
+    linefile.drop_torn_tail(path)
     done = read_characterisations(path)
     regions = mapping["regions"]
     total = len(regions)
@@ -224,8 +201,6 @@ def characterise_regions(mapping: dict, notes: dict[str, str], path: Path,
             continue
         seconds = clock() - started
         durations.append(seconds)
-        with path.open("a") as handle:
-            handle.write(json.dumps({"region": region_id, **record}) + "\n")
-            handle.flush()
+        linefile.append(path, {"region": region_id, **record})
 
     return failed

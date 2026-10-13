@@ -12,8 +12,8 @@ The map is built once, offline, in one direction:
 ```
 notes ──(Stage 1, arithmetic)──▶ regions + edges
       ──(Stage 2, one call per region)──▶ characterisations
-      ──(Stage 3, agent loops)──▶ relations
-      ──(render)──▶ document          ← no model after this point
+      ──(Stage 3, one agent loop)──▶ relations
+      ──(Stage 6, one page)──▶ document   ← no model after this point
 ```
 
 The stages' working files are written under `<branch>/.grappoli/` —
@@ -26,10 +26,10 @@ intermediates and a rerun finds its own resume state.
 Each arrow is a component named for the artefact it produces, with the
 `roadmap.md` stage that builds it; the artefact names and the stage
 numbers are two ways of referencing the same work, and are not to be
-confused. No model runs after Stage 3 — making the document from
-`relations` is deterministic formatting. The agent of Stage 3 is a
-build-time worker: it walks the graph once while the map is being made,
-and is gone before anything is read.
+confused. No model runs after Stage 3 — making the document from the map,
+the characterisations and the relations is deterministic formatting. The
+agent of Stage 3 is a build-time worker: it walks the graph once while the
+map is being made, and is gone before anything is read.
 
 ## Progress and logging
 
@@ -40,10 +40,13 @@ and able to survive an interrupt.
 
 - **Every stage reports its own progress.** Each stage's unit is its
   item: Stage 1 reports embedded and clustered notes, Stage 2 the
-  region in hand (region 3 of 16), Stage 3 the agent's round or the
-  edge in hand (relation 5 of 9) — each with an ETA derived from the
-  throughput record. Progress writes to stderr and never enters the
-  output artefact.
+  region in hand (region 3 of 16), Stage 3 the agent's round and the
+  relation in hand (relation 5 of 9), and each tool call the agent makes
+  with the answer it got — each with an ETA derived from the throughput
+  record. The tool call is logged because the agent's choice is what
+  Stage 3 exists to produce, and a loop that stalls is read from the
+  choice that stalled, not from its totals. Progress writes to stderr
+  and never enters the output artefact.
 - **Artefacts append; runs resume.** `characterisations` and
   `relations` are append-only line files, one item per line. An
   interrupt at region 12 of 16 resumes at region 12; a completed item
@@ -113,6 +116,13 @@ imported, so Stage 5 compares models by replacing it rather than by
 editing the stages; the import is lazy, so building a map still pulls no
 generation machinery into the process.
 
+Stage 3's loop uses a second turn in the same module, `converse`: one
+message of a tool-using conversation, the tool schemas sent natively and
+no `format` imposed, the assistant message returned unread for the loop
+to dispatch. The two are the whole model surface — `structured` forces a
+single JSON shape, `converse` lets the model name a tool — and neither
+imports `ollama` until it is called.
+
 Stage 2 sits on top of it in `grappoli.characterise`: the prompt is the
 region's representatives and nothing else, the answer is validated
 structurally, a malformed one is retried up to three attempts total, and
@@ -128,15 +138,29 @@ names one. It returns a `<tool_call>` block, the loop matches the name,
 runs the function, appends the result and calls again — generation
 produces the tokens, our code does the work.
 
-- `list_regions` — read the regions from the map structure
+- `list_regions` — the regions, the pairs that touch, and which pairs
+  already have a relation
 - `read_characterisation` — read a stored characterisation
 - `compare_regions` — a computation over two characterisations
 - `write_relation` — append a relation to the output
+
+The list is the whole-map shape on purpose: one conversation, in which
+the model — not the orchestration — chooses which region to read and
+which pair to relate, and `list_regions` is what lets it find the pairs
+itself. Splitting the loop per region or per edge was considered and set
+aside, because it takes that choice away from the model, which is the
+behaviour this stage is here to produce (`benchmarks/relations.md`).
 
 The loop itself is `product.md`'s decision; the tool list is what makes
 its central constraint real. No tool returns a raw note, because no
 such function was ever written — the agent cannot reach the corpus
 however it asks.
+
+An interrupted run resumes from what is on disk, so the loop never
+regenerates a completed relation: `list_regions` marks a pair already
+related, and `write_relation` refuses one that already has a line. The
+refusal sits in the toolbox rather than in the prompt, so a model that
+repeats itself cannot append a second line for a pair that is done.
 
 ## Provisional
 
@@ -152,9 +176,13 @@ them:
 
 Stage 2 put 0.5B's failure modes on record — the tool ignored on a real
 prompt, prose instead of JSON without `format`, an over-long answer that
-truncates under a cap (`benchmarks/characterisation.md`). That is the
-ground the faithfulness row now stands on; the choice of model is still
-Stage 5's to overturn with the measurement.
+truncates under a cap (`benchmarks/characterisation.md`). Stage 3 put the
+loop's own prompt on the same record: at 3b the shipped whole-map loop
+names `list_regions` and then serialises its writes in content, so
+whether a model drives the tools unassisted is part of what the model row
+decides (`benchmarks/relations.md`). That is the ground the faithfulness
+row now stands on; the choice of model is still Stage 5's to overturn with
+the measurement.
 
 ## Environment
 

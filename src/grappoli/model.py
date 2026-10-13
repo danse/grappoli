@@ -69,6 +69,28 @@ def structured(prompt: str, schema: dict, model: str = DEFAULT_MODEL,
     return parse_content(message.get("content"))
 
 
+def converse(messages: list[dict], tools: list[dict], model: str = DEFAULT_MODEL,
+             max_tokens: int = DEFAULT_MAX_TOKENS) -> dict:
+    """One turn of a tool-using conversation; the assistant message back.
+
+    `structured` forces a single JSON shape through `format`; a turn in
+    the Stage 3 loop may instead name one of `tools`, so no `format` is
+    imposed — the tool schemas are the contract. The message is returned
+    unread, because the loop is what decides whether it holds a tool call
+    or the model has stopped, and a content answer is a stop rather than
+    a malformed attempt.
+    """
+    import ollama
+
+    reply = ollama.chat(
+        model=model,
+        messages=messages,
+        tools=tools,
+        options={"num_predict": max_tokens},
+    )
+    return reply["message"]
+
+
 def parse_content(content) -> dict:
     """Read the JSON object out of a content answer, or raise ModelError.
 

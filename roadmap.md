@@ -8,37 +8,6 @@ and describe the behaviour rather than merely exercise it. Finished
 stages are removed entirely, not marked; what they learned stays in
 the tests and in `benchmarks/`.
 
-## Stage 3 — The agentic loop
-
-A hand-rolled loop, roughly 150 lines: the model returns a tool call,
-our Python executes it, the result is appended, repeat until it stops
-asking. The tools are in `architecture.md`; no framework, because the
-mechanism is the point.
-
-The agent sees characterisations and never raw notes — enforced by the
-tool surface, since no tool returns one, rather than by instruction.
-
-Round budget is set by the measured throughput — ≈3 tok/s prefill,
-≈2.3 tok/s generation, `benchmarks/throughput.md` — with a hard cap
-regardless: an unbounded loop is not a bug, it is a hung machine. The
-pipeline does not touch thread counts: the benchmark showed
-`num_thread=4` collapses decode on two cores to 0.5 tok/s.
-
-**Granularity is open, and now costable.** One loop for the whole map,
-one per region, or one per edge differs in conversation cost by
-factors at measured throughput. Decide it in this stage with numbers
-against the fixture — not by preference.
-
-**Tests pin:** the loop terminates under adversarial tool output; tool
-errors are recoverable; no path reaches a raw note; relations are
-written between characterisations only. The model is stubbed with a
-scripted call sequence so all of this runs without Ollama and without
-nondeterminism. Progress is shown for each round and relation; an
-interrupted run resumes without regenerating completed relations.
-
-**Answered when:** relations can be characterised without any step
-seeing the corpus whole.
-
 ## Stage 4 — The four measurements
 
 **Comprehensiveness** — share of the corpus with a home in the map.
@@ -80,12 +49,44 @@ decided primarily on faithfulness.
 is confirmed or replaced by a number, and anything still open is left
 stated rather than implied.
 
+## Stage 6 — The document
+
+`grappoli show` prints one map for a reader: a deterministic projection
+of `map.json`, `characterisations` and `relations`, with no model call
+after Stage 3. It writes to standard output and not into
+`<branch>/.grappoli/`, which is a build directory rather than an output.
+
+The page is the corpus's, not the model's. How well the model understood
+is what Stage 4's faithfulness judges, and the loop's trace is a
+development artefact; neither belongs here. So the document carries the
+model's words verbatim — no paraphrase, no compression — because a
+paraphrase is our understanding laid over the reader's, and no longer
+shows what the map says.
+
+The layout is left open until Stage 5 settles the map it has to show:
+flat or nested, and whether a characterisation survives at all. The
+content contract is fixed now — every region; its characterisation where
+one exists; every relation, once, between characterised regions; and the
+notes that stand alone. An input missing a characterisation or a relation
+is rendered as a gap rather than filled in, so a partial build reads as
+partial.
+
+**Tests pin:** the document is a function of the three inputs; each
+region, each stored relation exactly once however the pair is keyed, and
+each standalone note appear; relation statements are verbatim; a missing
+characterisation or relation is rendered as incomplete rather than
+invented.
+
+**Answered when:** `grappoli show` prints a page a reader can act on
+without opening `.grappoli/`.
+
 # Agenda
 
 Items to be done after the stages
 
 - corpus.load_corpus: change so that notes can be text files
   regardless of extension
+- make multilingual with `stopwordsiso`
 - A `tune` tool for corpus-adaptive knobs (k, resolution, and whether
   the evidence ever makes mutual depend on the corpus). Not now, for
   two recorded reasons: mutual needs no picking — its best beats

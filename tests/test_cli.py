@@ -1,12 +1,14 @@
 """The `grappoli read` command.
 
 The command has no settings file: defaults live in `build_map`, driven by
-the structure benchmark, and per-run flags override them. `read` runs
-both stages — the map, then one model call per region — and keeps their
-working files under `NOTES/.grappoli/`, out of the reader's way. The
-model is injected, so these pin the wiring (which stage wrote what, the
-flags, the exit code) without Ollama, and the stage behaviour itself is
-pinned in test_characterise.py.
+the structure benchmark, and per-run flags override them. `read` runs all
+three stages — the map, one model call per region, then one agent loop
+over the touching pairs — and keeps their working files under
+`NOTES/.grappoli/`, out of the reader's way. Both model interfaces are
+injected (`structured` for Stage 2, `converse` for the Stage 3 loop), so
+these pin the wiring — which stage wrote what, the flags, the exit code —
+without Ollama, and the stage behaviour itself is pinned in
+test_characterise.py and test_relations.py.
 """
 
 import json
@@ -25,6 +27,41 @@ VALID = {"about": "a region", "topics": ["a"], "key_claims": ["b"]}
 
 def _answer(prompt, schema):
     return dict(VALID)
+
+
+def _call(name, **arguments):
+    return {"role": "assistant", "content": "",
+            "tool_calls": [{"function": {"name": name, "arguments": arguments}}]}
+
+
+def _relating_agent():
+    """A scripted Stage 3 loop: list the map, write each pair once, stop.
+
+    It reads the pairs out of its own `list_regions` result, so the test
+    drives the shipped tool surface rather than being handed the map.
+    """
+    state = {"edges": None, "next": 0}
+
+    def agent(messages, tools):
+        if state["edges"] is None:
+            for message in messages:
+                if message["role"] != "tool":
+                    continue
+                result = json.loads(message["content"])
+                if "edges" in result:
+                    state["edges"] = [(e["source"], e["target"])
+                                      for e in result["edges"] if not e["related"]]
+                    break
+            if state["edges"] is None:
+                return _call("list_regions")
+        if state["next"] < len(state["edges"]):
+            source, target = state["edges"][state["next"]]
+            state["next"] += 1
+            return _call("write_relation", source=source, target=target,
+                         statement=f"region {source} touches region {target}")
+        return {"role": "assistant", "content": ""}
+
+    return agent
 
 
 @pytest.fixture
@@ -48,7 +85,7 @@ def test_read_builds_map_and_characterisations_with_decided_defaults(branch):
     itself; the characterisations then satisfy the map's regions without
     the user being shown either working file.
     """
-    rc = main(["read", str(branch)], llm=_answer)
+    rc = main(["read", str(branch)], llm=_answer, agent_llm=_relating_agent())
     assert rc == 0
     mapping = json.loads((_artefacts(branch) / "map.json").read_text())
     assert mapping["similarity"] == "bge"
@@ -71,7 +108,7 @@ def test_read_flags_override_defaults(branch):
     regions the flags produced.
     """
     rc = main(["read", str(branch), "--similarity", "tfidf", "-k", "2", "--target", "3"],
-              llm=_answer)
+              llm=_answer, agent_llm=_relating_agent())
     assert rc == 0
     mapping = json.loads((_artefacts(branch) / "map.json").read_text())
     assert mapping["similarity"] == "tfidf"
@@ -88,11 +125,13 @@ def test_read_keeps_working_files_out_of_the_branch(branch):
     files are hidden in a dot-directory so a branch is not littered with
     them, and `.gitignore` keeps them out of commits.
     """
-    main(["read", str(branch)], llm=_answer)
+    main(["read", str(branch)], llm=_answer, agent_llm=_relating_agent())
     assert not (branch / "map.json").exists()
     assert not (branch / "characterisations").exists()
+    assert not (branch / "relations").exists()
     assert (_artefacts(branch) / "map.json").exists()
     assert (_artefacts(branch) / "characterisations").exists()
+    assert (_artefacts(branch) / "relations").exists()
 
 
 def test_read_resumes_without_regenerating_completed_regions(branch):
@@ -108,10 +147,10 @@ def test_read_resumes_without_regenerating_completed_regions(branch):
         calls.append(prompt)
         return dict(VALID)
 
-    assert main(["read", str(branch)], llm=counting) == 0
+    assert main(["read", str(branch)], llm=counting, agent_llm=_relating_agent()) == 0
     first = len(calls)
     assert first > 0
-    assert main(["read", str(branch)], llm=counting) == 0
+    assert main(["read", str(branch)], llm=counting, agent_llm=_relating_agent()) == 0
     assert len(calls) == first, "a rerun regenerates nothing"
 
 
@@ -126,6 +165,68 @@ def test_read_exits_nonzero_when_a_region_cannot_be_characterised(branch):
     def always_malformed(prompt, schema):
         raise ModelError("nope")
 
-    rc = main(["read", str(branch)], llm=always_malformed)
+    rc = main(["read", str(branch)], llm=always_malformed, agent_llm=_relating_agent())
     assert rc == 1
     assert (_artefacts(branch) / "map.json").exists()
+
+
+def test_read_relates_every_touching_pair(branch):
+    """Stage 3 runs after Stage 2 and writes one line per edge.
+
+    The pairs come from the map the run just built, so the relations
+    file's pairs are exactly the map's edges; the run is a finished read
+    only when every one is there.
+    """
+    assert main(["read", str(branch)], llm=_answer, agent_llm=_relating_agent()) == 0
+    mapping = json.loads((_artefacts(branch) / "map.json").read_text())
+    edges = {(min(e["source"], e["target"]), max(e["source"], e["target"]))
+             for e in mapping["edges"]}
+    lines = (_artefacts(branch) / "relations").read_text().splitlines()
+    written = {(json.loads(line)["source"], json.loads(line)["target"]) for line in lines}
+    assert written == edges
+
+
+def test_read_exits_nonzero_when_a_pair_is_left_unrelated(branch):
+    """A loop that stops early leaves the map partial, and the run says so."""
+
+    def silent(messages, tools):
+        return {"role": "assistant", "content": ""}
+
+    rc = main(["read", str(branch)], llm=_answer, agent_llm=silent)
+    assert rc == 1
+    assert not (_artefacts(branch) / "relations").exists()
+
+
+def test_read_resumes_relations_without_regenerating_them(branch):
+    """A rerun writes no relation that is already on disk.
+
+    The second run's agent lists the map and finds every pair related, so
+    it writes nothing and the file is exactly as it was; the map is still
+    rebuilt, which is why this is not a no-op.
+    """
+    assert main(["read", str(branch)], llm=_answer, agent_llm=_relating_agent()) == 0
+    before = (_artefacts(branch) / "relations").read_bytes()
+    assert main(["read", str(branch)], llm=_answer, agent_llm=_relating_agent()) == 0
+    assert (_artefacts(branch) / "relations").read_bytes() == before
+
+
+def test_read_model_flag_reaches_both_interfaces(branch):
+    """`--model` binds both `structured` and `converse`, not just one stage.
+
+    The model is a Stage 5 decision; the flag exists so a run can pick
+    one now, and it would be a trap if it moved only the characteriser.
+    """
+    seen = []
+
+    def stage2(prompt, schema, model=None):
+        seen.append(("stage2", model))
+        return dict(VALID)
+
+    def stage3(messages, tools, model=None):
+        seen.append(("stage3", model))
+        return {"role": "assistant", "content": ""}
+
+    main(["read", str(branch), "--model", "llama3.2:latest"],
+         llm=stage2, agent_llm=stage3)
+    assert ("stage2", "llama3.2:latest") in seen
+    assert ("stage3", "llama3.2:latest") in seen
