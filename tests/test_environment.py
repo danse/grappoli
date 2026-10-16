@@ -5,13 +5,13 @@ clusters these notes, the measurements score candidate maps against the
 reference regions. A failure here means the ground is wrong, not the
 pipeline.
 
-The corpus-level pins run on both fixture corpora (`in-domain/` and
-`heterogeneous/`, see fixtures/README.md). The two are the same shape
-on purpose — 14 notes, four regions of three, two strays — so one
-parametrized body pins both grounds instead of two copies of the same
-test. What is pinned here is the ground itself, not the code; the
-code's own handling of references is pinned in test_benchmark.py, at
-the place references are consumed.
+The corpus-level pins run on every fixture corpus (`in-domain/`,
+`heterogeneous/` and `multilingual/`, see fixtures/README.md). They are
+the same shape on purpose — 14 notes, four regions of three, two strays
+— so one parametrized body pins each ground instead of a copy of the
+same test per fixture. What is pinned here is the ground itself, not the
+code; the code's own handling of references is pinned in
+test_benchmark.py, at the place references are consumed.
 """
 
 import json
@@ -27,6 +27,7 @@ FIXTURES = Path(__file__).parent / "fixtures"
 CORPORA = [
     pytest.param(FIXTURES / "in-domain", id="in-domain"),
     pytest.param(FIXTURES / "heterogeneous", id="heterogeneous"),
+    pytest.param(FIXTURES / "multilingual", id="multilingual"),
 ]
 IN_DOMAIN = FIXTURES / "in-domain"
 
@@ -60,8 +61,9 @@ def test_corpus_has_fourteen_notes(corpus_dir):
     """Fourteen notes: twelve across four intended regions, two strays.
 
     More notes than that and the fixture becomes a corpus in its own
-    right; fewer and the regions are not worth separating. Both shapes
-    are built to this count so they differ on one axis only.
+    right; fewer and the regions are not worth separating. Every fixture
+    is built to this count, so the corpora differ on their declared axes
+    and not on size.
     """
     notes = _notes(corpus_dir)
     assert len(notes) == 14
@@ -83,8 +85,8 @@ def test_reference_covers_corpus_exactly(corpus_dir):
 
     Structure match needs a ground truth to score against; if the
     reference omits a note or double-counts one, the metric measures
-    the reference's mistakes rather than the map's. Pinned on both
-    shapes — a broken ground on either corpus would poison every
+    the reference's mistakes rather than the map's. Pinned on every
+    shape — a broken ground on any corpus would poison every
     measurement taken on it.
     """
     reference = _reference(corpus_dir)

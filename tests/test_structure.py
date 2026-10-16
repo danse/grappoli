@@ -22,6 +22,7 @@ NOTES = Path(__file__).parent / "fixtures" / "in-domain" / "notes"
 CORPORA = [
     pytest.param(Path(__file__).parent / "fixtures" / "in-domain" / "notes", id="in-domain"),
     pytest.param(Path(__file__).parent / "fixtures" / "heterogeneous" / "notes", id="heterogeneous"),
+    pytest.param(Path(__file__).parent / "fixtures" / "multilingual" / "notes", id="multilingual"),
 ]
 
 
@@ -43,7 +44,7 @@ def test_map_covers_corpus_exactly_with_e5(notes_dir):
     opening' and 'which notes stand alone'. A note that is neither
     listed nor flagged is invisible; one listed twice is counted twice.
     Both failures make the map a lie before any model gets near it.
-    Pinned on both fixture shapes (fixtures/README.md).
+    Pinned on every fixture shape (fixtures/README.md).
     """
     corpus = load_corpus(notes_dir)
     mapping = build_map(corpus, provider="e5")
@@ -58,7 +59,7 @@ def test_map_covers_corpus_exactly_with_tfidf(notes_dir):
 
     TF-IDF is the baseline that embeddings must beat on structure
     match; it cannot beat anything if it is not held to the same rules
-    in the first place. Pinned on both fixture shapes.
+    in the first place. Pinned on every fixture shape.
     """
     corpus = load_corpus(notes_dir)
     mapping = build_map(corpus, provider="tfidf")

@@ -1,0 +1,28 @@
+{
+  "regions": {
+    "urban-beekeeping": [
+      "rooftop-hive-siting.md",
+      "spring-inspection.md",
+      "smielatura.md"
+    ],
+    "film-photography": [
+      "esposizione-pellicola.md",
+      "sviluppo-bianconero.md",
+      "scanning-negatives.md"
+    ],
+    "sea-kayaking": [
+      "forward-stroke.md",
+      "tides-and-weather.md",
+      "caricare-il-kayak.md"
+    ],
+    "mushroom-foraging": [
+      "riconoscere-i-funghi.md",
+      "mushroom-habitats.md",
+      "conservare-i-funghi.md"
+    ]
+  },
+  "standalone": [
+    "rooftop-herb-garden.md",
+    "prestito-biblioteca.md"
+  ]
+}

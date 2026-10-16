@@ -17,13 +17,12 @@ from grappoli.corpus import load_corpus
 from grappoli.similarity import tfidf_vectors
 from grappoli.words import stopwords
 
-CORPORA = [
-    pytest.param(Path(__file__).parent / "fixtures" / "in-domain" / "notes", id="in-domain"),
-    pytest.param(
-        Path(__file__).parent / "fixtures" / "heterogeneous" / "notes",
-        id="heterogeneous",
-    ),
+FIXTURES = Path(__file__).parent / "fixtures"
+ENGLISH_CORPORA = [
+    pytest.param(FIXTURES / "in-domain" / "notes", id="in-domain"),
+    pytest.param(FIXTURES / "heterogeneous" / "notes", id="heterogeneous"),
 ]
+MULTILINGUAL = FIXTURES / "multilingual" / "notes"
 
 
 def _cosine(left, right):
@@ -46,11 +45,22 @@ def test_tfidf_will_not_keep_a_two_letter_function_word():
     assert np.isclose(_cosine(vectors[0], vectors[1]), 1.0)
 
 
-@pytest.mark.parametrize("notes_dir", CORPORA)
-def test_the_fixture_corpora_are_read_as_english(notes_dir):
-    """The control's recorded numbers are the English sweep, so the real
-    fixtures have to keep being found English: a corpus the lists could
-    not place would keep every function word and move the control with no
-    record of it."""
+@pytest.mark.parametrize("notes_dir", ENGLISH_CORPORA)
+def test_the_english_fixtures_are_read_as_english(notes_dir):
+    """The control's recorded numbers are the English sweep, so the
+    English fixtures have to keep being found English: a corpus the lists
+    could not place would keep every function word and move the control
+    with no record of it."""
     corpus = load_corpus(notes_dir)
     assert {"the", "and"} <= stopwords(corpus.values())
+
+
+def test_the_multilingual_fixture_is_read_as_both_languages():
+    """The mixed fixture is Italian as much as English, so the control
+    must drop both languages' function words. Reading it as one language
+    would keep the other's grammar in as evidence, held by language
+    rather than by subject (`tests/test_words.py` pins the detection)."""
+    corpus = load_corpus(MULTILINGUAL)
+    found = stopwords(corpus.values())
+    assert {"the", "and"} <= found, "the English half"
+    assert {"che", "della"} <= found, "the Italian half"

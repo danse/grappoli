@@ -27,6 +27,7 @@ own command lines keep working; a test substitutes the whole set.
 Usage:
     uv run python scripts/benchmark_all.py
         [--corpus tests/fixtures/in-domain/notes] [--corpus …/heterogeneous/notes]
+        [--corpus …/multilingual/notes]
         [--models qwen2.5:0.5b,llama3.2:latest]
         [--judges qwen2.5:0.5b,llama3.2:latest]
         [--work /tmp/opencode/suite] [--out benchmarks/runs/YYYY-MM-DD/run.json] [--force]
@@ -54,7 +55,11 @@ from grappoli.relations import read_relations
 STEPS = ("structure", "throughput", "characterisation", "read", "relations", "measure")
 DEFAULT_MODELS = ("qwen2.5:0.5b", "llama3.2:latest")
 DEFAULT_JUDGE = "llama3.2:latest"
-DEFAULT_CORPORA = ("tests/fixtures/in-domain/notes", "tests/fixtures/heterogeneous/notes")
+DEFAULT_CORPORA = (
+    "tests/fixtures/in-domain/notes",
+    "tests/fixtures/heterogeneous/notes",
+    "tests/fixtures/multilingual/notes",
+)
 
 _SCRIPTS: dict = {}
 

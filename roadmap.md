@@ -2,7 +2,6 @@
 
 Items to be done, delete once done:
 
-- add a multilingual fixture and wire it in benchmark_all
 - should qwen2.5 stay in benchmark_all? Haven't we found it fails
   relations at least?
 - widen the model comparison beyond the two downloaded models, on the

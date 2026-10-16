@@ -55,6 +55,7 @@ In order, it runs:
 ```
 uv run python scripts/benchmark_all.py
     [--corpus tests/fixtures/in-domain/notes] [--corpus …/heterogeneous/notes]
+    [--corpus …/multilingual/notes]
     [--models qwen2.5:0.5b,llama3.2:latest]
     [--judges …]                       # default: the models plus llama3.2:latest
     [--work /tmp/opencode/suite]
