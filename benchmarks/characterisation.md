@@ -59,3 +59,11 @@ The prompt is the region's five representatives and nothing else.
 - The "fluent prose that is not the asked-for shape" failure is exactly
   what the faithfulness measurement exists to catch; the model reaches
   the shape here, but not by itself.
+
+**Reproduced (2026-10-13).** The batch re-ran the shipped prompt once per
+region, first attempt, for both models on both corpora: 4 of 4 valid in
+every case — 16 regions — all through the content path the tool never wins,
+none failed. The fix holds off the fixture it was found on. 0.5B took about
+four minutes a region (997 s in-domain, 1294 s heterogeneous) and 3B about
+ten (2535 s, 2513 s), the same roughly three-times factor generation speed
+shows in `benchmarks/throughput.md` (`benchmarks/runs/2026-10-13/run.json`).

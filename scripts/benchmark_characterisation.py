@@ -108,6 +108,32 @@ def render(probes: list[dict], model: str) -> str:
     return "\n".join(lines) + "\n"
 
 
+def sweep(notes: dict[str, str], model: str, limit: int | None = None,
+          log=None, on_probe=None) -> list[dict]:
+    """One first attempt at every region of the map this corpus builds.
+
+    `on_probe(probes)` is called after each region so the caller can
+    write the report incrementally: a region takes minutes, and the raw
+    replies are the evidence this script exists to produce, so an
+    interrupt must not discard them. `benchmark_all.py` collects the
+    list; the CLI renders it.
+    """
+    mapping = build_map(notes, progress=lambda *e: None)
+    regions = mapping["regions"]
+    if limit is not None:
+        regions = regions[:limit]
+    probes = []
+    for region in regions:
+        probe_ = probe(region, notes, model)
+        if log is not None:
+            log(f"region {probe_['region']}: {'ok' if probe_['ok'] else 'malformed'} "
+                f"via {probe_['path']} ({probe_['seconds']:.0f}s)")
+        probes.append(probe_)
+        if on_probe is not None:
+            on_probe(probes)
+    return probes
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("notes", help="path to the branch of notes")
@@ -121,24 +147,16 @@ def main() -> None:
     if not notes:
         print(f"{args.notes}: no markdown notes found", file=sys.stderr)
         sys.exit(1)
-    mapping = build_map(notes, progress=lambda *e: None)
-    regions = mapping["regions"]
-    if args.limit is not None:
-        regions = regions[: args.limit]
-    probes = []
-    for region in regions:
-        probe_ = probe(region, notes, args.model)
-        print(f"region {probe_['region']}: {'ok' if probe_['ok'] else 'malformed'} "
-              f"via {probe_['path']} ({probe_['seconds']:.0f}s)", file=sys.stderr)
-        probes.append(probe_)
-        # Written after every region, not only at the end: a region takes
-        # minutes, and the raw replies are the evidence this script
-        # exists to produce. An interrupt must not discard them.
+
+    def emit(probes):
         text = render(probes, args.model)
         if args.out is None:
             print(text, end="")
         else:
             Path(args.out).write_text(text)
+
+    sweep(notes, args.model, args.limit,
+          log=lambda line: print(line, file=sys.stderr), on_probe=emit)
 
 
 if __name__ == "__main__":

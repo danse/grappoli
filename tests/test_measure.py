@@ -145,6 +145,26 @@ def test_structure_match_separates_a_map_unrelated_to_the_reference(tmp_path):
     assert structure_match(mapping, notes, reference) == pytest.approx(-0.5)
 
 
+def test_structure_match_scores_only_the_finest_partition(tmp_path):
+    """A level added above the regions cannot move the score.
+
+    This is why `architecture.md` settles the map flat on something other
+    than structure match: adjusted Rand index compares two flat
+    partitions, so a map's own hierarchy — a grouping of its regions —
+    is invisible to it. If a future change makes the score hierarchy-aware,
+    this test is the decision it has to overturn, not a bug.
+    """
+    notes = {"a.md": "x", "b.md": "y", "c.md": "z", "d.md": "w"}
+    mapping = _map([["a.md", "b.md"], ["c.md"]], ["d.md"])
+    nested = dict(mapping, groups=[{"id": 0, "members": [0, 1]}])
+    reference = tmp_path / "ref.json"
+    reference.write_text(json.dumps({
+        "regions": {"one": ["a.md", "b.md"], "two": ["c.md"]},
+        "standalone": ["d.md"],
+    }))
+    assert structure_match(nested, notes, reference) == structure_match(mapping, notes, reference)
+
+
 def test_map_labels_mark_a_note_the_map_never_places(tmp_path):
     """An unplaced note is not the same as one deliberately left alone.
 
@@ -339,6 +359,36 @@ def test_measure_produces_all_four_numbers(tmp_path):
     assert result["redundancy"] == pytest.approx(0.0)
     assert result["faithfulness"] == pytest.approx(1.0)
     assert result["structure_match"] == pytest.approx(1.0)
+
+
+def test_measure_cannot_weigh_a_map_without_characterisations(tmp_path):
+    """The selection-only arm changes only the prose, not any number.
+
+    `roadmap.md` asked whether characterisation is worth its cost by
+    "selection-only output against the full map": this is that arm, the
+    same map with no characterisations. Comprehensiveness and structure
+    match are properties of the map and are unchanged; redundancy is 0
+    for want of anything to compare, faithfulness None for want of a
+    claim. No number moves the way the question needs, which is why it is
+    settled on the product premise, not by a measurement
+    (`architecture.md`, Measurements). The no-model stubs pin that the
+    arm touches neither the cross-encoder nor the judge.
+    """
+    notes = {"a.md": "x", "b.md": "y", "c.md": "z"}
+    mapping = _map([["a.md", "b.md"]], ["c.md"])
+    reference = tmp_path / "ref.json"
+    reference.write_text(json.dumps({
+        "regions": {"one": ["a.md", "b.md"]}, "standalone": ["c.md"],
+    }))
+
+    def no_model(*args, **kwargs):
+        raise AssertionError("the selection-only arm consults no model")
+
+    result = measure(mapping, {}, notes, reference, llm=no_model, compare=no_model)
+    assert result["comprehensiveness"] == pytest.approx(2 / 3)
+    assert result["structure_match"] == pytest.approx(1.0)
+    assert result["redundancy"] == 0.0
+    assert result["faithfulness"] is None
 
 
 def test_measure_without_a_reference_reports_no_structure_match():

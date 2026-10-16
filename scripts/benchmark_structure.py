@@ -29,6 +29,7 @@ import numpy as np
 from sklearn.metrics import adjusted_rand_score
 
 from grappoli.graph import knn_edges, mutual_edges, partition
+from grappoli.measure import map_labels
 from grappoli.measure import reference_labels as _reference_labels
 from grappoli.similarity import build_vectors
 
@@ -45,6 +46,7 @@ def sweep(notes: dict[str, str], reference: Path | None,
 
     rows = []
     partitions: dict[str, list[list[str]]] = {}
+    standalone: dict[str, list[str]] = {}
     similarity = {}
     for provider in PROVIDERS:
         vectors = build_vectors(texts, provider)
@@ -55,21 +57,23 @@ def sweep(notes: dict[str, str], reference: Path | None,
                 edges = mutual_edges(vectors, k) if mutual else knn_edges(vectors, k)
                 for resolution in resolutions:
                     for weighted in (False, True):
-                        parts = _parts_at(vectors, names, k, mutual, resolution, weighted)
-                        labels = _label_array(parts, names)
+                        parts, stray = _parts_at(
+                            vectors, names, k, mutual, resolution, weighted
+                        )
                         row = {
                             "provider": provider, "k": k, "mutual": mutual,
                             "weighted": weighted, "resolution": resolution,
                             "regions": len(parts),
                         }
                         if ref_labels is not None:
+                            labels = _map_labels(parts, stray, names)
                             row["ari"] = float(adjusted_rand_score(ref_labels, labels))
                             if provider_best is None or row["ari"] > provider_best["ari"]:
                                 provider_best = row
                         rows.append(row)
         if ref_labels is not None:
             best = provider_best
-            partitions[provider] = _parts_at(
+            partitions[provider], standalone[provider] = _parts_at(
                 vectors, names, best["k"], best["mutual"],
                 best["resolution"], best["weighted"],
             )
@@ -82,23 +86,45 @@ def sweep(notes: dict[str, str], reference: Path | None,
         "rows": rows,
         "best": max(rows, key=lambda r: r["ari"]) if ref_labels is not None else None,
         "partitions": partitions,
+        "standalone": standalone,
     }
 
 
 def _parts_at(vectors, names, k, mutual, resolution, weighted):
+    """Communities as `build_map` keeps them, and the notes it leaves out.
+
+    `build_map` drops the edge-less singleton Louvain hands every note with
+    no neighbourhood, reporting it as standalone; the sweep must drop it
+    too, or it scores a partition the map would never build — one where
+    each stray is its own region, which reads higher against a reference
+    that folds its own strays. The strays come back so the caller can
+    label them `STANDALONE`, the way `map_labels` labels a built map.
+    """
     edges = mutual_edges(vectors, k) if mutual else knn_edges(vectors, k)
-    parts = [c for c in partition(edges, len(names), resolution, weighted) if c]
+    touched = {a for a, b, _ in edges} | {b for a, b, _ in edges}
+    parts = [
+        c for c in partition(edges, len(names), resolution, weighted)
+        if c and any(m in touched for m in c)
+    ]
     parts.sort(key=min)
-    return [[names[m] for m in sorted(c)] for c in parts]
+    stray = [names[m] for m in range(len(names)) if m not in touched]
+    return [[names[m] for m in sorted(c)] for c in parts], stray
 
 
-def _label_array(parts: list[list[str]], names: list[str]) -> np.ndarray:
-    index_of = {name: i for i, name in enumerate(names)}
-    labels = np.full(len(names), -1, dtype=int)
-    for cid, members in enumerate(parts):
-        for name in members:
-            labels[index_of[name]] = cid
-    return labels
+def _map_labels(parts: list[list[str]], stray: list[str], names: list[str]) -> np.ndarray:
+    """Label a candidate partition as `measure.map_labels` labels a map.
+
+    The same rule on purpose: the sweep chooses the defaults and
+    `measure` scores the map those defaults build, so both must read the
+    same partition the same way (`benchmarks/structure.md`).
+    """
+    mapping = {
+        "regions": [
+            {"id": cid, "members": members} for cid, members in enumerate(parts)
+        ],
+        "standalone": stray,
+    }
+    return map_labels(mapping, names)
 
 
 def _similarity_stats(similarities: np.ndarray, ref_labels) -> dict:
@@ -171,6 +197,9 @@ def render(report: dict) -> str:
             lines.append(f"### {provider} at its own best")
             for cid, members in enumerate(parts):
                 lines.append(f"- r{cid}: {', '.join(members)}")
+            stray = report.get("standalone", {}).get(provider, [])
+            if stray:
+                lines.append(f"- standalone: {', '.join(stray)}")
     return "\n".join(lines) + "\n"
 
 

@@ -32,7 +32,8 @@ map is being made, and is gone before anything is read.
 ## Progress and logging
 
 The pipeline is slow by design: a characterisation runs roughly four
-minutes, and generation never exceeds about 2.3 tok/s
+minutes under `qwen2.5:0.5b` and about eleven under `llama3.2:latest`,
+with generation ~1.9 tok/s (0.5B) and ~0.6 tok/s (3B)
 (`benchmarks/throughput.md`). A build must be observable while it runs
 and able to survive an interrupt.
 
@@ -59,7 +60,10 @@ reasoning; they are re-fetchable anywhere.
 
 **TF-IDF cosine runs alongside as a control.** If the encoder does not
 beat bag-of-words on structure match, the encoder is not earning its
-keep and the simpler one wins.
+keep and the simpler one wins. The control has run and bge wins on both
+fixture shapes — 0.652/1.000 against 0.450/0.435 — though TF-IDF's
+failure is localised rather than across the board
+(`benchmarks/structure.md`, "Reading (2026-10-16)").
 
 Two cached cross-encoders — `ms-marco-MiniLM-L-6-v2`,
 `mmarco-mMiniLMv2-L12-H384` — score pairs for redundancy. Redundancy
@@ -89,15 +93,23 @@ need no reference (silhouette, leave-one-out stability) demonstrably do
 not reproduce structure match (`benchmarks/structure.md`).
 
 The sweep runs per corpus, and the two fixture shapes disagree. The
-saturated corpus's winner is k=5 plus the mutual filter (ARI 0.675); on
+saturated corpus's winner is k=5 plus the mutual filter (ARI 0.652); on
 the heterogeneous corpus that same rule scores 0.381, whose own winner
 is a small plain neighbourhood at higher resolution (ARI 1.000) —
 `benchmarks/structure-heterogeneous.md`. The defaults are therefore
 neither winner, but the best worst-case row across both: bge, k=5,
-mutual, weighted, resolution 2.0 — 0.588 in-domain, 0.729
+mutual, weighted, resolution 2.0 — 0.578 in-domain, 0.729
 heterogeneous, and no single setting scores better in the worst case.
 A scored corpus more representative than the fixtures rebakes them,
 the same mechanism with a third reference.
+
+The resolution sweep originally stopped at 1.0. Extending it below —
+the direction that would merge regions rather than split them — does
+not improve either shape, so that corner of the space is closed too
+(`benchmarks/structure.md`, "Coarser resolution (2026-10-15)").
+Nothing in the measurement reaches a nested map: adjusted Rand index
+compares flat partitions, so a level above the regions is invisible to
+it, and the map sits flat (Provisional).
 
 The model meets this structure only afterwards, in the relation loop —
 and only to state, in words, what the graph's edges already assert.
@@ -205,6 +217,19 @@ The four numbers are `grappoli.measure`:
   is the only measure that needs a labelled corpus, and it is simply
   absent without `--reference`.
 
+What the four cannot do is weigh whether to produce a characterisation
+at all. Comprehensiveness and structure match are properties of the map,
+and the map is built with no model call; redundancy reads
+characterisations, so it is `0` when there are none; faithfulness scores
+a characterisation's claims and is therefore a gate on one that exists.
+A selection-only map — regions and representatives, no prose — thus ties
+on coverage and cannot lose on redundancy, and no number says what the
+prose adds. So the measured set polices the characterisation; it does
+not justify it. Whether it is worth its cost is settled on the product's
+premise, not by a measurement: the statement of what each region is
+about, and the relations the agent reaches only through
+characterisations (`product.md`, The problem; `roadmap.md`).
+
 ROUGE and the reference-free measures are deliberately not here: ROUGE
 scores copying, and silhouette and leave-one-out stability demonstrably
 do not reproduce structure match (`benchmarks/structure.md`).
@@ -212,14 +237,39 @@ do not reproduce structure match (`benchmarks/structure.md`).
 ## Provisional
 
 Choices taken to get moving, with the measurement that can overturn
-them:
+them. Three have been confirmed and left the table for the readings that
+confirm them; the one that remains is stated with what settles it:
 
-| Decision | Overturned by |
-|---|---|
-| Communities as regions | structure match |
-| Flat map | structure match |
-| bge-small over TF-IDF | structure match |
-| qwen2.5:0.5b | faithfulness |
+| Decision | Overturned by | Standing |
+|---|---|---|
+| qwen2.5:0.5b | faithfulness | Open — both LLM judges misread verbatim claims (the 0.5B judge ten of ten), so neither can settle it; a judge decoupled from the model under test is required (`benchmarks/measurement.md`, "Reading (2026-10-13)"). |
+
+**Communities as regions — confirmed by structure match.** Mutual-filtered
+communities reach 0.652 on the saturated corpus
+(`benchmarks/structure.md`, "Reading (2026-10-16)") and 1.000 on the
+separable one (`benchmarks/structure-heterogeneous.md`, "Reading
+(2026-10-16)"); the 2026-10-13 batch reproduced both sweeps exactly
+(`benchmarks/runs/2026-10-13/run.json`).
+
+**bge-small over TF-IDF — confirmed by structure match.** bge beats
+TF-IDF on both shapes, 0.652/1.000 against 0.450/0.435 at each
+provider's own best. The mean margin was never the test: reproducing the
+intended partition is.
+
+**Flat map — settled.** Structure match cannot be the arbiter it was
+promised to be: adjusted Rand index compares two flat partitions, so a
+level added *above* the regions is invisible to it, and a level *below*
+is scored only as a splitting of the reference's own regions. What the
+measurement could still say it did: the in-domain map makes four
+regions, as the reference does, but not the same four (equipment-and-
+storage is dismantled), and going coarser — resolutions below 1.0,
+never swept until now — is worse on both shapes, not better, so the
+best worst-case setting is unchanged
+(`benchmarks/structure.md`, "Coarser resolution (2026-10-15)";
+`benchmarks/structure-heterogeneous.md`, "Coarser resolution
+(2026-10-15)"). The map sits flat, and nesting is not a shape the
+measurements reach; if it is wanted it is a presentation choice for the
+render, to be judged by reading rather than scored.
 
 Characterisation put 0.5B's failure modes on record — the tool ignored
 on a real prompt, prose instead of JSON without `format`, an over-long
@@ -228,12 +278,12 @@ The relation loop put its own prompt on the same record: at 3b the
 shipped whole-map loop names `list_regions` and then serialises its
 writes in content, so whether a model drives the tools unassisted is part
 of what the model row decides (`benchmarks/relations.md`). That is the
-ground the faithfulness row now stands on: on the fixture the 0.5B judge
-reads 0.667 over eighteen claims and flags six, so it discriminates
-rather than agreeing with everything — though it is still the model under
-test, and its verdicts are read beside the number
-(`benchmarks/measurement.md`). The choice of model is still open, to be
-settled by the measurement.
+ground the faithfulness row now stands on: across both fixtures the 0.5B
+judge flags ten claims and every one is a sentence lying verbatim in the
+region's own notes, and the 3B judge errs often enough to be a floor too —
+the judge, not the map, is the weak link (`benchmarks/measurement.md`,
+"Reading (2026-10-13)"). The choice of model is still open, to be settled
+by a judge decoupled from the model under test.
 
 ## Environment
 
@@ -244,5 +294,7 @@ for the agent.
 Generation goes through Ollama (`qwen2.5:0.5b`). Its server has no
 embedding support and is left as it is.
 
-Generation runs at roughly 2.3 tok/s with 3 tok/s prefill on this
-hardware, and the pipeline is sized against that (`benchmarks/throughput.md`).
+Generation runs at ~1.9 tok/s for `qwen2.5:0.5b` and ~0.6 for
+`llama3.2:latest`, with prefill at ~2.4 and ~1.1 tok/s respectively
+(`benchmarks/throughput.md`, 2026-10-13). The pipeline is sized against
+the 0.5B rates; the 3B rates cap what it can afford on this hardware.

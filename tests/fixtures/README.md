@@ -36,7 +36,7 @@ notes from other regions almost as high as its own, so plain
 top-5 neighbourhoods are mostly cross-region and the graph needs the
 mutual filter to recover the structure that is there. This is the
 hard case, and the baked defaults are chosen with it in view — the
-best worst-case row across both shapes (0.588 here, 0.729 on
+best worst-case row across both shapes (0.578 here, 0.729 on
 heterogeneous; `benchmarks/`).
 
 **Heterogeneous is the separable case.** Disjoint vocabularies between

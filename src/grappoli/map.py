@@ -18,10 +18,10 @@ generation call. The structure of what it returns:
 The rule parameters appear in the map so the artefact says which rule
 produced it. The defaults are the best worst-case setting across both
 fixture shapes: bge, k=5, mutual, weighted, resolution 2.0 scores
-0.588 in-domain and 0.729 heterogeneous — no single setting has a
-better guarantee, where the in-domain winner (0.675 there) collapsed
+0.578 in-domain and 0.729 heterogeneous — no single setting has a
+better guarantee, where the in-domain winner (0.652 there) collapsed
 to 0.381 on the other shape. `mutual` stays true because its best
-beats plain's on both shapes (0.675/1.000 vs 0.435/1.000). The sweep
+beats plain's on both shapes (0.652/1.000 vs 0.435/1.000). The sweep
 revisits all of these against any corpus you can score
 (`benchmarks/structure.md`, `benchmarks/structure-heterogeneous.md`).
 `progress` is a callback (label, done, total) for the per-item display

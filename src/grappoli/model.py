@@ -19,8 +19,9 @@ import json
 
 DEFAULT_MODEL = "qwen2.5:0.5b"
 
-# A characterisation is ≈150 tokens (throughput.md), but 0.5B answers
-# verbosely when it does not call the tool, so this bounds a rambling
+# A characterisation is ≈150 tokens; throughput.md (2026-10-13)
+# records 123–256 tokens on the representative prompt. 0.5B answers can be
+# verbose when it does not call the tool, so this bounds a rambling
 # answer while leaving room for a complete one. It matters: with no cap
 # the 0.5B answer that does not stop runs to the context limit — minutes
 # of generation for one attempt (benchmarks/characterisation.md).

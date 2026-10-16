@@ -44,9 +44,9 @@ def mutual_edges(vectors: np.ndarray, k: int) -> list[tuple[int, int, float]]:
     The plain graph keeps every directed neighbourhood link, so one
     popular note pulls its would-be neighbours in with it. Mutual
     filtering keeps only edges both ends name — the standard way to
-    thin a clique back into structure. `build_map` does not use this
-    (the decided rule is plain kNN); `scripts/benchmark_structure.py`
-    sweeps it.
+    thin a clique back into structure. `build_map` uses this by
+    default (`mutual=True`), and `scripts/benchmark_structure.py`
+    sweeps it against the plain graph.
     """
     n = len(vectors)
     if n < 2:

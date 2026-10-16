@@ -148,6 +148,73 @@ def probe_structured(prompt: str, model: str) -> dict:
     }
 
 
+def sweep(notes: dict[str, str], characterisations, model: str, edge: str | None = None,
+          approaches: str = "per edge,per region,whole map", channel: str = "native",
+          log=None) -> list[dict]:
+    """The same task at each conversation size, one result per approach.
+
+    `characterisations` is the line file a `grappoli read` run wrote;
+    `sweep` builds the map from `notes` itself, so the regions the
+    prompts name are the corpus's. The CLI renders the list;
+    `benchmark_all.py` records it.
+    """
+    mapping = build_map(notes, progress=lambda *e: None)
+    chars = {}
+    for line in Path(characterisations).read_text().splitlines():
+        if line.strip():
+            record = json.loads(line)
+            chars[record["region"]] = record
+    edges = [(e["source"], e["target"]) for e in mapping["edges"]]
+
+    if edge:
+        a, b = (int(x) for x in edge.split(","))
+    else:
+        a, b = edges[0]
+    neighbours = sorted({y for x, y in edges if x == a} | {x for x, y in edges if y == a})
+
+    sizes = [
+        ("per edge", per_edge_prompt(a, b, chars)),
+        ("per region", per_region_prompt(a, neighbours, chars)),
+        ("whole map", whole_map_prompt(chars, edges)),
+    ]
+    wanted = {label.strip() for label in approaches.split(",") if label.strip()}
+    sizes = [(label, prompt) for label, prompt in sizes if label in wanted]
+    ask = probe if channel == "native" else probe_structured
+    results = []
+    for label, prompt in sizes:
+        result = ask(prompt, model)
+        result["approach"] = label
+        result["chars"] = len(prompt)
+        if log is not None:
+            log(f"{label}: {result['tool_calls']} tool calls, valid={result['valid']} "
+                f"({result['seconds']:.0f}s)")
+        results.append(result)
+    return results
+
+
+def render(results: list[dict], channel: str, model: str) -> str:
+    def cell(value):
+        return "-" if value is None else value
+
+    lines = [f"# Relation granularity probe ({channel}) — {model}", "",
+             "| approach | prompt tok | gen tok | tool calls | valid relation | seconds |",
+             "|---|---|---|---|---|---|"]
+    for r in results:
+        lines.append(f"| {r['approach']} | {cell(r['prompt_tokens'])} | {cell(r['gen_tokens'])} | "
+                     f"{cell(r['tool_calls'])} | {'yes' if r['valid'] else 'no'} | "
+                     f"{r['seconds']:.0f} |")
+    lines.append("")
+    lines.append("## What came back")
+    for r in results:
+        lines.extend(["", f"### {r['approach']}", r["detail"]])
+    if channel == "native":
+        lines.append("")
+        lines.append("## Raw content per approach")
+        for r in results:
+            lines.extend(["", f"### {r['approach']}", "```", r["content"], "```"])
+    return "\n".join(lines) + "\n"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("notes")
@@ -163,57 +230,11 @@ def main() -> None:
     args = parser.parse_args()
 
     notes = load_corpus(args.notes)
-    mapping = build_map(notes, progress=lambda *e: None)
-    chars = {}
-    for line in Path(args.characterisations).read_text().splitlines():
-        if line.strip():
-            record = json.loads(line)
-            chars[record["region"]] = record
-    edges = [(e["source"], e["target"]) for e in mapping["edges"]]
+    results = sweep(notes, args.characterisations, args.model, args.edge,
+                    args.approaches, args.channel,
+                    log=lambda line: print(line, file=sys.stderr))
 
-    if args.edge:
-        a, b = (int(x) for x in args.edge.split(","))
-    else:
-        a, b = edges[0]
-    neighbours = sorted({y for x, y in edges if x == a} | {x for x, y in edges if y == a})
-
-    sizes = [
-        ("per edge", per_edge_prompt(a, b, chars)),
-        ("per region", per_region_prompt(a, neighbours, chars)),
-        ("whole map", whole_map_prompt(chars, edges)),
-    ]
-    wanted = {label.strip() for label in args.approaches.split(",") if label.strip()}
-    sizes = [(label, prompt) for label, prompt in sizes if label in wanted]
-    ask = probe if args.channel == "native" else probe_structured
-    results = []
-    for label, prompt in sizes:
-        result = ask(prompt, args.model)
-        result["approach"] = label
-        result["chars"] = len(prompt)
-        print(f"{label}: {result['tool_calls']} tool calls, valid={result['valid']} "
-              f"({result['seconds']:.0f}s)", file=sys.stderr)
-        results.append(result)
-
-    def cell(value):
-        return "-" if value is None else value
-
-    lines = [f"# Relation granularity probe ({args.channel}) — {args.model}", "",
-             "| approach | prompt tok | gen tok | tool calls | valid relation | seconds |",
-             "|---|---|---|---|---|---|"]
-    for r in results:
-        lines.append(f"| {r['approach']} | {cell(r['prompt_tokens'])} | {cell(r['gen_tokens'])} | "
-                     f"{cell(r['tool_calls'])} | {'yes' if r['valid'] else 'no'} | "
-                     f"{r['seconds']:.0f} |")
-    lines.append("")
-    lines.append("## What came back")
-    for r in results:
-        lines.extend(["", f"### {r['approach']}", r["detail"]])
-    if args.channel == "native":
-        lines.append("")
-        lines.append("## Raw content per approach")
-        for r in results:
-            lines.extend(["", f"### {r['approach']}", "```", r["content"], "```"])
-    text = "\n".join(lines) + "\n"
+    text = render(results, args.channel, args.model)
     if args.out is None:
         print(text, end="")
     else:

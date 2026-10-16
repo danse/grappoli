@@ -67,6 +67,11 @@ and a judge without an explicit rubric rewards the fluency.
 **Structure match** — whether the regions agree with what a reader would
 write by hand from reading the notes.
 
+None of the four can weigh whether to produce a characterisation at all:
+two read only the map, redundancy is `0` when there are none, and
+faithfulness scores one that exists. They police the characterisation;
+they do not justify it (`architecture.md`, Measurements).
+
 Reference metrics are not used. ROUGE scores copying, so it ranks extractive
 output above the abstraction the project exists to produce.
 
@@ -80,8 +85,12 @@ neighbour graph over the notes, run community detection, and the regions
 are what falls out. The relations between regions are the cross-community
 edges, so the map's two figures come from one computation rather than two.
 
-**The map sits flat.** Whether it should nest is a question for the
-structure-match measurement, not for now.
+**The map sits flat.** Structure match cannot settle nesting: it scores
+a flat partition, so a level above the regions is invisible to it and a
+level below only ever splits the reference's own regions. Coarsening the
+cut was measured worse on both fixtures, so flat is the shape the
+measurements reach (`architecture.md`, Graph; `benchmarks/structure.md`,
+"Coarser resolution (2026-10-15)").
 
 **Representative selection is deterministic** — centrality within the
 region, redundancy reduced by marginal gain. It makes no model calls.

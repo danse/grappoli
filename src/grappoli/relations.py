@@ -305,12 +305,13 @@ def run_agent(prompt: str, toolbox: Toolbox, llm=converse, *, max_rounds: int,
 # --- orchestration --------------------------------------------------------
 #
 # The relation step's own bound and its prompt. A round is a model call
-# plus the tool it names; at throughput.md's rates — ≈3 tok/s prefill,
-# ≈2.3 tok/s generation — the conversation's growth and a short answer
-# make a round about three minutes, and a map needs a round per relatable
-# edge plus a few to find and read it. HARD_CAP bounds it whatever the map
-# and the arithmetic say: an unbounded loop is not a bug, it is a hung
-# machine (architecture.md, Agent tools).
+# plus the tool it names; at throughput.md's rates (2026-10-13) —
+# ~2.4 tok/s prefill and ~1.9 tok/s generation for qwen2.5:0.5b, ~1.1
+# and ~0.6 for llama3.2:latest — the conversation's growth and a short
+# answer make a round about three minutes for 0.5B, and a map needs a
+# round per relatable edge plus a few to find and read it. HARD_CAP
+# bounds it whatever the map and the arithmetic say: an unbounded loop is
+# not a bug, it is a hung machine (architecture.md, Agent tools).
 
 SECONDS_PER_ROUND = 180.0
 LOOP_SECONDS = 60 * 60.0

@@ -1,4 +1,4 @@
-# Structure sweep — 2026-10-08
+# Structure sweep — 2026-10-16
 
 14 notes, scored against the reference with adjusted Rand index (ARI; 1 is the reference itself).
 
@@ -44,12 +44,6 @@
 | bge | 3 | no | yes | 2 | 4 | 0.548 |
 | bge | 5 | yes | yes | 1.5 | 4 | 0.548 |
 | bge | 4 | yes | no | 1 | 3 | 0.545 |
-| tfidf | 2 | yes | no | 1 | 8 | 0.519 |
-| tfidf | 2 | yes | yes | 1 | 8 | 0.519 |
-| tfidf | 2 | yes | no | 1.5 | 8 | 0.519 |
-| tfidf | 2 | yes | yes | 1.5 | 8 | 0.519 |
-| tfidf | 2 | yes | no | 2 | 8 | 0.519 |
-| tfidf | 2 | yes | yes | 2 | 8 | 0.519 |
 | bge | 3 | no | no | 1 | 3 | 0.504 |
 | bge | 3 | no | yes | 1 | 3 | 0.504 |
 | bge | 4 | no | no | 1 | 3 | 0.504 |
@@ -58,6 +52,12 @@
 | bge | 4 | no | yes | 1.5 | 3 | 0.504 |
 | bge | 5 | yes | yes | 1 | 3 | 0.504 |
 | bge | 5 | no | yes | 1.5 | 4 | 0.478 |
+| tfidf | 2 | yes | no | 1 | 4 | 0.435 |
+| tfidf | 2 | yes | yes | 1 | 4 | 0.435 |
+| tfidf | 2 | yes | no | 1.5 | 4 | 0.435 |
+| tfidf | 2 | yes | yes | 1.5 | 4 | 0.435 |
+| tfidf | 2 | yes | no | 2 | 4 | 0.435 |
+| tfidf | 2 | yes | yes | 2 | 4 | 0.435 |
 | bge | 5 | yes | no | 1.5 | 4 | 0.420 |
 | bge | 5 | yes | no | 2 | 4 | 0.420 |
 | tfidf | 5 | yes | yes | 1 | 3 | 0.398 |
@@ -120,15 +120,12 @@ _Decided: bge, k=2, mutual=no, weighted=no, resolution=1.5, ARI 1.000._
 
 ### tfidf at its own best
 - r0: bike-chain-care.md, commuting-tyre-notes.md, hiking-gear-layering.md
-- r1: brake-pad-replacement.md
-- r2: commit-message-guide.md, pre-commit-hook-checklist.md
-- r3: community-garden-rota.md
-- r4: houseplant-pests.md, propagating-by-cuttings.md, watering-houseplants.md
-- r5: library-shelving-notes.md
-- r6: rebasing-git-history.md
-- r7: route-planning-and-weather.md, south-ridge-trail-log.md
+- r1: commit-message-guide.md, pre-commit-hook-checklist.md
+- r2: houseplant-pests.md, propagating-by-cuttings.md, watering-houseplants.md
+- r3: route-planning-and-weather.md, south-ridge-trail-log.md
+- standalone: brake-pad-replacement.md, community-garden-rota.md, library-shelving-notes.md, rebasing-git-history.md
 
-## Reading (2026-10-08)
+## Reading (2026-10-16)
 
 The rule does not transfer, which is exactly what this second corpus
 exists to find out. bge reaches the reference exactly (ARI 1.000, five
@@ -143,19 +140,34 @@ of the in-domain defaults is the rule's shape-dependence, not bge.
 
 No single setting serves both shapes well: the saturated corpus needs
 a mutual-filtered neighbourhood (its best: bge k=5 mutual res 1,
-0.675), the separable one wants a small plain neighbourhood at higher
+0.652), the separable one wants a small plain neighbourhood at higher
 resolution (bge k=2 plain res 1.5, 1.000). Neither fixture's winner is
 the transferable rule, so `map.py` carries the best worst-case row
-across both reports — k=5, mutual, weighted, resolution 2.0 (0.588 /
+across both reports — k=5, mutual, weighted, resolution 2.0 (0.578 /
 0.729) — rebakeable when a scored corpus more representative than the
 fixtures appears. Which shape the real corpus has is the tool owner's
 call, and that corpus's sweep is what will settle it.
 
 bge beats tfidf by more on this shape than on the saturated one
-(1.000 vs 0.519) even though TF-IDF's mean margin is comparable (0.03
+(1.000 vs 0.435) even though TF-IDF's mean margin is comparable (0.03
 vs 0.04). Disjoint domains clean up the *ranking* of neighbours far
 more than they move mean similarity, and bag-of-words still
 fragments: bikes, git and hiking each split, with one hiking note
 glued to the bike pair; only houseplants — where the vocabulary is
-exactly the object names — comes out whole. Both strays stay honestly
-standalone under both providers, near stray included.
+exactly the object names — comes out whole. Both strays stay clear of
+the four intended regions under both providers — grouped as one small
+region by bge, left standalone by tfidf.
+
+**Reproduced (2026-10-13).** The batch reran the sweep and returned the
+same best row — bge k=2 plain at 1.000, tfidf 0.519 at its own best (the
+pre-correction scoring; corrected, 0.435) — so the second shape is
+unchanged by a fresh run, and the reading above is what the region-rule
+and embedder rows in `architecture.md` are closed on
+(`benchmarks/runs/2026-10-13/run.json`).
+
+## Coarser resolution (2026-10-15)
+
+Extending the sweep below resolution 1.0 costs this shape: 1.000 at
+1.5–2 becomes 0.774 at 0.5–1.0. Coarser does not survive the separable
+corpus any better than it helps the saturated one
+(`benchmarks/history/2026-10-15/structure-heterogeneous.md`).

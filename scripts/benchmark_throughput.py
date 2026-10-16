@@ -20,6 +20,8 @@ import time
 
 import ollama
 
+from grappoli.model import DEFAULT_MODEL
+
 REPRESENTATIVE_PROMPT = """You are mapping a corpus of notes. Give the region
 below a characterisation as JSON with keys "about" (one sentence), "topics"
 (three to five words or phrases), and "key_claims" (what the notes actually
@@ -42,23 +44,20 @@ ferments — they are pickles in the fridge sense. Different thing
 entirely, do not file under the same recipe."""
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--model", default="qwen2.5:0.5b")
-    parser.add_argument("--num-thread", type=int, default=None,
-                        help="override Ollama's thread count; probes the "
-                             "thread-starvation hypothesis")
-    parser.add_argument("--gen", type=int, default=256,
-                        help="max tokens to generate (num_predict)")
-    args = parser.parse_args()
+def measure(model: str = DEFAULT_MODEL, gen: int = 256,
+            num_thread: int | None = None) -> dict:
+    """One representative generation, and the server's own rates for it.
 
-    options = {"num_predict": args.gen}
-    if args.num_thread is not None:
-        options["num_thread"] = args.num_thread
+    The returned dict is the row: `benchmark_all.py` records it as JSON,
+    and `render` writes it as the markdown line `throughput.md` holds.
+    """
+    options = {"num_predict": gen}
+    if num_thread is not None:
+        options["num_thread"] = num_thread
 
     started = time.monotonic()
     reply = ollama.chat(
-        model=args.model,
+        model=model,
         messages=[{"role": "user", "content": REPRESENTATIVE_PROMPT}],
         options=options,
     )
@@ -68,13 +67,39 @@ def main() -> None:
     eval_count = reply.get("eval_count", 0)
     prompt_seconds = reply.get("prompt_eval_duration", 0) / 1e9
     eval_seconds = reply.get("eval_duration", 0) / 1e9
-    prompt_rate = prompt_count / prompt_seconds if prompt_seconds else 0.0
-    eval_rate = eval_count / eval_seconds if eval_seconds else 0.0
+    return {
+        "date": time.strftime("%Y-%m-%d"),
+        "model": model,
+        "num_thread": num_thread,
+        "gen": gen,
+        "prompt_tokens": prompt_count,
+        "prompt_rate": prompt_count / prompt_seconds if prompt_seconds else 0.0,
+        "gen_tokens": eval_count,
+        "gen_rate": eval_count / eval_seconds if eval_seconds else 0.0,
+        "wall": wall,
+    }
 
-    thread = f"-t{args.num_thread}" if args.num_thread is not None else ""
-    when = time.strftime("%Y-%m-%d")
-    print(f"| {when} | {args.model}{thread} | {prompt_count} | {prompt_rate:.1f} "
-          f"| {eval_count} | {eval_rate:.1f} | {wall:.1f} |")
+
+def render(row: dict) -> str:
+    """One markdown table row, ready to append to benchmarks/throughput.md."""
+    thread = f"-t{row['num_thread']}" if row["num_thread"] is not None else ""
+    when = row["date"]
+    return (f"| {when} | {row['model']}{thread} | {row['prompt_tokens']} "
+            f"| {row['prompt_rate']:.1f} | {row['gen_tokens']} | "
+            f"{row['gen_rate']:.1f} | {row['wall']:.1f} |")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--model", default=DEFAULT_MODEL)
+    parser.add_argument("--num-thread", type=int, default=None,
+                        help="override Ollama's thread count; probes the "
+                             "thread-starvation hypothesis")
+    parser.add_argument("--gen", type=int, default=256,
+                        help="max tokens to generate (num_predict)")
+    args = parser.parse_args()
+
+    print(render(measure(args.model, args.gen, args.num_thread)))
 
 
 if __name__ == "__main__":
