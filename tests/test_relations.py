@@ -138,6 +138,14 @@ def test_compare_regions_reports_what_they_share(tmp_path):
     assert "brine" not in result["shared_terms"]
 
 
+def test_compare_regions_drops_the_stopwords_it_is_given(tmp_path):
+    """The words a corpus says nothing with are the corpus's, not a list
+    in the code, so they are handed to the toolbox and honoured
+    (`architecture.md`, Language)."""
+    box = Toolbox(MAPPING, CHARS, tmp_path / "r", stop=frozenset({"salt"}))
+    assert box.compare_regions(0, 1)["shared_terms"] == []
+
+
 def test_write_relation_appends_one_normalised_line(tmp_path):
     path = tmp_path / "relations"
     result = toolbox(path).write_relation(1, 0, "they both preserve with salt")

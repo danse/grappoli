@@ -11,10 +11,12 @@ Reports per corpus:
 - **heterogeneous** (`tests/fixtures/heterogeneous`) —
   `structure-heterogeneous.md`
 
-The two reports disagree about the winning rule; `build_map`'s
-defaults are the best worst-case row across both reports, not either
-winner — the reasoning and the alternative candidates are in
-`architecture.md` (Graph).
+The reports disagree about the winning rule; `build_map`'s defaults are
+the best worst-case row across both, not necessarily either winner — the
+reasoning and the alternative candidates are in `architecture.md`
+(Graph). The sweep below is the multilingual one; the English sweep it
+replaced, which chose the previous defaults, is under
+`benchmarks/history/2026-10-16/`.
 
 ## Scoring correction (2026-10-16)
 
@@ -25,9 +27,10 @@ a stray could read as agreement against a reference that folds its own
 strays under one label. `measure.map_labels` never did that — it drops
 those singletons to `standalone`. The sweep now builds and labels its
 candidates the same way (`_parts_at`, `_map_labels`), so one
-configuration reports one ARI from either instrument. The numbers below
-are the corrected sweep; the report that chose the current defaults,
-before the correction, is `benchmarks/history/2026-10-08/structure.md`.
+configuration reports one ARI from either instrument. The English sweep
+that carries the correction is under
+`benchmarks/history/2026-10-16/structure.md`; an earlier report, before
+the correction, is `benchmarks/history/2026-10-08/structure.md`.
 
 # Structure sweep — 2026-10-16
 
@@ -36,153 +39,157 @@ before the correction, is `benchmarks/history/2026-10-08/structure.md`.
 ## Similarity
 | provider | mean intra-region | mean inter-region |
 |---|---|---|
-| bge | 0.707 | 0.636 |
-| tfidf | 0.087 | 0.047 |
+| e5 | 0.876 | 0.842 |
+| tfidf | 0.090 | 0.049 |
 
 ## Sweep
 | provider | k | mutual | weighted | resolution | regions | ARI |
 |---|---|---|---|---|---|---|
-| **bge** | 5 | yes | no | 1 | 3 | 0.652 |
-| bge | 5 | yes | yes | 1 | 3 | 0.652 |
-| bge | 5 | yes | no | 1.5 | 4 | 0.578 |
-| bge | 5 | yes | yes | 1.5 | 4 | 0.578 |
-| bge | 5 | yes | no | 2 | 4 | 0.578 |
-| bge | 5 | yes | yes | 2 | 4 | 0.578 |
-| bge | 4 | yes | no | 1 | 3 | 0.450 |
-| bge | 4 | yes | yes | 1 | 3 | 0.450 |
-| tfidf | 5 | yes | no | 1 | 3 | 0.450 |
-| tfidf | 5 | yes | yes | 1 | 3 | 0.450 |
-| bge | 2 | no | no | 1.5 | 5 | 0.435 |
-| bge | 3 | yes | no | 1 | 4 | 0.435 |
-| bge | 3 | yes | yes | 1 | 4 | 0.435 |
-| bge | 3 | yes | no | 1.5 | 4 | 0.435 |
-| bge | 3 | yes | yes | 1.5 | 4 | 0.435 |
-| tfidf | 4 | yes | yes | 1 | 4 | 0.435 |
-| tfidf | 4 | yes | yes | 1.5 | 4 | 0.435 |
-| tfidf | 5 | yes | yes | 1.5 | 4 | 0.435 |
-| tfidf | 4 | yes | yes | 2 | 5 | 0.425 |
-| tfidf | 4 | yes | no | 1 | 3 | 0.408 |
+| **e5** | 4 | yes | no | 2 | 5 | 0.904 |
+| e5 | 4 | yes | yes | 2 | 5 | 0.904 |
+| e5 | 4 | yes | no | 1 | 4 | 0.783 |
+| e5 | 4 | yes | yes | 1 | 4 | 0.783 |
+| e5 | 4 | yes | no | 1.5 | 4 | 0.783 |
+| e5 | 4 | yes | yes | 1.5 | 4 | 0.783 |
+| e5 | 5 | yes | no | 1 | 4 | 0.783 |
+| e5 | 5 | yes | no | 1.5 | 5 | 0.712 |
+| e5 | 5 | yes | yes | 1.5 | 5 | 0.712 |
+| e5 | 5 | yes | no | 2 | 5 | 0.712 |
+| e5 | 5 | yes | yes | 2 | 5 | 0.712 |
+| e5 | 3 | yes | no | 1 | 3 | 0.652 |
+| e5 | 3 | yes | yes | 1 | 3 | 0.652 |
+| e5 | 3 | yes | no | 1.5 | 3 | 0.652 |
+| e5 | 3 | yes | yes | 1.5 | 3 | 0.652 |
+| e5 | 5 | yes | yes | 1 | 4 | 0.609 |
+| tfidf | 2 | yes | yes | 1 | 4 | 0.435 |
+| e5 | 3 | yes | no | 2 | 5 | 0.397 |
+| e5 | 3 | yes | yes | 2 | 5 | 0.397 |
 | tfidf | 5 | yes | no | 2 | 6 | 0.382 |
-| tfidf | 5 | yes | no | 1.5 | 5 | 0.355 |
-| bge | 4 | yes | no | 2 | 4 | 0.348 |
-| bge | 4 | yes | yes | 2 | 4 | 0.348 |
-| tfidf | 4 | no | yes | 2 | 5 | 0.348 |
-| tfidf | 4 | yes | no | 1.5 | 4 | 0.348 |
-| bge | 2 | no | no | 1 | 4 | 0.343 |
-| bge | 2 | no | yes | 1 | 4 | 0.343 |
-| bge | 2 | no | yes | 1.5 | 4 | 0.343 |
-| bge | 4 | yes | no | 1.5 | 3 | 0.343 |
-| bge | 4 | yes | yes | 1.5 | 3 | 0.343 |
-| bge | 2 | no | no | 2 | 6 | 0.329 |
-| bge | 2 | no | yes | 2 | 6 | 0.329 |
-| bge | 3 | no | yes | 2 | 6 | 0.329 |
-| bge | 3 | yes | no | 2 | 5 | 0.305 |
-| bge | 3 | yes | yes | 2 | 5 | 0.305 |
-| tfidf | 3 | no | yes | 1.5 | 4 | 0.304 |
-| tfidf | 3 | no | yes | 2 | 4 | 0.304 |
-| tfidf | 4 | no | yes | 1.5 | 4 | 0.304 |
-| tfidf | 3 | yes | yes | 1 | 4 | 0.282 |
-| tfidf | 3 | yes | yes | 1.5 | 4 | 0.282 |
-| tfidf | 3 | yes | yes | 2 | 4 | 0.282 |
-| bge | 4 | no | no | 1 | 3 | 0.271 |
+| e5 | 3 | no | no | 2 | 5 | 0.348 |
+| e5 | 3 | no | yes | 2 | 5 | 0.348 |
+| tfidf | 5 | yes | no | 1.5 | 4 | 0.348 |
+| e5 | 4 | no | no | 1.5 | 4 | 0.338 |
+| e5 | 4 | no | yes | 1.5 | 4 | 0.338 |
+| e5 | 2 | no | yes | 1 | 3 | 0.335 |
+| e5 | 3 | no | no | 1 | 3 | 0.335 |
+| e5 | 3 | no | yes | 1 | 3 | 0.335 |
+| e5 | 4 | no | no | 1 | 3 | 0.335 |
+| e5 | 4 | no | yes | 1 | 3 | 0.335 |
+| tfidf | 5 | no | yes | 1 | 3 | 0.335 |
+| e5 | 4 | no | no | 2 | 5 | 0.304 |
+| e5 | 4 | no | yes | 2 | 5 | 0.304 |
+| e5 | 2 | yes | no | 1 | 3 | 0.304 |
+| e5 | 2 | yes | no | 1.5 | 3 | 0.304 |
+| tfidf | 5 | yes | no | 1 | 3 | 0.304 |
+| tfidf | 5 | yes | yes | 1 | 3 | 0.304 |
+| e5 | 3 | no | no | 1.5 | 4 | 0.265 |
+| e5 | 3 | no | yes | 1.5 | 4 | 0.265 |
+| e5 | 2 | no | no | 2 | 5 | 0.261 |
+| e5 | 2 | no | yes | 2 | 5 | 0.261 |
 | tfidf | 2 | yes | no | 1 | 4 | 0.261 |
-| tfidf | 2 | yes | yes | 1 | 4 | 0.261 |
 | tfidf | 2 | yes | no | 1.5 | 4 | 0.261 |
 | tfidf | 2 | yes | yes | 1.5 | 4 | 0.261 |
 | tfidf | 2 | yes | no | 2 | 4 | 0.261 |
 | tfidf | 2 | yes | yes | 2 | 4 | 0.261 |
-| tfidf | 5 | no | yes | 1.5 | 5 | 0.261 |
-| bge | 4 | no | yes | 1 | 3 | 0.257 |
-| bge | 4 | no | yes | 1.5 | 5 | 0.241 |
-| tfidf | 2 | no | yes | 2 | 5 | 0.241 |
-| tfidf | 4 | yes | no | 2 | 5 | 0.233 |
-| tfidf | 2 | no | yes | 1 | 4 | 0.188 |
-| tfidf | 2 | no | yes | 1.5 | 4 | 0.188 |
-| tfidf | 3 | no | yes | 1 | 4 | 0.188 |
-| bge | 5 | no | yes | 1 | 3 | 0.182 |
-| bge | 4 | no | no | 2 | 7 | 0.176 |
-| bge | 4 | no | yes | 2 | 7 | 0.176 |
-| bge | 5 | no | yes | 2 | 8 | 0.176 |
-| bge | 2 | yes | no | 2 | 5 | 0.174 |
-| tfidf | 3 | yes | no | 1 | 4 | 0.174 |
-| tfidf | 3 | yes | no | 1.5 | 4 | 0.174 |
-| tfidf | 4 | no | yes | 1 | 3 | 0.158 |
-| tfidf | 3 | yes | no | 2 | 5 | 0.156 |
-| bge | 2 | yes | no | 1 | 4 | 0.140 |
-| bge | 2 | yes | yes | 1 | 4 | 0.140 |
-| bge | 2 | yes | no | 1.5 | 4 | 0.140 |
-| bge | 2 | yes | yes | 1.5 | 4 | 0.140 |
-| bge | 2 | yes | yes | 2 | 4 | 0.140 |
-| tfidf | 3 | no | no | 1 | 2 | 0.140 |
-| tfidf | 5 | yes | yes | 2 | 5 | 0.137 |
-| bge | 5 | no | no | 2 | 9 | 0.132 |
-| tfidf | 5 | no | yes | 2 | 6 | 0.119 |
-| tfidf | 4 | no | no | 1 | 3 | 0.100 |
+| tfidf | 4 | yes | yes | 1 | 4 | 0.261 |
+| tfidf | 4 | yes | yes | 1.5 | 4 | 0.261 |
+| e5 | 2 | no | no | 1.5 | 4 | 0.247 |
+| e5 | 2 | no | yes | 1.5 | 4 | 0.247 |
+| tfidf | 4 | no | yes | 1.5 | 5 | 0.241 |
+| e5 | 2 | yes | yes | 1 | 3 | 0.230 |
+| e5 | 2 | yes | yes | 1.5 | 3 | 0.230 |
+| e5 | 2 | yes | no | 2 | 4 | 0.222 |
+| e5 | 2 | no | no | 1 | 3 | 0.195 |
+| tfidf | 4 | no | yes | 1 | 3 | 0.195 |
+| tfidf | 4 | no | yes | 2 | 6 | 0.192 |
+| tfidf | 5 | yes | yes | 1.5 | 4 | 0.192 |
+| tfidf | 3 | no | yes | 1.5 | 4 | 0.188 |
+| tfidf | 3 | no | yes | 2 | 5 | 0.174 |
+| tfidf | 4 | yes | no | 1 | 4 | 0.174 |
+| tfidf | 4 | yes | no | 1.5 | 4 | 0.174 |
+| tfidf | 3 | yes | no | 1 | 3 | 0.172 |
+| tfidf | 3 | yes | no | 1.5 | 3 | 0.172 |
+| tfidf | 5 | no | yes | 1.5 | 4 | 0.172 |
+| tfidf | 2 | no | yes | 1.5 | 4 | 0.157 |
+| e5 | 5 | no | no | 1.5 | 5 | 0.157 |
+| e5 | 5 | no | yes | 1.5 | 5 | 0.157 |
+| tfidf | 3 | yes | yes | 1.5 | 4 | 0.157 |
+| tfidf | 3 | yes | yes | 2 | 4 | 0.157 |
+| e5 | 5 | no | no | 2 | 7 | 0.156 |
+| e5 | 5 | no | yes | 2 | 7 | 0.156 |
+| tfidf | 4 | yes | no | 2 | 5 | 0.156 |
+| tfidf | 4 | yes | yes | 2 | 5 | 0.156 |
+| tfidf | 5 | no | yes | 2 | 7 | 0.156 |
+| tfidf | 5 | no | no | 1 | 3 | 0.145 |
+| e5 | 2 | yes | yes | 2 | 4 | 0.140 |
+| e5 | 5 | no | no | 1 | 2 | 0.131 |
+| tfidf | 2 | no | no | 1.5 | 5 | 0.087 |
+| tfidf | 2 | no | yes | 2 | 5 | 0.087 |
 | tfidf | 3 | no | no | 1.5 | 5 | 0.087 |
-| tfidf | 2 | no | no | 1 | 3 | 0.081 |
-| tfidf | 2 | no | no | 1.5 | 3 | 0.081 |
-| tfidf | 4 | no | no | 2 | 7 | 0.074 |
-| bge | 5 | no | yes | 1.5 | 5 | 0.072 |
-| tfidf | 5 | no | yes | 1 | 3 | 0.071 |
-| bge | 5 | no | no | 1 | 3 | 0.061 |
+| tfidf | 4 | no | no | 1.5 | 5 | 0.087 |
+| tfidf | 3 | yes | yes | 1 | 3 | 0.084 |
+| e5 | 5 | no | yes | 1 | 3 | 0.081 |
+| tfidf | 2 | no | yes | 1 | 3 | 0.081 |
+| tfidf | 3 | no | yes | 1 | 3 | 0.081 |
+| tfidf | 5 | yes | yes | 2 | 6 | 0.074 |
+| tfidf | 5 | no | no | 1.5 | 5 | 0.058 |
+| tfidf | 2 | no | no | 2 | 6 | 0.057 |
 | tfidf | 3 | no | no | 2 | 6 | 0.057 |
-| bge | 3 | no | no | 2 | 6 | 0.041 |
-| tfidf | 2 | no | no | 2 | 6 | 0.041 |
-| bge | 3 | no | no | 1 | 2 | 0.039 |
-| bge | 3 | no | yes | 1 | 2 | 0.039 |
-| tfidf | 4 | no | no | 1.5 | 4 | 0.033 |
-| bge | 5 | no | no | 1.5 | 4 | 0.022 |
-| tfidf | 5 | no | no | 1 | 3 | 0.000 |
-| bge | 3 | no | no | 1.5 | 5 | -0.012 |
-| bge | 3 | no | yes | 1.5 | 5 | -0.012 |
-| bge | 4 | no | no | 1.5 | 5 | -0.012 |
-| tfidf | 5 | no | no | 1.5 | 5 | -0.096 |
-| tfidf | 5 | no | no | 2 | 8 | -0.122 |
+| tfidf | 3 | yes | no | 2 | 5 | 0.026 |
+| tfidf | 3 | no | no | 1 | 3 | 0.018 |
+| tfidf | 2 | no | no | 1 | 3 | 0.000 |
+| tfidf | 5 | no | no | 2 | 8 | -0.015 |
+| tfidf | 4 | no | no | 2 | 6 | -0.077 |
+| tfidf | 4 | no | no | 1 | 3 | -0.172 |
 
 ## Best map (by ARI)
-_Decided: bge, k=5, mutual=yes, weighted=no, resolution=1, ARI 0.652._
+_Decided: e5, k=4, mutual=yes, weighted=no, resolution=2, ARI 0.904._
 
-### bge at its own best
-- r0: cellar-temperature-notes.md, kimchi-microbiology.md, lacto-fermentation-101.md, sourdough-starter-rhythm.md
-- r1: cucumber-pickling-log.md, quick-pickles-vinegar-ratio.md, salt-brine-basics.md
-- r2: osmosis-and-salt.md, ph-and-spoilage.md, vinegar-chemistry.md
-- standalone: airlock-checks.md, book-recommendations.md, jar-inventory.md, neighbour-garden-trade.md
+### e5 at its own best
+- r0: airlock-checks.md, jar-inventory.md
+- r1: cellar-temperature-notes.md
+- r2: cucumber-pickling-log.md, quick-pickles-vinegar-ratio.md, salt-brine-basics.md
+- r3: kimchi-microbiology.md, lacto-fermentation-101.md, sourdough-starter-rhythm.md
+- r4: osmosis-and-salt.md, ph-and-spoilage.md, vinegar-chemistry.md
+- standalone: book-recommendations.md, neighbour-garden-trade.md
 
 ### tfidf at its own best
-- r0: airlock-checks.md, cellar-temperature-notes.md, jar-inventory.md
-- r1: cucumber-pickling-log.md, kimchi-microbiology.md, osmosis-and-salt.md, quick-pickles-vinegar-ratio.md, salt-brine-basics.md
-- r2: lacto-fermentation-101.md, ph-and-spoilage.md, sourdough-starter-rhythm.md, vinegar-chemistry.md
-- standalone: book-recommendations.md, neighbour-garden-trade.md
+- r0: cellar-temperature-notes.md, jar-inventory.md
+- r1: cucumber-pickling-log.md, quick-pickles-vinegar-ratio.md, salt-brine-basics.md
+- r2: kimchi-microbiology.md, sourdough-starter-rhythm.md
+- r3: lacto-fermentation-101.md, ph-and-spoilage.md, vinegar-chemistry.md
+- standalone: airlock-checks.md, book-recommendations.md, neighbour-garden-trade.md, osmosis-and-salt.md
 
 ## Reading (2026-10-16)
 
-Mutual filtering rescues the rule. Plain kNN at k=5 — the default before
-this run — scored ARI 0.061, indistinguishable from chance. The same
-neighbourhood size with only reciprocal edges kept scores 0.652. One-way
-edges were the problem, not the neighbourhood size: a popular note pulls
-its would-be neighbours in with it, and louvain merged the result. This
-decision is baked into `build_map`'s defaults (`mutual = true`); the
-sweep is what revisits it.
+The multilingual encoder lifts the rule well past where the English one
+left it. Its best row is mutual-filtered k=4 at resolution 2, ARI 0.904 —
+up from the English 0.652 — reached from the corner that sweep also
+favoured (a reciprocal-edge neighbourhood), just smaller: at k=5 the
+mutual graph over-merges and the same rule drops to 0.712. Mutual
+filtering still does the work here — plain k=4 at resolution 2 scores
+0.304 against 0.904 mutual-filtered, so one-way edges were the problem
+again.
 
-bge beats tfidf but not cleanly. Both providers peak on mutual-filtered
-graphs at 0.652 vs 0.450. bge gets brine and chemistry exactly and
-leaves both true strays alone, but shreds equipment-and-storage —
-cellar-temperature's top neighbours are biology notes, so it joins the
-biology region and airlock-checks and jar-inventory stand alone. tfidf
-finds the equipment region perfectly and mangles the rest. The
-embedder's weakness is localised, and scoring it is exactly what
-structure match exists for.
+The encoder beats tfidf on both shapes, and by more than before (0.904
+against 0.435 in-domain). It holds brine, biology and chemistry whole
+and leaves both true strays alone; what it still misses is
+equipment-and-storage, which it splits — `cellar-temperature` gathers no
+reciprocal neighbour and stands alone while `airlock-checks` and
+`jar-inventory` pair — the same region the English encoder dismantled.
+The embedder's weakness stays localised, which is what scoring the
+control is for.
 
 ## Against deciding without a reference
 
 The sweep needs a reference because nothing else reproduces structure
-match. Measured on this corpus: silhouette correlates with ARI at +0.27
-overall (−0.02 for bge, +0.75 for tfidf) and its best pick scores 0.13
-(bge) / 0.31 (tfidf) against the reference-best 0.68 / 0.40;
-leave-one-out stability correlates +0.40 and its picks over-fragment
-(k=2 mutual gave 8–9 regions). Report them all — decide by none. A
-reference is cheap for a fourteen-note corpus and worth writing for
-anything you will base conclusions on.
+match. Measured on the English sweep: silhouette correlates with ARI at
++0.27 overall (−0.02 for the English encoder, +0.75 for tfidf) and its
+best pick scores 0.13 (the English encoder) / 0.31 (tfidf) against the
+reference-best 0.68 / 0.40; leave-one-out stability correlates +0.40 and
+its picks over-fragment (k=2 mutual gave 8–9 regions). Report them all —
+decide by none. A reference is cheap for a fourteen-note corpus and worth
+writing for anything you will base conclusions on.
 
 **Saturation detection does not escape this (2026-10-08).** The
 intra/inter similarity margin that separates the two fixture shapes
@@ -193,29 +200,26 @@ reproduce it: overall mean similarity points the expected way (0.646
 saturated vs 0.574 separable), but the p10–p90 spread is *wider* on
 the saturated corpus (0.221 vs 0.196), confounded by strays whose low
 pairs widen the tail, and the labeled margin itself moves opposite for
-tfidf (0.040 in-domain → 0.031 heterogeneous, where bge's grows
+tfidf (0.040 in-domain → 0.031 heterogeneous, where the English encoder's grows
 0.07 → 0.13). Two shapes, one ambiguous scalar, one inverted sign — a
 reference-free saturation signal is unestablished, same verdict as the
 criteria above.
 
-**Reproduced (2026-10-13).** The batch reran the sweep and returned the
-same best rows — bge k=5 mutual at 0.675, tfidf 0.398 at its own best
-(the pre-correction scoring; the corrected values are the reading
-above) — so the rule's shape is unchanged by a fresh run. It is the
+**Reproduced (2026-10-13).** The batch reran the English sweep and
+returned the same best rows — bge k=5 mutual at 0.675, tfidf 0.398 at
+its own best (the pre-correction scoring; the corrected values are the
+reading above) — so the rule's shape is unchanged by a fresh run. It is the
 reproduction behind closing the region-rule and embedder rows in
 `architecture.md` (`benchmarks/runs/2026-10-13/run.json`).
 
+
 ## Coarser resolution (2026-10-15)
 
-The in-domain map makes four regions, as the reference does, but not the
-same four: `cellar-temperature` joins the biology notes and
-`airlock-checks` and `jar-inventory` stand alone, so equipment-and-storage
-is dismantled rather than split by granularity. Going coarser was the
-obvious repair, and the sweep had never gone below resolution 1.0.
-Extending it there does not help. In-domain's best remains at resolution
-1.0 (0.652); at 0.7 the same rule merges to two regions and falls to
-0.442. The separable corpus is the same story from the other side: 1.000
-at 1.5–2, 0.774 at 0.5–1.0. The best worst-case setting across both
-shapes is unchanged — bge, k=5, mutual, weighted, resolution 2.0, at
-0.578 / 0.729 — so `build_map`'s defaults stand
+The in-domain map splits equipment-and-storage rather than homing it, so
+coarser granularity was the obvious repair, and the sweep had never gone
+below resolution 1.0. On the English sweep it did not help: in-domain's
+best stayed at resolution 1.0 (0.652) and merged to two regions at 0.7;
+the separable corpus fell from 1.000 to 0.774 over the same range. The
+direction is closed in that measurement; the multilingual sweep keeps to
+1.0 and above, and its winner sits at 2.0 on both shapes
 (`benchmarks/history/2026-10-15/structure.md`).

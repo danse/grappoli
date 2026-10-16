@@ -9,6 +9,7 @@ dependencies = [
     "ollama>=0.4",
     "scikit-learn>=1.5",
     "sentence-transformers>=3",
+    "stopwordsiso>=0.7.1",
     "torch>=2.2",
     "tqdm>=4.70.1",
 ]

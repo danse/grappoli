@@ -2,8 +2,9 @@
 
 Items to be done, delete once done:
 
-- make multilingual with `stopwordsiso`
-- add a multilingual fixture and run benchmarks on it
+- add a multilingual fixture and wire it in benchmark_all
+- should qwen2.5 stay in benchmark_all? Haven't we found it fails
+  relations at least?
 - widen the model comparison beyond the two downloaded models, on the
   relation loop's tool choice. Both fail it — 0 of 6 pairs in the shipped
   loop (`benchmarks/relations.md`, "What is not settled") — and the
@@ -18,17 +19,18 @@ Items to be done, delete once done:
   what a resumed batch covers, and the batch that has been measured so
   far stands as it is.
 - A `tune` tool for corpus-adaptive knobs (k, resolution, and whether
-  the evidence ever makes mutual depend on the corpus). Not now, for
-  two recorded reasons: mutual needs no picking — its best beats
-  plain's best on both fixture shapes (0.652/1.000 vs 0.435/1.000) —
-  while the knobs that do vary, k and resolution, have only two shapes
-  to fit a rule from; and the reference-free saturation signal a tune
-  would need is unestablished (`benchmarks/structure.md`, "Against
-  deciding without a reference"). Revisit when structure match can
-  validate a rule against more scored corpora. Note the
-  standing decisions it would meet: no config layer, so its only
-  output could be per-run flag advice; sweep machinery lives in
-  `scripts/`.
+  the evidence ever makes mutual depend on the corpus). Not now, but the
+  encoder swap sharpened what it would be for: mutual is a shape call,
+  not a free choice — its best (0.904/0.783) wins the worst case only
+  because plain (0.348/1.000) collapses on the saturated corpus, and
+  loses outright on the separable one — while the knobs that do vary, k
+  and resolution, have only two shapes to fit a rule from, and the
+  reference-free saturation signal a tune would need is unestablished
+  (`benchmarks/structure.md`, "Against deciding without a reference").
+  Revisit when structure match can validate a rule against more scored
+  corpora. Note the standing decisions it would meet: no config layer,
+  so its only output could be per-run flag advice; sweep machinery lives
+  in `scripts/`.
 - explore an NLI cross-encoder as the faithfulness judge, decoupled from
   the model under test. The rubric is entailment — "supported when the
   notes state or directly entail it" — so a natural-language-inference

@@ -3,10 +3,10 @@
 The map's edges already assert that regions touch; this step is what
 puts that into sentences. Each relation is derived from the two
 characterisations, never from the notes: the agent's whole world is the
-`Toolbox` below, which holds the map structure and the stored
-characterisations and nothing else. No shipped function returns a raw
-note, so the corpus is out of reach however the agent asks
-(`architecture.md`, Agent tools).
+`Toolbox` below, which holds the map structure, the stored
+characterisations, and the corpus's stopwords — no note. No shipped
+function returns a raw note, so the corpus is out of reach however the
+agent asks (`architecture.md`, Agent tools).
 
 A relation is one appended line, keyed by the unordered pair it names,
 so an interrupted run resumes at the first missing pair and never
@@ -27,31 +27,30 @@ resumes without regenerating a completed one.
 """
 
 import json
-import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from . import linefile
 from .model import converse
-
-# Words too common to signal that two regions are about the same thing.
-STOPWORDS = frozenset(
-    """a an and are as at be by for from has have in into is it its of on or that the
-    their they this to using was were what when which while with""".split()
-)
+from .words import terms
 
 
 class InvalidRelation(Exception):
     """An answer that parsed but is not a relation."""
 
 
-def _terms(characterisation: dict) -> set[str]:
-    """The content words of a characterisation, lowercased."""
+def _terms(characterisation: dict, stop: frozenset[str] = frozenset()) -> set[str]:
+    """The content words of a characterisation, in any language.
+
+    The words its language says nothing with are the corpus's, handed in
+    from `words.stopwords` rather than listed here, so a characterisation
+    written in any language is read the same way (`architecture.md`,
+    Language).
+    """
     text = " ".join([characterisation["about"], *characterisation["topics"],
                      *characterisation["key_claims"]])
-    words = re.findall(r"[a-z0-9]+", text.lower())
-    return {word for word in words if len(word) > 2 and word not in STOPWORDS}
+    return terms(text, stop)
 
 
 def read_relations(path: Path) -> dict[tuple[int, int], dict]:
@@ -156,16 +155,21 @@ class Toolbox:
     """The agent's whole world: the map structure and the characterisations.
 
     Constructed without the notes — there is no argument to put them in
-    — so no tool can return one. A tool that cannot answer returns an
-    `{"error": ...}` object rather than raising, so a bad call is a
-    recoverable round rather than the end of the run.
+    — so no tool can return one. It is given the corpus's stopwords, a
+    set of words and not the corpus, so a characterisation in any
+    language is read by the tool that compares them (`architecture.md`,
+    Language). A tool that cannot answer returns an `{"error": ...}`
+    object rather than raising, so a bad call is a recoverable round
+    rather than the end of the run.
     """
 
-    def __init__(self, mapping: dict, characterisations: dict[int, dict], path: Path):
+    def __init__(self, mapping: dict, characterisations: dict[int, dict], path: Path,
+                 stop: frozenset[str] = frozenset()):
         self._regions = mapping["regions"]
         self._edges = [(e["source"], e["target"]) for e in mapping["edges"]]
         self._characterisations = characterisations
         self._path = Path(path)
+        self._stop = frozenset(stop)
 
     def call(self, name: str, arguments: dict) -> dict:
         """Dispatch one tool call by name; unknown names are an error."""
@@ -210,7 +214,7 @@ class Toolbox:
                 return {"error": f"region {region} has no characterisation"}
         shared_topics = sorted({t.lower() for t in left["topics"]}
                                & {t.lower() for t in right["topics"]})
-        shared_terms = sorted(_terms(left) & _terms(right))
+        shared_terms = sorted(_terms(left, self._stop) & _terms(right, self._stop))
         return {"shared_topics": shared_topics, "shared_terms": shared_terms}
 
     def write_relation(self, source: int, target: int, statement: str) -> dict:
@@ -363,6 +367,7 @@ def build_prompt() -> str:
 
 
 def relate_regions(mapping: dict, characterisations: dict[int, dict], path: Path,
+                   stop: frozenset[str] = frozenset(),
                    llm=converse, clock=time.monotonic,
                    progress=None, log=None) -> list[tuple[int, int]]:
     """Record a relation for every touching pair, resuming a partial file.
@@ -371,8 +376,11 @@ def relate_regions(mapping: dict, characterisations: dict[int, dict], path: Path
     never regenerated, and the toolbox refuses a duplicate write as well,
     so a model that repeats a pair cannot append one. Only edges whose two
     endpoints are characterised are attempted, because a relation is
-    written between characterisations only. Returns the relatable pairs
-    still missing when the loop stopped or hit its cap.
+    written between characterisations only. `stop` is the corpus's words
+    that say nothing, handed to the toolbox so its `compare_regions` reads
+    a characterisation in any language (`architecture.md`, Language).
+    Returns the relatable pairs still missing when the loop stopped or hit
+    its cap.
     """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -387,7 +395,7 @@ def relate_regions(mapping: dict, characterisations: dict[int, dict], path: Path
     if all(pair in read_relations(path) for pair in relatable):
         return []
 
-    toolbox = Toolbox(mapping, characterisations, path)
+    toolbox = Toolbox(mapping, characterisations, path, stop)
 
     def on_round(number, cap):
         if progress is not None:

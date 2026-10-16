@@ -17,13 +17,15 @@ generation call. The structure of what it returns:
 
 The rule parameters appear in the map so the artefact says which rule
 produced it. The defaults are the best worst-case setting across both
-fixture shapes: bge, k=5, mutual, weighted, resolution 2.0 scores
-0.578 in-domain and 0.729 heterogeneous — no single setting has a
-better guarantee, where the in-domain winner (0.652 there) collapsed
-to 0.381 on the other shape. `mutual` stays true because its best
-beats plain's on both shapes (0.652/1.000 vs 0.435/1.000). The sweep
-revisits all of these against any corpus you can score
-(`benchmarks/structure.md`, `benchmarks/structure-heterogeneous.md`).
+fixture shapes under the multilingual encoder: k=4, mutual, weighted,
+resolution 2.0 scores 0.904 in-domain and 0.783 heterogeneous — no
+single setting has a better guarantee, and this one is also the
+saturated corpus's own winner. `mutual` stays true because it wins the
+worst case (its best 0.904/0.783 against plain's 0.348/1.000): it
+carries the saturated shape, where plain graphs over-merge, at the cost
+of a little on the separable one. The sweep re-decides all of these on
+any corpus you can score (`benchmarks/structure.md`,
+`benchmarks/structure-heterogeneous.md`).
 `progress` is a callback (label, done, total) for the per-item display
 that every step must provide (architecture.md, Progress and logging).
 """
@@ -36,8 +38,8 @@ from .similarity import build_vectors
 
 def build_map(
     notes: dict[str, str],
-    provider: str = "bge",
-    k: int = 5,
+    provider: str = "e5",
+    k: int = 4,
     target: int = 5,
     mutual: bool = True,
     resolution: float = 2.0,

@@ -100,8 +100,8 @@ def test_read_builds_map_and_characterisations_with_decided_defaults(branch):
     rc = main(["read", str(branch)], llm=_answer, agent_llm=_relating_agent())
     assert rc == 0
     mapping = json.loads((_artefacts(branch) / "map.json").read_text())
-    assert mapping["similarity"] == "bge"
-    assert mapping["k"] == 5
+    assert mapping["similarity"] == "e5"
+    assert mapping["k"] == 4
     assert mapping["mutual"] is True
     assert mapping["resolution"] == 2.0
     assert mapping["weighted"] is True

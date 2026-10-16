@@ -1,6 +1,6 @@
 """Sweep the structure rule over a corpus and print the report.
 
-The map's rule has knobs — similarity provider (bge-small, or TF-IDF as
+The map's rule has knobs — similarity provider (e5-small, or TF-IDF as
 the control), neighbourhood size, reciprocal-edge filtering, louvain
 resolution and weighting — and they decide whether a map holds
 together. This script sweeps them and reports the whole space.
@@ -33,7 +33,7 @@ from grappoli.measure import map_labels
 from grappoli.measure import reference_labels as _reference_labels
 from grappoli.similarity import build_vectors
 
-PROVIDERS = ("bge", "tfidf")
+PROVIDERS = ("e5", "tfidf")
 KS = (2, 3, 4, 5)
 RESOLUTIONS = (1.0, 1.5, 2.0)
 

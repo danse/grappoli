@@ -36,7 +36,7 @@ def _names(mapping) -> set[str]:
 
 
 @pytest.mark.parametrize("notes_dir", CORPORA)
-def test_map_covers_corpus_exactly_with_bge(notes_dir):
+def test_map_covers_corpus_exactly_with_e5(notes_dir):
     """Every note has a home or is flagged standalone, and only once.
 
     The two figures the map promises are 'which regions are worth
@@ -46,7 +46,7 @@ def test_map_covers_corpus_exactly_with_bge(notes_dir):
     Pinned on both fixture shapes (fixtures/README.md).
     """
     corpus = load_corpus(notes_dir)
-    mapping = build_map(corpus, provider="bge")
+    mapping = build_map(corpus, provider="e5")
     assert len(_names(mapping)) == len(corpus) == 14
     region_count = sum(len(r["members"]) for r in mapping["regions"])
     assert region_count + len(mapping["standalone"]) == len(corpus)
@@ -74,8 +74,8 @@ def test_region_rule_is_deterministic(corpus):
     the structure step were nondeterministic, structure match would be
     measuring the shuffle, and no metric could be trusted from it.
     """
-    first = build_map(corpus, provider="bge")
-    second = build_map(corpus, provider="bge")
+    first = build_map(corpus, provider="e5")
+    second = build_map(corpus, provider="e5")
     assert json.dumps(first, sort_keys=True) == json.dumps(second, sort_keys=True)
 
 
@@ -88,9 +88,9 @@ def test_edges_are_derived_from_the_graph(corpus):
     edge between them would be invented, not derived, which is exactly
     what the map step must not do.
     """
-    mapping = build_map(corpus, provider="bge")
+    mapping = build_map(corpus, provider="e5")
     names = list(corpus)
-    vectors = build_vectors(list(corpus.values()), "bge")
+    vectors = build_vectors(list(corpus.values()), "e5")
     base_edges = _graph.mutual_edges(vectors, mapping["k"]) if mapping["mutual"] else _graph.knn_edges(vectors, mapping["k"])
     base = {(a, b) for a, b, _ in base_edges}
     index_of = {name: i for i, name in enumerate(names)}
@@ -115,7 +115,7 @@ def test_selection_takes_no_generation_calls(corpus):
     machinery into the process at all.
     """
     assert "ollama" not in sys.modules
-    mapping = build_map(corpus, provider="bge")
+    mapping = build_map(corpus, provider="e5")
     assert "ollama" not in sys.modules
     for region in mapping["regions"]:
         assert set(region["representatives"]) <= set(region["members"])
@@ -131,7 +131,7 @@ def test_progress_is_reported_per_item(corpus):
     logging), so the callback is part of the behaviour, not an option.
     """
     events = []
-    build_map(corpus, provider="bge", progress=lambda label, done, total: events.append((label, done, total)))
+    build_map(corpus, provider="e5", progress=lambda label, done, total: events.append((label, done, total)))
     embedding = [e for e in events if e[0] == "embed"]
     assert embedding and embedding[-1][1] == embedding[-1][2] == len(corpus)
     clusters = [e for e in events if e[0] == "clusters"]

@@ -5,113 +5,113 @@
 ## Similarity
 | provider | mean intra-region | mean inter-region |
 |---|---|---|
-| bge | 0.687 | 0.555 |
-| tfidf | 0.046 | 0.015 |
+| e5 | 0.858 | 0.812 |
+| tfidf | 0.050 | 0.012 |
 
 ## Sweep
 | provider | k | mutual | weighted | resolution | regions | ARI |
 |---|---|---|---|---|---|---|
-| **bge** | 2 | no | no | 1.5 | 5 | 1.000 |
-| bge | 2 | no | yes | 1.5 | 5 | 1.000 |
-| bge | 2 | no | no | 2 | 5 | 1.000 |
-| bge | 2 | no | yes | 2 | 5 | 1.000 |
-| bge | 3 | yes | no | 1.5 | 5 | 1.000 |
-| bge | 3 | yes | yes | 1.5 | 5 | 1.000 |
-| bge | 3 | yes | no | 2 | 5 | 1.000 |
-| bge | 3 | yes | yes | 2 | 5 | 1.000 |
-| bge | 2 | yes | no | 2 | 5 | 0.821 |
-| bge | 2 | yes | yes | 2 | 5 | 0.821 |
-| bge | 2 | no | no | 1 | 4 | 0.774 |
-| bge | 2 | no | yes | 1 | 4 | 0.774 |
-| bge | 2 | yes | no | 1 | 4 | 0.774 |
-| bge | 2 | yes | yes | 1 | 4 | 0.774 |
-| bge | 2 | yes | no | 1.5 | 4 | 0.774 |
-| bge | 2 | yes | yes | 1.5 | 4 | 0.774 |
-| bge | 3 | yes | no | 1 | 4 | 0.774 |
-| bge | 3 | yes | yes | 1 | 4 | 0.774 |
-| bge | 4 | yes | yes | 1 | 4 | 0.774 |
-| bge | 4 | yes | no | 1.5 | 4 | 0.774 |
-| bge | 4 | yes | yes | 1.5 | 4 | 0.774 |
-| bge | 4 | yes | no | 2 | 4 | 0.774 |
-| bge | 4 | yes | yes | 2 | 4 | 0.774 |
-| bge | 5 | yes | yes | 2 | 4 | 0.729 |
-| bge | 4 | no | no | 2 | 6 | 0.641 |
-| bge | 4 | no | yes | 2 | 6 | 0.641 |
-| bge | 5 | no | yes | 2 | 5 | 0.609 |
-| bge | 3 | no | no | 1.5 | 4 | 0.548 |
-| bge | 3 | no | yes | 1.5 | 4 | 0.548 |
-| bge | 3 | no | no | 2 | 4 | 0.548 |
-| bge | 3 | no | yes | 2 | 4 | 0.548 |
-| bge | 5 | yes | yes | 1.5 | 4 | 0.548 |
-| bge | 4 | yes | no | 1 | 3 | 0.545 |
-| bge | 3 | no | no | 1 | 3 | 0.504 |
-| bge | 3 | no | yes | 1 | 3 | 0.504 |
-| bge | 4 | no | no | 1 | 3 | 0.504 |
-| bge | 4 | no | yes | 1 | 3 | 0.504 |
-| bge | 4 | no | no | 1.5 | 3 | 0.504 |
-| bge | 4 | no | yes | 1.5 | 3 | 0.504 |
-| bge | 5 | yes | yes | 1 | 3 | 0.504 |
-| bge | 5 | no | yes | 1.5 | 4 | 0.478 |
-| tfidf | 2 | yes | no | 1 | 4 | 0.435 |
-| tfidf | 2 | yes | yes | 1 | 4 | 0.435 |
-| tfidf | 2 | yes | no | 1.5 | 4 | 0.435 |
-| tfidf | 2 | yes | yes | 1.5 | 4 | 0.435 |
-| tfidf | 2 | yes | no | 2 | 4 | 0.435 |
-| tfidf | 2 | yes | yes | 2 | 4 | 0.435 |
-| bge | 5 | yes | no | 1.5 | 4 | 0.420 |
-| bge | 5 | yes | no | 2 | 4 | 0.420 |
-| tfidf | 5 | yes | yes | 1 | 3 | 0.398 |
-| bge | 5 | no | no | 2 | 5 | 0.386 |
-| bge | 5 | yes | no | 1 | 3 | 0.381 |
-| tfidf | 2 | no | yes | 1 | 4 | 0.377 |
-| tfidf | 3 | no | yes | 1 | 4 | 0.377 |
-| tfidf | 3 | yes | no | 1 | 4 | 0.377 |
-| tfidf | 3 | yes | yes | 1 | 4 | 0.377 |
-| tfidf | 4 | yes | yes | 1 | 4 | 0.377 |
-| bge | 5 | no | yes | 1 | 3 | 0.364 |
-| tfidf | 2 | no | yes | 2 | 6 | 0.355 |
-| tfidf | 4 | no | yes | 2 | 6 | 0.355 |
-| tfidf | 3 | no | yes | 2 | 5 | 0.348 |
-| tfidf | 3 | yes | yes | 1.5 | 5 | 0.348 |
-| tfidf | 3 | yes | yes | 2 | 5 | 0.348 |
-| tfidf | 5 | yes | no | 2 | 7 | 0.305 |
-| bge | 5 | no | no | 1 | 3 | 0.271 |
-| tfidf | 3 | no | yes | 1.5 | 4 | 0.265 |
-| tfidf | 4 | no | yes | 1.5 | 4 | 0.265 |
-| tfidf | 4 | yes | yes | 1.5 | 4 | 0.265 |
-| tfidf | 4 | yes | yes | 2 | 4 | 0.265 |
-| tfidf | 5 | no | yes | 1.5 | 4 | 0.265 |
-| tfidf | 5 | yes | yes | 1.5 | 4 | 0.265 |
-| tfidf | 2 | no | no | 1.5 | 5 | 0.261 |
-| tfidf | 2 | no | no | 2 | 5 | 0.261 |
-| tfidf | 3 | no | no | 1.5 | 5 | 0.261 |
-| tfidf | 4 | no | yes | 1 | 3 | 0.257 |
-| tfidf | 3 | yes | no | 1.5 | 6 | 0.255 |
-| tfidf | 3 | yes | no | 2 | 6 | 0.255 |
+| **e5** | 2 | no | no | 2 | 5 | 1.000 |
+| e5 | 2 | no | yes | 2 | 5 | 1.000 |
+| e5 | 2 | no | no | 1.5 | 5 | 0.783 |
+| e5 | 2 | no | yes | 1.5 | 5 | 0.783 |
+| e5 | 3 | yes | no | 1.5 | 5 | 0.783 |
+| e5 | 3 | yes | yes | 1.5 | 5 | 0.783 |
+| e5 | 3 | yes | no | 2 | 5 | 0.783 |
+| e5 | 3 | yes | yes | 2 | 5 | 0.783 |
+| e5 | 4 | yes | no | 2 | 5 | 0.783 |
+| e5 | 4 | yes | yes | 2 | 5 | 0.783 |
+| e5 | 2 | yes | no | 1.5 | 5 | 0.712 |
+| e5 | 2 | yes | yes | 1.5 | 5 | 0.712 |
+| e5 | 2 | yes | no | 2 | 5 | 0.712 |
+| e5 | 2 | yes | yes | 2 | 5 | 0.712 |
+| e5 | 4 | yes | no | 1.5 | 4 | 0.687 |
+| e5 | 4 | yes | yes | 1.5 | 4 | 0.687 |
+| e5 | 2 | yes | no | 1 | 4 | 0.682 |
+| e5 | 2 | yes | yes | 1 | 4 | 0.682 |
+| e5 | 4 | no | no | 2 | 5 | 0.641 |
+| e5 | 4 | no | yes | 2 | 5 | 0.641 |
+| e5 | 4 | no | yes | 1.5 | 4 | 0.624 |
+| e5 | 5 | no | no | 1.5 | 4 | 0.548 |
+| e5 | 2 | no | no | 1 | 3 | 0.545 |
+| e5 | 2 | no | yes | 1 | 3 | 0.545 |
+| e5 | 3 | yes | no | 1 | 3 | 0.545 |
+| e5 | 3 | yes | yes | 1 | 3 | 0.545 |
+| e5 | 4 | yes | no | 1 | 3 | 0.545 |
+| e5 | 4 | yes | yes | 1 | 3 | 0.545 |
+| e5 | 3 | no | no | 1 | 3 | 0.504 |
+| e5 | 3 | no | yes | 1 | 3 | 0.504 |
+| e5 | 3 | no | no | 1.5 | 3 | 0.504 |
+| e5 | 3 | no | yes | 1.5 | 3 | 0.504 |
+| e5 | 4 | no | yes | 1 | 3 | 0.504 |
+| e5 | 3 | no | no | 2 | 5 | 0.494 |
+| e5 | 3 | no | yes | 2 | 5 | 0.494 |
+| tfidf | 2 | yes | yes | 1 | 4 | 0.494 |
+| tfidf | 2 | yes | yes | 1.5 | 4 | 0.494 |
+| e5 | 5 | yes | no | 2 | 4 | 0.473 |
+| e5 | 5 | yes | yes | 2 | 4 | 0.473 |
+| e5 | 5 | no | yes | 1.5 | 5 | 0.468 |
+| e5 | 5 | yes | yes | 1 | 3 | 0.442 |
+| e5 | 5 | yes | no | 1.5 | 3 | 0.442 |
+| e5 | 5 | yes | yes | 1.5 | 3 | 0.442 |
+| tfidf | 5 | no | yes | 1.5 | 5 | 0.420 |
+| tfidf | 3 | no | yes | 1 | 4 | 0.398 |
+| e5 | 5 | no | yes | 2 | 6 | 0.397 |
+| tfidf | 4 | no | yes | 1.5 | 6 | 0.397 |
+| tfidf | 3 | no | yes | 1.5 | 4 | 0.377 |
+| e5 | 5 | yes | no | 1 | 3 | 0.335 |
+| tfidf | 2 | yes | no | 2 | 5 | 0.329 |
+| tfidf | 3 | yes | no | 1.5 | 5 | 0.329 |
+| tfidf | 3 | yes | no | 2 | 5 | 0.329 |
+| tfidf | 4 | yes | no | 2 | 5 | 0.329 |
+| tfidf | 2 | yes | no | 1 | 4 | 0.325 |
+| tfidf | 2 | yes | no | 1.5 | 4 | 0.325 |
+| tfidf | 2 | yes | yes | 2 | 4 | 0.325 |
+| tfidf | 3 | yes | no | 1 | 4 | 0.325 |
+| tfidf | 3 | yes | yes | 1.5 | 4 | 0.325 |
+| tfidf | 3 | yes | yes | 2 | 4 | 0.325 |
+| tfidf | 4 | yes | yes | 1.5 | 4 | 0.325 |
+| tfidf | 4 | yes | yes | 2 | 4 | 0.325 |
+| tfidf | 5 | yes | yes | 1.5 | 4 | 0.325 |
+| e5 | 4 | no | no | 1.5 | 4 | 0.323 |
+| tfidf | 5 | yes | yes | 1 | 3 | 0.320 |
+| tfidf | 3 | yes | yes | 1 | 3 | 0.303 |
+| tfidf | 4 | yes | yes | 1 | 3 | 0.303 |
+| tfidf | 4 | no | yes | 1 | 3 | 0.303 |
+| tfidf | 5 | no | yes | 1 | 3 | 0.303 |
+| tfidf | 2 | no | no | 1 | 5 | 0.282 |
+| tfidf | 2 | no | no | 1.5 | 5 | 0.282 |
+| tfidf | 2 | no | no | 2 | 5 | 0.282 |
+| tfidf | 5 | yes | no | 2 | 6 | 0.279 |
+| e5 | 5 | no | no | 1 | 2 | 0.279 |
+| tfidf | 2 | no | yes | 1.5 | 4 | 0.265 |
+| tfidf | 2 | no | yes | 2 | 4 | 0.265 |
+| e5 | 4 | no | no | 1 | 3 | 0.257 |
+| e5 | 5 | no | no | 2 | 7 | 0.255 |
+| tfidf | 3 | no | yes | 2 | 6 | 0.255 |
 | tfidf | 5 | no | yes | 2 | 6 | 0.255 |
-| bge | 5 | no | no | 1.5 | 4 | 0.252 |
-| tfidf | 2 | no | yes | 1.5 | 4 | 0.247 |
-| tfidf | 3 | no | no | 2 | 6 | 0.233 |
-| tfidf | 5 | yes | yes | 2 | 6 | 0.233 |
-| tfidf | 2 | no | no | 1 | 4 | 0.230 |
-| tfidf | 4 | yes | no | 1 | 5 | 0.192 |
-| tfidf | 4 | yes | no | 1.5 | 5 | 0.192 |
-| tfidf | 3 | no | no | 1 | 4 | 0.157 |
-| tfidf | 5 | no | yes | 1 | 3 | 0.145 |
-| tfidf | 4 | yes | no | 2 | 6 | 0.137 |
-| tfidf | 5 | yes | no | 1.5 | 5 | 0.087 |
-| tfidf | 4 | no | no | 1 | 3 | 0.018 |
-| tfidf | 5 | yes | no | 1 | 4 | 0.010 |
+| tfidf | 2 | no | yes | 1 | 3 | 0.242 |
+| tfidf | 4 | yes | no | 1 | 4 | 0.241 |
+| tfidf | 4 | yes | no | 1.5 | 4 | 0.241 |
+| tfidf | 5 | yes | no | 1.5 | 4 | 0.241 |
+| tfidf | 5 | yes | yes | 2 | 5 | 0.233 |
+| e5 | 5 | no | yes | 1 | 2 | 0.176 |
+| tfidf | 4 | no | yes | 2 | 5 | 0.174 |
+| tfidf | 5 | yes | no | 1 | 3 | 0.104 |
+| tfidf | 3 | no | no | 2 | 5 | 0.087 |
+| tfidf | 3 | no | no | 1 | 3 | 0.081 |
+| tfidf | 4 | no | no | 1.5 | 5 | 0.072 |
+| tfidf | 5 | no | no | 1.5 | 6 | 0.000 |
 | tfidf | 5 | no | no | 2 | 7 | -0.043 |
-| tfidf | 4 | no | no | 1.5 | 4 | -0.044 |
-| tfidf | 5 | no | no | 1 | 2 | -0.093 |
-| tfidf | 5 | no | no | 1.5 | 4 | -0.129 |
-| tfidf | 4 | no | no | 2 | 7 | -0.132 |
+| tfidf | 4 | no | no | 1 | 3 | -0.053 |
+| tfidf | 3 | no | no | 1.5 | 6 | -0.055 |
+| tfidf | 4 | no | no | 2 | 7 | -0.055 |
+| tfidf | 5 | no | no | 1 | 2 | -0.098 |
 
 ## Best map (by ARI)
-_Decided: bge, k=2, mutual=no, weighted=no, resolution=1.5, ARI 1.000._
+_Decided: e5, k=2, mutual=no, weighted=no, resolution=2, ARI 1.000._
 
-### bge at its own best
+### e5 at its own best
 - r0: bike-chain-care.md, brake-pad-replacement.md, commuting-tyre-notes.md
 - r1: commit-message-guide.md, pre-commit-hook-checklist.md, rebasing-git-history.md
 - r2: community-garden-rota.md, library-shelving-notes.md
@@ -119,55 +119,33 @@ _Decided: bge, k=2, mutual=no, weighted=no, resolution=1.5, ARI 1.000._
 - r4: houseplant-pests.md, propagating-by-cuttings.md, watering-houseplants.md
 
 ### tfidf at its own best
-- r0: bike-chain-care.md, commuting-tyre-notes.md, hiking-gear-layering.md
-- r1: commit-message-guide.md, pre-commit-hook-checklist.md
-- r2: houseplant-pests.md, propagating-by-cuttings.md, watering-houseplants.md
-- r3: route-planning-and-weather.md, south-ridge-trail-log.md
-- standalone: brake-pad-replacement.md, community-garden-rota.md, library-shelving-notes.md, rebasing-git-history.md
+- r0: bike-chain-care.md, community-garden-rota.md, commuting-tyre-notes.md
+- r1: brake-pad-replacement.md, commit-message-guide.md, pre-commit-hook-checklist.md
+- r2: hiking-gear-layering.md, rebasing-git-history.md, route-planning-and-weather.md, south-ridge-trail-log.md
+- r3: houseplant-pests.md, propagating-by-cuttings.md, watering-houseplants.md
+- standalone: library-shelving-notes.md
 
 ## Reading (2026-10-16)
 
-The rule does not transfer, which is exactly what this second corpus
-exists to find out. bge reaches the reference exactly (ARI 1.000, five
-regions: the four intended, plus both strays together) but from the
-opposite corner of the knob space: k=2, a plain graph with no
-reciprocal filter, resolution 1.5–2. The in-domain decision — k=5,
-mutual, resolution 1 — scores 0.381 here, merged to 3 regions: at
-resolution 1 the wider mutual-filtered neighbourhood's edges glue the
-four clusters together. The perfect partition is otherwise easy to
-reach (eight bge rows and two knob corners land on it), so the failure
-of the in-domain defaults is the rule's shape-dependence, not bge.
+The rule still does not transfer, though the multilingual encoder makes
+both corners easier. e5 reaches the reference exactly (ARI 1.000, five
+regions: the four intended plus both strays together) with a small plain
+neighbourhood, k=2 at resolution 2 — the same shape the English sweep
+found, so the shape-dependence is the rule's, not the encoder's. The
+in-domain decision — k=4, mutual, resolution 2 — scores 0.783 here,
+against 0.473 at k=5: shrinking the neighbourhood is what carries the
+rule across both shapes, and is why k=4 is the best worst-case row.
 
-No single setting serves both shapes well: the saturated corpus needs
-a mutual-filtered neighbourhood (its best: bge k=5 mutual res 1,
-0.652), the separable one wants a small plain neighbourhood at higher
-resolution (bge k=2 plain res 1.5, 1.000). Neither fixture's winner is
-the transferable rule, so `map.py` carries the best worst-case row
-across both reports — k=5, mutual, weighted, resolution 2.0 (0.578 /
-0.729) — rebakeable when a scored corpus more representative than the
-fixtures appears. Which shape the real corpus has is the tool owner's
-call, and that corpus's sweep is what will settle it.
-
-bge beats tfidf by more on this shape than on the saturated one
-(1.000 vs 0.435) even though TF-IDF's mean margin is comparable (0.03
-vs 0.04). Disjoint domains clean up the *ranking* of neighbours far
-more than they move mean similarity, and bag-of-words still
-fragments: bikes, git and hiking each split, with one hiking note
-glued to the bike pair; only houseplants — where the vocabulary is
-exactly the object names — comes out whole. Both strays stay clear of
-the four intended regions under both providers — grouped as one small
-region by bge, left standalone by tfidf.
-
-**Reproduced (2026-10-13).** The batch reran the sweep and returned the
-same best row — bge k=2 plain at 1.000, tfidf 0.519 at its own best (the
-pre-correction scoring; corrected, 0.435) — so the second shape is
-unchanged by a fresh run, and the reading above is what the region-rule
-and embedder rows in `architecture.md` are closed on
-(`benchmarks/runs/2026-10-13/run.json`).
+e5 beats tfidf by more on this shape than on the saturated one (1.000
+against 0.494) even though its mean margin is comparable (0.046 vs
+0.034). Disjoint domains clean up the *ranking* of neighbours far more
+than they move mean similarity, and bag-of-words still fragments. Both
+strays stay clear of the four intended regions under both providers —
+grouped as one small region by e5, left standalone by tfidf.
 
 ## Coarser resolution (2026-10-15)
 
-Extending the sweep below resolution 1.0 costs this shape: 1.000 at
-1.5–2 becomes 0.774 at 0.5–1.0. Coarser does not survive the separable
-corpus any better than it helps the saturated one
+Extending the sweep below resolution 1.0 costs this shape: on the English
+sweep 1.000 at 1.5–2 became 0.774 at 0.5–1.0. Coarser does not survive
+the separable corpus any better than it helps the saturated one
 (`benchmarks/history/2026-10-15/structure-heterogeneous.md`).

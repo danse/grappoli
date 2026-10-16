@@ -45,8 +45,9 @@ from .measure import measure as measure_map
 from .model import converse, structured
 from .relations import read_relations, relate_regions
 from .render import render
+from .words import stopwords
 
-PROVIDERS = ("bge", "tfidf")
+PROVIDERS = ("e5", "tfidf")
 
 
 def main(argv=None, *, llm=structured, agent_llm=converse, compare=None) -> int:
@@ -60,8 +61,8 @@ def main(argv=None, *, llm=structured, agent_llm=converse, compare=None) -> int:
     read_cmd = sub.add_parser("read", help="read a branch of notes into a map")
     read_cmd.add_argument("notes", help="path to the branch of notes")
     read_cmd.add_argument("--similarity", choices=PROVIDERS,
-                          help="similarity provider (default: bge)")
-    read_cmd.add_argument("-k", type=int, help="neighbourhood size (default: 5)")
+                          help="similarity provider (default: e5)")
+    read_cmd.add_argument("-k", type=int, help="neighbourhood size (default: 4)")
     read_cmd.add_argument("--target", type=int, help="representatives per region (default: 5)")
     read_cmd.add_argument("--model", help="generation model (default: qwen2.5:0.5b)")
     read_cmd.set_defaults(run=_run_read)
@@ -109,8 +110,8 @@ def _run_read(args, llm, agent_llm) -> int:
         print(line, file=sys.stderr)
 
     mapping = build_map(
-        notes, provider=args.similarity or "bge",
-        k=args.k if args.k is not None else 5,
+        notes, provider=args.similarity or "e5",
+        k=args.k if args.k is not None else 4,
         target=args.target if args.target is not None else 5,
         progress=progress,
     )
@@ -123,7 +124,8 @@ def _run_read(args, llm, agent_llm) -> int:
 
     missing = relate_regions(
         mapping, read_characterisations(work / "characterisations"),
-        work / "relations", llm=agent_llm, progress=progress, log=log,
+        work / "relations", stop=stopwords(notes.values()),
+        llm=agent_llm, progress=progress, log=log,
     )
 
     characterised = len(mapping["regions"]) - len(failed)

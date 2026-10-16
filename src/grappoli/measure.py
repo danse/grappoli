@@ -53,13 +53,17 @@ UNMAPPED = "unmapped"
 
 # A cross-encoder answers a query/passage relevance question. Neither of
 # two characterisations is the other's query, so both orders are scored
-# and the higher kept (`cross_encoder`). ms-marco is a raw-logit model
-# (Identity activation): near-identical text scores high positive,
-# unrelated text several points negative, and 0 is the boundary between
-# "another phrasing of this" and "something else" on the pairs measured
-# in `benchmarks/measurement.md`. It is provisional, like every threshold
-# this project has set, and the fixture is what would move it.
-REDUNDANCY_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+# and the higher kept (`cross_encoder`). `mmarco` is the multilingual
+# counterpart of the English ms-marco and is raw-logit the same way (its
+# config declares Identity activation): near-identical text scores high
+# positive, unrelated text several points negative, and 0 is the boundary
+# between "another phrasing of this" and "something else". That boundary
+# was measured on the English model's pairs
+# (`benchmarks/measurement.md`) and is carried to the multilingual one
+# unmeasured.
+# It is provisional, like every threshold this project has set, and the
+# fixture is what would move it.
+REDUNDANCY_MODEL = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
 REDUNDANCY_THRESHOLD = 0.0
 
 # Judging a claim is a structured answer, like characterising a region,

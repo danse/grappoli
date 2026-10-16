@@ -32,8 +32,8 @@ def _characterisation(about="a region", topics=("t",), claims=("c",)):
 
 def _map(regions, edges=(), standalone=()):
     return {
-        "similarity": "bge",
-        "k": 5,
+        "similarity": "e5",
+        "k": 4,
         "mutual": True,
         "resolution": 2.0,
         "weighted": True,
@@ -129,7 +129,7 @@ def test_the_regions_come_before_the_relations_before_the_standalone():
 
 def test_the_page_says_which_rule_produced_the_map():
     page = render(_map([_region(0, ["a.md"])]), {}, {})
-    assert "rule: bge, k=5, mutual=true, weighted=true, resolution=2.0" in page
+    assert "rule: e5, k=4, mutual=true, weighted=true, resolution=2.0" in page
 
 
 def test_the_header_counts_the_corpus():

@@ -52,7 +52,7 @@ def corpus() -> dict[str, str]:
 def embedder():
     from sentence_transformers import SentenceTransformer
 
-    return SentenceTransformer("BAAI/bge-small-en-v1.5")
+    return SentenceTransformer("intfloat/multilingual-e5-small")
 
 
 @pytest.mark.parametrize("corpus_dir", CORPORA)
@@ -108,8 +108,8 @@ def test_reference_has_the_intended_shape(corpus_dir):
     assert len(reference["standalone"]) == 2
 
 
-def test_bge_small_embeds_every_note(corpus, embedder):
-    """bge-small returns vectors of its known dimension for the whole corpus.
+def test_e5_embeds_every_note(corpus, embedder):
+    """The multilingual encoder returns vectors of its known dimension.
 
     The map builds its graph on these vectors; a loader failure here
     would surface downstream as a clustering artifact and be blamed on

@@ -21,6 +21,30 @@ out of its own map. And a file that does not decode as UTF-8 is skipped,
 so an image or a document left in the tree is not read as prose.
 `tests/test_corpus.py` pins the rule.
 
+## Language
+
+A corpus is read as words, not as English. A term is a word of three
+letters or more in any script, split on letters and digits: an ASCII
+split does not merely lose a word it cannot read, it shortens the one it
+is in the middle of, so "città" becomes "citt" and joins every other
+word beginning "citt". Which of those words say nothing is a fact about
+the language a note is written in, so the lists come from `stopwordsiso`
+rather than a set kept here (`grappoli.words`).
+
+The language is not guessed. Every language's list is scored by how much
+of the corpus it accounts for, and each scoring at least half the best
+counts as written, so a mixed corpus is read as all its languages and a
+corpus no list accounts for keeps every word. The detected set is the
+corpus's, and the two places that filter words take it from there: the
+TF-IDF control's stop words, and the terms `compare_regions` compares.
+
+The TF-IDF control's structure numbers (`benchmarks/structure.md`,
+`benchmarks/structure-heterogeneous.md`) are the multilingual sweep,
+where the control reads the corpus's own stop words. The English sweep
+they replaced — the English encoder and its English stop words — is kept
+under `benchmarks/history/2026-10-16/`; a corpus in another language
+re-measures the control rather than rewrites the record.
+
 ## Build pipeline
 
 The map is built once, offline, in one direction:
@@ -70,21 +94,23 @@ and able to survive an interrupt.
 
 ## Similarity
 
-Note vectors from `BAAI/bge-small-en-v1.5` — small, fast on CPU, strong
-for its size. Its weights being in the local cache is convenience, not
-reasoning; they are re-fetchable anywhere.
+Note vectors from `intfloat/multilingual-e5-small` — small, fast on
+CPU, and reads a hundred-odd languages, so a branch in any of them is
+embedded by the same model the English one was. Its weights being in
+the local cache is convenience, not reasoning; they are re-fetchable
+anywhere.
 
 **TF-IDF cosine runs alongside as a control.** If the encoder does not
 beat bag-of-words on structure match, the encoder is not earning its
-keep and the simpler one wins. The control has run and bge wins on both
-fixture shapes — 0.652/1.000 against 0.450/0.435 — though TF-IDF's
-failure is localised rather than across the board
+keep and the simpler one wins. The control has run: the multilingual
+encoder wins on both fixture shapes — 0.904/1.000 against 0.435/0.494 —
+though TF-IDF's failure is localised rather than across the board
 (`benchmarks/structure.md`, "Reading (2026-10-16)").
 
-Two cached cross-encoders — `ms-marco-MiniLM-L-6-v2`,
-`mmarco-mMiniLMv2-L12-H384` — score pairs for redundancy. Redundancy
-uses the English one to judge whether two characterisations say the same
-thing; the multilingual twin is there for a corpus it cannot read
+Redundancy pairs are scored by `mmarco-mMiniLMv2-L12-H384-v1`, the
+multilingual cross-encoder, so two characterisations are compared by a
+model that reads the corpus's language; it is raw-logit like its English
+twin, and its threshold carries that twin's measurement
 (`grappoli.measure`).
 
 ## Graph
@@ -109,13 +135,14 @@ need no reference (silhouette, leave-one-out stability) demonstrably do
 not reproduce structure match (`benchmarks/structure.md`).
 
 The sweep runs per corpus, and the two fixture shapes disagree. The
-saturated corpus's winner is k=5 plus the mutual filter (ARI 0.652); on
-the heterogeneous corpus that same rule scores 0.381, whose own winner
-is a small plain neighbourhood at higher resolution (ARI 1.000) —
-`benchmarks/structure-heterogeneous.md`. The defaults are therefore
-neither winner, but the best worst-case row across both: bge, k=5,
-mutual, weighted, resolution 2.0 — 0.578 in-domain, 0.729
-heterogeneous, and no single setting scores better in the worst case.
+saturated corpus's winner is a mutual-filtered k=4 at resolution 2 (ARI
+0.904); on the heterogeneous corpus that same rule scores 0.783, whose
+own winner is a small plain neighbourhood at higher resolution (ARI
+1.000) — `benchmarks/structure-heterogeneous.md`. The defaults are
+therefore the best worst-case row across both, which this time is also
+the saturated corpus's winner: k=4, mutual, weighted, resolution 2.0 —
+0.904 in-domain, 0.783 heterogeneous, and no single setting scores
+better in the worst case.
 A scored corpus more representative than the fixtures rebakes them,
 the same mechanism with a third reference.
 
@@ -238,7 +265,7 @@ The four numbers are `grappoli.measure`:
   the one number with no model behind it.
 - **Redundancy** — the share of characterisations that repeat another.
   Whole characterisations are compared pairwise by the cached
-  `ms-marco-MiniLM-L-6-v2` cross-encoder, both orders scored and the
+  `mmarco-mMiniLMv2-L12-H384-v1` cross-encoder, both orders scored and the
   higher kept because neither is the other's query. Two regions say the
   same thing at or above `0.0` on the model's raw logits; a chain of
   repeats collapses to one group. Redundancy is then the share of
@@ -291,27 +318,25 @@ confirm them; the one that remains is stated with what settles it:
 | qwen2.5:0.5b | faithfulness | Open — both LLM judges misread verbatim claims (the 0.5B judge ten of ten), so neither can settle it; a judge decoupled from the model under test is required (`benchmarks/measurement.md`, "Reading (2026-10-13)"). |
 
 **Communities as regions — confirmed by structure match.** Mutual-filtered
-communities reach 0.652 on the saturated corpus
+communities reach 0.904 on the saturated corpus
 (`benchmarks/structure.md`, "Reading (2026-10-16)") and 1.000 on the
 separable one (`benchmarks/structure-heterogeneous.md`, "Reading
-(2026-10-16)"); the 2026-10-13 batch reproduced both sweeps exactly
-(`benchmarks/runs/2026-10-13/run.json`).
+(2026-10-16)"); the English sweep that first confirmed it was reproduced
+exactly by the 2026-10-13 batch (`benchmarks/runs/2026-10-13/run.json`).
 
-**bge-small over TF-IDF — confirmed by structure match.** bge beats
-TF-IDF on both shapes, 0.652/1.000 against 0.450/0.435 at each
-provider's own best. The mean margin was never the test: reproducing the
-intended partition is.
+**An encoder over TF-IDF — confirmed by structure match.** The
+multilingual encoder beats TF-IDF on both shapes, 0.904/1.000 against
+0.435/0.494 at each provider's own best. The mean margin was never the
+test: reproducing the intended partition is.
 
 **Flat map — settled.** Structure match cannot be the arbiter it was
 promised to be: adjusted Rand index compares two flat partitions, so a
 level added *above* the regions is invisible to it, and a level *below*
 is scored only as a splitting of the reference's own regions. What the
-measurement could still say it did: the in-domain map makes four
-regions, as the reference does, but not the same four (equipment-and-
-storage is dismantled), and going coarser — resolutions below 1.0,
-never swept until now — is worse on both shapes, not better, so the
-best worst-case setting is unchanged
-(`benchmarks/structure.md`, "Coarser resolution (2026-10-15)";
+measurement could still say it did: the in-domain map makes five regions
+against a reference of four, splitting equipment-and-storage, and going
+coarser — resolutions below 1.0 — is worse on the English sweep, not
+better (`benchmarks/structure.md`, "Coarser resolution (2026-10-15)";
 `benchmarks/structure-heterogeneous.md`, "Coarser resolution
 (2026-10-15)"). The map sits flat, and nesting is not a shape the
 measurements reach; if it is wanted it is a presentation choice for the
