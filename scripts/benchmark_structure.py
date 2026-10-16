@@ -219,7 +219,7 @@ def main() -> None:
 
     notes = load_corpus(args.notes)
     if not notes:
-        print(f"{args.notes}: no markdown notes found", file=sys.stderr)
+        print(f"{args.notes}: no notes found", file=sys.stderr)
         sys.exit(1)
     ks = tuple(int(x) for x in args.ks.split(","))
     resolutions = tuple(float(x) for x in args.resolutions.split(","))

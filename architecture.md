@@ -5,6 +5,22 @@ any code existed. `roadmap.md` holds the build order. This file holds
 what sits behind those decisions: the actual components, and which
 choices are still waiting on a measurement.
 
+## Corpus
+
+A branch is a directory of notes, possibly nested, and a note is any text
+file in it — extension or none. `grappoli.corpus.load_corpus` loads them
+all, so a tree of `.txt`, `.org` or extensionless notes maps the same as
+one of markdown. Notes are keyed by path relative to the branch root, so
+a note's identity is stable however deep it sits, and the body is loaded
+as-is: headings are not assumed to exist (`tests/fixtures/README.md`).
+
+Two paths are not notes. A path with a hidden component — a leading dot,
+as in `.git/` or the build directory `.grappoli/` — is skipped, and
+skipping hidden paths as a class is also what keeps the build directory
+out of its own map. And a file that does not decode as UTF-8 is skipped,
+so an image or a document left in the tree is not read as prose.
+`tests/test_corpus.py` pins the rule.
+
 ## Build pipeline
 
 The map is built once, offline, in one direction:

@@ -76,6 +76,18 @@ def _artefacts(branch):
     return branch / ".grappoli"
 
 
+def test_read_with_no_notes_says_so(tmp_path, capsys):
+    """An empty branch is a mistake to report, not an empty map to build.
+
+    The loader decides what a note is (`tests/test_corpus.py`), so a
+    branch it finds nothing in stops before any model is asked.
+    """
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    assert main(["read", str(empty)]) == 1
+    assert "no notes under" in capsys.readouterr().err
+
+
 def test_read_builds_map_and_characterisations_with_decided_defaults(branch):
     """A bare `grappoli read` runs the pipeline with the decided rule.
 

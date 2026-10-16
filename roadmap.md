@@ -1,18 +1,7 @@
 # roadmap
 
-The build order for `grappoli`. `product.md` states what it is and why;
-`architecture.md` pins the decisions. The stages ran in order — a stage
-was not finished until its tests were in `tests/` and described the
-behaviour rather than merely exercised it — and each finished stage was
-removed entirely rather than marked; what it learned stayed in the tests
-and in `benchmarks/`. They are all done, so what remains is the agenda.
+Items to be done, delete once done:
 
-# Agenda
-
-Items to be done after the stages
-
-- corpus.load_corpus: change so that notes can be text files
-  regardless of extension
 - make multilingual with `stopwordsiso`
 - add a multilingual fixture and run benchmarks on it
 - widen the model comparison beyond the two downloaded models, on the

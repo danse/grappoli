@@ -95,7 +95,7 @@ def _run_read(args, llm, agent_llm) -> int:
     agent_llm = _with_model(agent_llm, args.model)
     notes = load_corpus(args.notes)
     if not notes:
-        print(f"grappoli: no markdown notes under {args.notes}", file=sys.stderr)
+        print(f"grappoli: no notes under {args.notes}", file=sys.stderr)
         return 1
 
     work = Path(args.notes) / ".grappoli"
@@ -138,7 +138,7 @@ def _run_measure(args, llm, agent_llm) -> int:
     llm = _with_model(llm, args.model)
     notes = load_corpus(args.notes)
     if not notes:
-        print(f"grappoli: no markdown notes under {args.notes}", file=sys.stderr)
+        print(f"grappoli: no notes under {args.notes}", file=sys.stderr)
         return 1
 
     work = Path(args.notes) / ".grappoli"
