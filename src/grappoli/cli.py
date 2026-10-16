@@ -11,6 +11,9 @@
   measurements, read from the same working files. It builds nothing,
   so it measures the candidate the branch holds; `--reference` scores
   structure match, without which that one number is not produced.
+* `grappoli show NOTES` — print the page a reader reads: `render` of the
+  same three working files, to stdout. It makes no model call and writes
+  nothing, so it can be run again and again on one build.
 
 The map's rule is the built-in default in `grappoli/map.py`, overridden
 per-run by the flags; `scripts/benchmark_structure.py` is what re-decides
@@ -25,8 +28,8 @@ loop, both bound to `--model`. A region that exhausts its attempts is
 logged and skipped, and
 the run exits non-zero so the failure is not mistaken for a finished map;
 a loop that stops with pairs still unrelating does the same, since the
-build is then partial. `measure` reports its numbers on stdout, since a
-measurement's output is not progress.
+build is then partial. `measure` and `show` report on stdout, since a
+measurement and a page are not progress.
 """
 
 import argparse
@@ -41,6 +44,7 @@ from .map import build_map
 from .measure import measure as measure_map
 from .model import converse, structured
 from .relations import read_relations, relate_regions
+from .render import render
 
 PROVIDERS = ("bge", "tfidf")
 
@@ -69,6 +73,10 @@ def main(argv=None, *, llm=structured, agent_llm=converse, compare=None) -> int:
                                   "(same shape as tests/fixtures/in-domain/reference-regions.json)")
     measure_cmd.add_argument("--model", help="judge model (default: qwen2.5:0.5b)")
     measure_cmd.set_defaults(run=_run_measure)
+
+    show_cmd = sub.add_parser("show", help="print the map built under NOTES/.grappoli for a reader")
+    show_cmd.add_argument("notes", help="path to the branch of notes")
+    show_cmd.set_defaults(run=_run_show)
 
     args = parser.parse_args(argv)
     args.compare = compare
@@ -156,6 +164,26 @@ def _run_measure(args, llm, agent_llm) -> int:
         print(f"grappoli: {err}", file=sys.stderr)
         return 1
     print(_report(result))
+    return 0
+
+
+def _run_show(args, llm, agent_llm) -> int:
+    """Print the page for the map already built under `NOTES/.grappoli`.
+
+    Nothing is built and no model is asked: the three working files are
+    read and `render` is printed, so the command is a view of one build
+    (`architecture.md`, The document).
+    """
+    work = Path(args.notes) / ".grappoli"
+    map_path = work / "map.json"
+    if not map_path.exists():
+        print(f"grappoli: no map under {work} — run `grappoli read {args.notes}` first",
+              file=sys.stderr)
+        return 1
+    mapping = json.loads(map_path.read_text())
+    characterisations = read_characterisations(work / "characterisations")
+    relations = read_relations(work / "relations")
+    print(render(mapping, characterisations, relations))
     return 0
 
 

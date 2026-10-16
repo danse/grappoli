@@ -1,45 +1,11 @@
 # roadmap
 
 The build order for `grappoli`. `product.md` states what it is and why;
-`architecture.md` pins the decisions. This file is when each step
-happens, what it has to answer, and what its tests have to pin. Stages
-run in order — a stage is not finished until its tests are in `tests/`
-and describe the behaviour rather than merely exercise it. Finished
-stages are removed entirely, not marked; what they learned stays in
-the tests and in `benchmarks/`.
-
-## Stage 6 — The document
-
-`grappoli show` prints one map for a reader: a deterministic projection
-of `map.json`, `characterisations` and `relations`, with no model call
-after the relations are written. It writes to standard output and not
-into `<branch>/.grappoli/`, which is a build directory rather than an
-output.
-
-The page is the corpus's, not the model's. How well the model understood
-is what faithfulness judges, and the loop's trace is a
-development artefact; neither belongs here. So the document carries the
-model's words verbatim — no paraphrase, no compression — because a
-paraphrase is our understanding laid over the reader's, and no longer
-shows what the map says.
-
-The layout is a presentational choice still to be made, but nothing
-pends on it: a characterisation survives (`architecture.md`,
-Measurements) and the map sits flat (`architecture.md`, Graph). The
-content contract is fixed now — every region; its characterisation where
-one exists; every relation, once, between characterised regions; and the
-notes that stand alone. An input missing a characterisation or a relation
-is rendered as a gap rather than filled in, so a partial build reads as
-partial.
-
-**Tests pin:** the document is a function of the three inputs; each
-region, each stored relation exactly once however the pair is keyed, and
-each standalone note appear; relation statements are verbatim; a missing
-characterisation or relation is rendered as incomplete rather than
-invented.
-
-**Answered when:** `grappoli show` prints a page a reader can act on
-without opening `.grappoli/`.
+`architecture.md` pins the decisions. The stages ran in order — a stage
+was not finished until its tests were in `tests/` and described the
+behaviour rather than merely exercised it — and each finished stage was
+removed entirely rather than marked; what it learned stayed in the tests
+and in `benchmarks/`. They are all done, so what remains is the agenda.
 
 # Agenda
 

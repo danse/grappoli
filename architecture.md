@@ -175,6 +175,36 @@ related, and `write_relation` refuses one that already has a line. The
 refusal sits in the toolbox rather than in the prompt, so a model that
 repeats itself cannot append a second line for a pair that is done.
 
+## The document
+
+`grappoli show NOTES` is the pipeline's last arrow: it reads the three
+working files and prints one page to standard output, and it writes
+nothing back into the branch. `grappoli.render.render` is a pure function
+of the map, the characterisations and the relations — no model, no clock,
+no file of its own — so one build always reads the same and the page is
+the corpus's rather than the model's. The model's words are carried
+verbatim: `about`, `topics`, `key_claims` and each relation `statement`
+appear as written, because a paraphrase would be our understanding laid
+over the reader's (`product.md`, What it produces).
+
+The content contract is fixed: every region; its characterisation where
+one exists; every relation, once, between characterised regions; and the
+notes that stand alone. A region with no characterisation, or a touching
+pair with no relation, is printed as a gap — `no characterisation`,
+`(no relation recorded)` — rather than omitted or invented, so a partial
+build reads as partial.
+
+The layout is a presentation choice rather than a measurement, and is
+fixed here so that changing it is a change to the record: the header and
+its rule first, then the regions, then how they touch, then the notes
+nothing refers to. The regions lead because they are the figure a reader
+acts on; each lists its notes in full and names its representatives only
+when they are a proper subset, since for a region small enough that every
+note was sent to the model the two would say the same thing twice. The
+map is shown flat, and nesting, if it is ever wanted, is a choice for
+this section judged by reading rather than scored (Provisional).
+`tests/test_render.py` pins the contract and the layout.
+
 ## Measurements
 
 `grappoli measure NOTES` scores a map already built under
