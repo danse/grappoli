@@ -48,16 +48,17 @@ In order, it runs:
    recording what it left behind.
 5. **relations** — the granularity probe at each conversation size, both
    channels, per model.
-6. **measure** — the four numbers once per judge; each model's
-   characterisations are read by every judge named, so a map is scored by
-   a judge decoupled from the model that wrote it.
+6. **measure** — the four numbers once per judge. A judge named `nli` is
+   the NLI cross-encoder, decoupled from every model by construction; any
+   other name is a generation model, and each model's characterisations
+   are read by every judge named, so a map is scored by each.
 
 ```
 uv run python scripts/benchmark_all.py
     [--corpus tests/fixtures/in-domain/notes] [--corpus …/heterogeneous/notes]
     [--corpus …/multilingual/notes]
-    [--models qwen2.5:0.5b,llama3.2:latest,qwen3:0.6b,functiongemma:270m]
-    [--judges qwen2.5:0.5b,llama3.2:latest]
+    [--models qwen2.5:0.5b,llama3.2:latest]
+    [--judges nli]
     [--work /tmp/opencode/suite]
     [--out benchmarks/runs/YYYY-MM-DD/run.json]
     [--force]
@@ -65,7 +66,13 @@ uv run python scripts/benchmark_all.py
 
 `--models` and `--judges` default independently: the first is what the
 batch runs, the second is what scores their maps, and a model added to
-the batch is not thereby made a judge of it.
+the batch is not thereby made a judge of it. `--judges` takes the token
+`nli` for the NLI cross-encoder, or generation-model names.
+
+The NLI judge loads `MoritzLaurer/mDeBERTa-v3-base-mnli-xnli` on first
+use. `grappoli` sets `HF_HUB_OFFLINE=1` so a cached model never waits on
+DNS, so fetch it once with `HF_HUB_OFFLINE=0` before the first run, or
+the judge fails at load.
 
 A corpus is copied under `--work` before it is built in: a fixture is
 never written to, and each model gets its own copy, so two models'

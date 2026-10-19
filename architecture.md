@@ -277,13 +277,16 @@ The four numbers are `grappoli.measure`:
   region support. Each claim is judged alone against every member of
   the region under an explicit rubric: supported when the notes state
   or directly entail it, unsupported when it adds a fact, name, number
-  or relation the notes do not hold, or contradicts them. A malformed
-  verdict is retried up to three attempts, exactly as a malformed
-  characterisation is; a claim the judge never answers is recorded
-  undecided and left out of the share, so a failing judge cannot move
-  the number it reports. The judge is the model under test, which is a
-  known limit: the verdicts are part of the result so the disagreement
-  is readable rather than smoothed away.
+  or relation the notes do not hold, or contradicts them. The judge is
+  either the model under test — a known limit, the verdicts are part of
+  the result so the disagreement is readable rather than smoothed away,
+  and a malformed verdict is retried up to three attempts as a malformed
+  characterisation is — or, under `--judge nli`, the
+  `mDeBERTa-v3-base-mnli-xnli` cross-encoder, which scores entailment
+  straight off the notes and is decoupled from the model by construction.
+  A claim the model judge never answers is recorded undecided and left
+  out of the share, so a failing judge cannot move the number it reports;
+  the NLI judge always answers, so it leaves no claim undecided.
 - **Structure match** — adjusted Rand index of the map's regions
   against a reference, the score `scripts/benchmark_structure.py` also
   sweeps the rule with, through the same `reference_labels` check. It
@@ -315,7 +318,7 @@ confirm them; the one that remains is stated with what settles it:
 
 | Decision | Overturned by | Standing |
 |---|---|---|
-| qwen2.5:0.5b | faithfulness | Open — both LLM judges misread verbatim claims (the 0.5B judge ten of ten), so neither can settle it; a judge decoupled from the model under test is required (`benchmarks/measurement.md`, "Reading (2026-10-13)"). |
+| qwen2.5:0.5b | faithfulness | Open — both LLM judges misread verbatim claims (the 0.5B judge ten of ten), so neither can settle it (`benchmarks/measurement.md`, "Reading (2026-10-13)"); the decoupled judge is now built (`grappoli measure --judge nli`) and the next run's number is what settles the row. |
 
 **Communities as regions — confirmed by structure match.** Mutual-filtered
 communities reach 0.904 on the saturated corpus
@@ -354,7 +357,8 @@ judge flags ten claims and every one is a sentence lying verbatim in the
 region's own notes, and the 3B judge errs often enough to be a floor too —
 the judge, not the map, is the weak link (`benchmarks/measurement.md`,
 "Reading (2026-10-13)"). The choice of model is still open, to be settled
-by a judge decoupled from the model under test.
+by a judge decoupled from the model under test — now built as the NLI
+cross-encoder behind `--judge nli`.
 
 ## Environment
 

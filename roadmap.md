@@ -17,17 +17,3 @@ Items to be done, delete once done:
   corpora. Note the standing decisions it would meet: no config layer,
   so its only output could be per-run flag advice; sweep machinery lives
   in `scripts/`.
-- explore an NLI cross-encoder as the faithfulness judge, decoupled from
-  the model under test. The rubric is entailment — "supported when the
-  notes state or directly entail it" — so a natural-language-inference
-  model scores (region notes, `key_claim`) straight to
-  entailment/neutral/contradiction (`cross-encoder/nli-deberta-v3-base`,
-  `MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli`), and `measure(llm=...)`
-  is already the judge's injection seam. Small, CPU-only and effectively
-  deterministic, so it would also settle the number that swings with the
-  judge (0.842 under the 0.5B judge against 0.684 under 3B on the same
-  in-domain map, `benchmarks/measurement.md`).
-  It is a new measurement, not a free swap: the premise is a whole
-  region's notes against a one-clause claim, the "or contradicts" clause
-  needs the contradiction label, and the entailment cut-off is another
-  provisional threshold.

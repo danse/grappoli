@@ -14,6 +14,7 @@ stubs, the same way characterisation and the relation loop are.
 import json
 import shutil
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -23,10 +24,14 @@ from grappoli.measure import (
     UNMAPPED,
     characterisation_text,
     comprehensiveness,
+    entailment_index,
     faithfulness,
     judge_claim,
     map_labels,
     measure,
+    nli_judge,
+    premises,
+    probabilities,
     redundancy,
     reference_labels,
     region_evidence,
@@ -333,6 +338,139 @@ def test_region_evidence_joins_the_members_in_map_order():
     assert region_evidence(region, {"a.md": "A", "b.md": "B"}) == "B\n\nA"
 
 
+# --- the NLI judge --------------------------------------------------------
+
+
+class FakeTokenizer:
+    """Whitespace tokens, so a window can be counted by eye."""
+
+    def __init__(self, model_max_length=512):
+        self.model_max_length = model_max_length
+
+    def __call__(self, text, add_special_tokens=False):
+        return {"input_ids": text.split()}
+
+    def decode(self, ids, skip_special_tokens=False):
+        return " ".join(ids)
+
+
+class FakeNLI:
+    """A cross-encoder whose row a function decides, keyed by the pair."""
+
+    def __init__(self, score, id2label=None, max_position_embeddings=512):
+        self.score = score
+        self.tokenizer = FakeTokenizer(max_position_embeddings)
+        self.model = SimpleNamespace(config=SimpleNamespace(
+            id2label=id2label or {0: "contradiction", 1: "neutral", 2: "entailment"},
+            max_position_embeddings=max_position_embeddings))
+        self.pairs = []
+
+    def predict(self, pairs):
+        self.pairs.extend(pairs)
+        return [self.score(premise, hypothesis) for premise, hypothesis in pairs]
+
+
+def _row(entailment):
+    """A probability row carrying the given entailment share."""
+    rest = (1.0 - entailment) / 2
+    return [rest, rest, entailment]
+
+
+def test_entailment_index_reads_the_models_label_order():
+    """The entailment output is the model's, not a fixed position.
+
+    The two shipped NLI heads order their three labels differently, so the
+    index is read from `id2label` rather than assumed.
+    """
+    first = SimpleNamespace(id2label={0: "entailment", 1: "neutral", 2: "contradiction"})
+    last = SimpleNamespace(id2label={0: "contradiction", 1: "neutral", 2: "entailment"})
+    assert entailment_index(first) == 0
+    assert entailment_index(last) == 2
+    with pytest.raises(ValueError, match="entailment"):
+        entailment_index(SimpleNamespace(id2label={0: "yes", 1: "no"}))
+
+
+def test_probabilities_reads_a_probability_row_and_softmaxes_logits():
+    """The head may return logits or probabilities; the threshold needs one.
+
+    `nli-deberta-v3-base` applies its softmax, `mDeBERTa` may not, and the
+    threshold is meaningless on a raw logit — so a row that already sums to
+    one is read as is and anything else is softmaxed, which leaves the
+    argmax and the threshold the same either way.
+    """
+    assert probabilities([0.1, 0.2, 0.7]) == pytest.approx([0.1, 0.2, 0.7])
+    logits = probabilities([0.0, 0.0, 4.0])
+    assert float(logits.sum()) == pytest.approx(1.0)
+    assert logits[2] > 0.9
+
+
+def test_premises_windows_a_long_evidence_without_dropping_a_note():
+    """A region longer than the model's length is split, not truncated.
+
+    The windows are contiguous and cover every token exactly once, so a
+    note past the model's limit still reaches the judge.
+    """
+    evidence = " ".join(f"t{i}" for i in range(20))
+    windows = premises(FakeTokenizer(), evidence, 8)
+    assert [len(window.split()) for window in windows] == [8, 8, 4]
+    assert " ".join(windows) == evidence
+
+
+def test_nli_judge_supports_a_claim_the_notes_entail():
+    judge = nli_judge(threshold=0.5, encoder=FakeNLI(lambda p, h: _row(0.9)))
+    verdict = judge("salt preserves", "salt preserves the brine")
+    assert verdict["supported"] is True
+    assert "0.90" in verdict["reason"]
+
+
+def test_nli_judge_rejects_a_claim_the_notes_do_not_entail():
+    """Not-entailment is unsupported, the same as the rubric's extra fact."""
+    judge = nli_judge(threshold=0.5, encoder=FakeNLI(lambda p, h: _row(0.2)))
+    assert judge("the jar is blue", "salt preserves the brine")["supported"] is False
+
+
+def test_nli_judge_takes_the_best_window():
+    """A claim any window entails is supported, like any member bearing it out."""
+    def score(premise, hypothesis):
+        return _row(0.9 if "needle" in premise else 0.1)
+
+    encoder = FakeNLI(score, max_position_embeddings=4)
+    judge = nli_judge(threshold=0.5, encoder=encoder)
+    verdict = judge("the needle is sterile", "boil the jar cool the needle")
+    assert verdict["supported"] is True
+    assert len(encoder.pairs) > 1
+
+
+def test_nli_judge_loads_the_model_only_when_none_is_injected(monkeypatch):
+    encoder = FakeNLI(lambda p, h: _row(0.9))
+    monkeypatch.setattr("grappoli.measure.nli_encoder", lambda model: encoder)
+    assert nli_judge()("a claim", "the notes")["supported"] is True
+
+
+def test_faithfulness_uses_the_judge_it_is_given():
+    """A decoupled judge replaces the model-backed one, claim by claim."""
+    mapping = _map([["a.md"]], [])
+    characterisations = {0: _characterisation("x")}
+    seen = []
+
+    def judge(claim, evidence):
+        seen.append((claim, evidence))
+        return {"supported": False, "reason": "nli"}
+
+    result = faithfulness(mapping, characterisations, {"a.md": "the notes"}, judge=judge)
+    assert result["score"] == 0.0
+    assert seen == [(seen[0][0], "the notes")]
+    assert result["verdicts"][0]["reason"] == "nli"
+
+
+def test_measure_passes_the_judge_through():
+    """The whole measurement takes the decoupled judge, not the model."""
+    result = measure(_map([["a.md"]], []), {0: _characterisation("x")}, {"a.md": "x"},
+                     judge=lambda claim, evidence: {"supported": True, "reason": "nli"},
+                     compare=lambda left, right: 0.0)
+    assert result["faithfulness"] == pytest.approx(1.0)
+
+
 # --- the whole measurement ------------------------------------------------
 
 
@@ -478,3 +616,20 @@ def test_measure_command_reports_a_broken_reference(branch, tmp_path, capsys):
               llm=Judge([dict(VERDICT)] * 8), compare=_nonrepeating)
     assert rc == 1
     assert "reference has no label for" in capsys.readouterr().err
+
+
+def test_measure_command_uses_the_nli_judge_when_asked(branch, capsys, monkeypatch):
+    """`--judge nli` swaps in the decoupled judge, so no model is consulted.
+
+    The judge is built from the flag rather than the injected `llm`, which
+    is what makes the number decoupled from the model under test; the
+    stub stands in for the cross-encoder a live run would load.
+    """
+    from grappoli import cli
+
+    monkeypatch.setattr(cli, "nli_judge",
+                        lambda: (lambda claim, evidence: {"supported": True, "reason": "nli"}))
+    rc = main(["measure", str(branch), "--judge", "nli"], compare=_nonrepeating)
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "faithfulness: 1.000" in out

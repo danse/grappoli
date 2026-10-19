@@ -107,10 +107,11 @@ threshold is conservative on real text.
   writer, which is the one judge a model comparison cannot use. So neither
   the 0.5B-judged nor the 3B-judged column can rank the two models: the
   numbers are floors, and the deciding measurement is a judge decoupled
-  from the model under test — the NLI cross-encoder already on the agenda
-  (`roadmap.md`). The model row stays open until it exists
-  (`architecture.md`, Provisional); qwen2.5:0.5b is kept in the
-  meantime, nothing here putting the 3B ahead (`roadmap.md`).
+  from the model under test. That judge is now built — the NLI
+  cross-encoder, `grappoli measure --judge nli` — so the model row stays
+  open only until a run scores on it (`architecture.md`, Provisional);
+  qwen2.5:0.5b is kept in the meantime, nothing here putting the 3B
+  ahead.
 - **The redundancy threshold is calibrated on the wrong text.** It is set
   on short prose pairs, but the run scores whole `characterisation_text` —
   `about`, `topics` and `key_claims` concatenated. The 0.250 above is one

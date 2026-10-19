@@ -27,13 +27,16 @@ stability — demonstrably do not reproduce structure match
 
 The two model-backed measures take their model as an argument: the
 redundancy `compare` is the cross-encoder the architecture holds for it,
-and the faithfulness judge is the same `structured` interface
-characterisation runs through. Both are injected, so every rule here is
-pinned by a test
-with a stub and the real models are exercised only in live runs
-(`benchmarks/measurement.md`). The judge being the model under test is a
-known limit, not a hidden one: an undecided or wrong verdict is recorded
-as found, and the rubric is not tuned until the number improves.
+and the faithfulness judge is either the `structured` interface
+characterisation runs through (`llm`) or a decoupled NLI cross-encoder
+(`judge`). All are injected, so every rule here is pinned by a test with
+a stub and the real models are exercised only in live runs
+(`benchmarks/measurement.md`). The model-backed judge is the model under
+test, a known limit rather than a hidden one: an undecided or wrong
+verdict is recorded as found, and the rubric is not tuned until the
+number improves. The NLI judge exists to lift that limit — it is
+decoupled by construction and effectively deterministic — and is the
+judge the model decision has been waiting on.
 """
 
 import json
@@ -65,6 +68,18 @@ UNMAPPED = "unmapped"
 # fixture is what would move it.
 REDUNDANCY_MODEL = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1"
 REDUNDANCY_THRESHOLD = 0.0
+
+# The decoupled faithfulness judge: an NLI cross-encoder scores (region
+# notes, claim) straight to entailment/neutral/contradiction, so the
+# judge is not the model under test. `mDeBERTa` is the multilingual
+# counterpart of the English `cross-encoder/nli-deberta-v3-base`, chosen
+# for the same reason `REDUNDANCY_MODEL` is the multilingual mmarco — one
+# of the corpora is Italian, and a judge that cannot read it cannot score
+# it. The entailment cut-off is provisional, like every threshold here:
+# 0.5 is the model's own decision boundary, and the fixture is what would
+# move it.
+NLI_MODEL = "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli"
+NLI_THRESHOLD = 0.5
 
 # Judging a claim is a structured answer, like characterising a region,
 # so a malformed one is retried the same way rather than read as a
@@ -361,15 +376,109 @@ def region_evidence(region: dict, notes: dict[str, str]) -> str:
     return "\n\n".join(notes[name].strip() for name in region["members"] if name in notes)
 
 
+# --- the NLI judge --------------------------------------------------------
+
+
+def entailment_index(config) -> int:
+    """Which output the model's entailment label is.
+
+    The label order is the model's, not a convention, so `id2label` is
+    read rather than assumed: a head that orders its three labels
+    differently is still scored on the one it calls entailment.
+    """
+    labels = getattr(config, "id2label", None) or {}
+    for index, label in labels.items():
+        if "entail" in str(label).lower():
+            return int(index)
+    raise ValueError(f"NLI model has no entailment label among {labels!r}")
+
+
+def probabilities(row) -> np.ndarray:
+    """A model row as three probabilities, whether it came as logits or not.
+
+    Cross-encoders differ in whether they apply a softmax, so the row is
+    read as probabilities only when it already reads as one; otherwise the
+    softmax is applied here. That leaves the argmax alone and makes the
+    threshold mean the same thing either way.
+    """
+    values = np.asarray(row, dtype=float)
+    if bool((values >= 0).all()) and abs(float(values.sum()) - 1.0) < 1e-3:
+        return values
+    shifted = np.exp(values - values.max())
+    return shifted / shifted.sum()
+
+
+def nli_encoder(model: str = NLI_MODEL):
+    """The cached NLI cross-encoder, loaded on first use like the others."""
+    from sentence_transformers import CrossEncoder
+
+    encoder = _CROSS_ENCODERS.get(model)
+    if encoder is None:
+        encoder = CrossEncoder(model)
+        _CROSS_ENCODERS[model] = encoder
+    return encoder
+
+
+def premises(tokenizer, evidence: str, width: int) -> list[str]:
+    """The evidence as premises no longer than `width` tokens.
+
+    The cross-encoder has a fixed input length, and a region longer than
+    it would be truncated with its tail dropped. Splitting the evidence
+    into token windows that each fit keeps every note in some premise; the
+    claim is supported when any window entails it, which is the rubric's
+    "the notes state it" read at window size.
+    """
+    ids = tokenizer(evidence, add_special_tokens=False)["input_ids"]
+    if len(ids) <= width:
+        return [evidence]
+    return [tokenizer.decode(ids[start:start + width], skip_special_tokens=True)
+            for start in range(0, len(ids), width)]
+
+
+def nli_judge(model: str = NLI_MODEL, threshold: float = NLI_THRESHOLD, encoder=None):
+    """A `(claim, evidence) -> verdict` judge backed by an NLI cross-encoder.
+
+    Decoupled from the model under test and effectively deterministic, so
+    it is the judge the model decision has been waiting on. The premise is
+    the region's evidence, scored in windows when it exceeds the model's
+    input length; the claim is supported when the highest entailment
+    reaches `threshold`. An entailment model answers the rubric's two
+    clauses at once: not-entailment is unsupported, and a contradiction is
+    one way to fail it.
+
+    `encoder` is injected so the rule is pinned on a stub; the real model
+    is loaded, and cached, only when none is given.
+    """
+    if encoder is None:
+        encoder = nli_encoder(model)
+    config = encoder.model.config
+    index = entailment_index(config)
+    tokenizer = encoder.tokenizer
+    limit = int(getattr(config, "max_position_embeddings", 0)
+                or tokenizer.model_max_length)
+
+    def judge(claim: str, evidence: str) -> dict:
+        room = limit - len(tokenizer(claim, add_special_tokens=False)["input_ids"]) - 3
+        rows = encoder.predict([(premise, claim)
+                                for premise in premises(tokenizer, evidence, max(room, 1))])
+        best = max(float(probabilities(row)[index]) for row in rows)
+        return {"supported": best >= threshold,
+                "reason": f"entailment {best:.2f} (threshold {threshold:.2f})"}
+
+    return judge
+
+
 def faithfulness(mapping: dict, characterisations: dict[int, dict], notes: dict[str, str],
-                 llm=structured, progress=None, log=None) -> dict:
+                 llm=structured, judge=None, progress=None, log=None) -> dict:
     """Judge every `key_claim` against its region's notes.
 
-    Returns the share supported and the verdicts behind it. A claim the
-    judge could not answer is recorded undecided and excluded from the
-    share, so a failing judge cannot move the number it reports; the
-    undecided count is part of the result, because the judge is the
-    model under test and its disagreement is the honest finding
+    Returns the share supported and the verdicts behind it. `judge`, when
+    given, is a decoupled `(claim, evidence) -> verdict` judge that
+    replaces the model-backed `llm`, so the number no longer reads a
+    model's verdict on its own prose. A claim the judge could not answer
+    is recorded undecided and excluded from the share, so a failing judge
+    cannot move the number it reports; the undecided count is part of the
+    result, because a judge's disagreement is the honest finding
     (`architecture.md`, Measurements). A region named by a
     characterisation but absent from the map is skipped rather than
     guessed at.
@@ -387,7 +496,8 @@ def faithfulness(mapping: dict, characterisations: dict[int, dict], notes: dict[
         if progress is not None:
             progress("claim", position, total)
         try:
-            verdict = judge_claim(claim, evidence, llm, log)
+            verdict = (judge(claim, evidence) if judge is not None
+                       else judge_claim(claim, evidence, llm, log))
         except JudgeFailed as err:
             verdict = {"supported": None, "reason": str(err)}
         if log is not None:
@@ -409,7 +519,7 @@ def faithfulness(mapping: dict, characterisations: dict[int, dict], notes: dict[
 
 
 def measure(mapping: dict, characterisations: dict[int, dict], notes: dict[str, str],
-            reference: Path | str | None = None, llm=structured, compare=None,
+            reference: Path | str | None = None, llm=structured, judge=None, compare=None,
             progress=None, log=None) -> dict:
     """All four numbers for one candidate map, and what they rest on.
 
@@ -417,9 +527,11 @@ def measure(mapping: dict, characterisations: dict[int, dict], notes: dict[str, 
     produced; `structure_match` is `None` without a reference, because
     nothing else reproduces it. Faithfulness is `None` when no claim can
     be judged. `faithfulness_detail` carries the verdicts, so the number
-    is read beside the disagreement it is made of.
+    is read beside the disagreement it is made of. `judge`, when given,
+    is the decoupled faithfulness judge that replaces `llm`.
     """
-    faith = faithfulness(mapping, characterisations, notes, llm, progress, log)
+    faith = faithfulness(mapping, characterisations, notes, llm=llm, judge=judge,
+                         progress=progress, log=log)
     return {
         "notes": len(notes),
         "regions": len(mapping["regions"]),

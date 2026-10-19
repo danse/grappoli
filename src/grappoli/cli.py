@@ -23,13 +23,14 @@ to stderr as plain lines and never into an artefact.
 
 The model is the single interface in `grappoli/model.py`, injected here
 so a run can be exercised without Ollama: `structured` for
-characterisation and the faithfulness judge, `converse` for the relation
-loop, both bound to `--model`. A region that exhausts its attempts is
-logged and skipped, and
-the run exits non-zero so the failure is not mistaken for a finished map;
-a loop that stops with pairs still unrelating does the same, since the
-build is then partial. `measure` and `show` report on stdout, since a
-measurement and a page are not progress.
+characterisation and the model-backed faithfulness judge, `converse` for
+the relation loop, both bound to `--model`; `measure --judge nli` swaps
+the model-backed judge for the decoupled NLI cross-encoder. A region that
+exhausts its attempts is logged and skipped, and the run exits non-zero so
+the failure is not mistaken for a finished map; a loop that stops with
+pairs still unrelating does the same, since the build is then partial.
+`measure` and `show` report on stdout, since a measurement and a page are
+not progress.
 """
 
 import argparse
@@ -42,6 +43,7 @@ from .characterise import characterise_regions, read_characterisations
 from .corpus import load_corpus
 from .map import build_map
 from .measure import measure as measure_map
+from .measure import nli_judge
 from .model import converse, structured
 from .relations import read_relations, relate_regions
 from .render import render
@@ -73,6 +75,9 @@ def main(argv=None, *, llm=structured, agent_llm=converse, compare=None) -> int:
                              help="reference regions to score structure match against "
                                   "(same shape as tests/fixtures/in-domain/reference-regions.json)")
     measure_cmd.add_argument("--model", help="judge model (default: qwen2.5:0.5b)")
+    measure_cmd.add_argument("--judge", choices=("llm", "nli"), default="llm",
+                             help="faithfulness judge: the model under test (llm) "
+                                  "or the decoupled NLI cross-encoder (nli)")
     measure_cmd.set_defaults(run=_run_measure)
 
     show_cmd = sub.add_parser("show", help="print the map built under NOTES/.grappoli for a reader")
@@ -159,9 +164,11 @@ def _run_measure(args, llm, agent_llm) -> int:
         print(line, file=sys.stderr)
 
     reference = Path(args.reference) if args.reference else None
+    judge = nli_judge() if args.judge == "nli" else None
     try:
         result = measure_map(mapping, characterisations, notes, reference,
-                             llm=llm, compare=args.compare, progress=progress, log=log)
+                             llm=llm, judge=judge, compare=args.compare,
+                             progress=progress, log=log)
     except ValueError as err:
         print(f"grappoli: {err}", file=sys.stderr)
         return 1

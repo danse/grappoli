@@ -28,8 +28,8 @@ Usage:
     uv run python scripts/benchmark_all.py
         [--corpus tests/fixtures/in-domain/notes] [--corpus …/heterogeneous/notes]
         [--corpus …/multilingual/notes]
-        [--models qwen2.5:0.5b,llama3.2:latest,qwen3:0.6b,functiongemma:270m]
-        [--judges qwen2.5:0.5b,llama3.2:latest]
+        [--models qwen2.5:0.5b,llama3.2:latest]
+        [--judges nli]
         [--work /tmp/opencode/suite] [--out benchmarks/runs/YYYY-MM-DD/run.json] [--force]
 """
 
@@ -48,18 +48,32 @@ from pathlib import Path
 from grappoli.characterise import read_characterisations
 from grappoli.corpus import load_corpus
 from grappoli.map import build_map
-from grappoli.measure import REDUNDANCY_MODEL, REDUNDANCY_THRESHOLD
+from grappoli.measure import (
+    NLI_MODEL,
+    NLI_THRESHOLD,
+    REDUNDANCY_MODEL,
+    REDUNDANCY_THRESHOLD,
+    nli_judge,
+)
 from grappoli.model import DEFAULT_MAX_TOKENS, DEFAULT_MODEL, structured
 from grappoli.relations import read_relations
 
 STEPS = ("structure", "throughput", "characterisation", "read", "relations", "measure")
+# The comparison the batch runs by default: the two models that characterise
+# every region and relate every touching pair — `qwen2.5:0.5b`, the shipped
+# default, and `llama3.2:latest`, the larger one — over the three corpora.
+# The tool-trained pair added for the relation loop's tool choice did not
+# drive it and doubled the run; `--models` still runs them.
 DEFAULT_MODELS = (
     "qwen2.5:0.5b",
     "llama3.2:latest",
-    "qwen3:0.6b",
-    "functiongemma:270m",
 )
-DEFAULT_JUDGES = ("qwen2.5:0.5b", "llama3.2:latest")
+# `nli` names the decoupled NLI cross-encoder; anything else names a
+# generation model, judged through the model interface. The default is the
+# decoupled judge, because the model-backed judges are the model under test
+# (`benchmarks/measurement.md`).
+NLI_JUDGE = "nli"
+DEFAULT_JUDGES = (NLI_JUDGE,)
 DEFAULT_CORPORA = (
     "tests/fixtures/in-domain/notes",
     "tests/fixtures/heterogeneous/notes",
@@ -146,6 +160,18 @@ def _read_summary(work: Path, exit_code: int, seconds: float) -> dict:
     }
 
 
+def _judge_for(name: str) -> dict:
+    """The keyword `measure` takes for the judge `name` names.
+
+    `nli` is the decoupled NLI cross-encoder; anything else names a
+    generation model, judged through the model interface. Kept here so the
+    judge choice is one place and a test pins it without loading a model.
+    """
+    if name == NLI_JUDGE:
+        return {"judge": nli_judge()}
+    return {"llm": functools.partial(structured, model=name)}
+
+
 def runners(work_root: Path) -> dict:
     """The instrument behind each step, as `run` calls it.
 
@@ -190,9 +216,8 @@ def runners(work_root: Path) -> dict:
         grappoli = work / ".grappoli"
         mapping = json.loads((grappoli / "map.json").read_text())
         characterisations = read_characterisations(grappoli / "characterisations")
-        llm = functools.partial(structured, model=judge)
         return measure_map(mapping, characterisations, load_corpus(work),
-                           reference=corpus.reference, llm=llm)
+                           reference=corpus.reference, **_judge_for(judge))
 
     return {"structure": structure, "throughput": throughput,
             "characterisation": characterisation, "read": read,
@@ -217,6 +242,8 @@ def _meta(corpora, models, judges) -> dict:
             "max_tokens": DEFAULT_MAX_TOKENS,
             "redundancy_model": REDUNDANCY_MODEL,
             "redundancy_threshold": REDUNDANCY_THRESHOLD,
+            "nli_model": NLI_MODEL,
+            "nli_threshold": NLI_THRESHOLD,
         },
         "corpora": {
             corpus.name: {
@@ -322,8 +349,9 @@ def main(argv=None) -> int:
     parser.add_argument("--models", default=",".join(DEFAULT_MODELS),
                         help="comma-separated generation models")
     parser.add_argument("--judges", default=None,
-                        help="comma-separated faithfulness judges "
-                             f"(default: {', '.join(DEFAULT_JUDGES)})")
+                        help="comma-separated faithfulness judges: `nli` for the "
+                             "decoupled NLI cross-encoder, otherwise a generation "
+                             f"model (default: {', '.join(DEFAULT_JUDGES)})")
     parser.add_argument("--work", default="/tmp/opencode/suite",
                         help="where corpus copies are built; not part of the record")
     parser.add_argument("--out", default=None,

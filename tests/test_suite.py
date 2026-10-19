@@ -170,22 +170,36 @@ def test_a_corpus_without_a_reference_is_not_scored(suite, tmp_path):
 
 
 def test_models_and_judges_are_separate_defaults(suite):
-    """A model added to the batch is not thereby made a judge of it.
+    """A model run by the batch is not thereby made the judge of it.
 
-    The pair added for the relation loop's tool choice — `qwen3:0.6b` and
-    `functiongemma:270m` — runs every model-backed step but scores none of
-    them: the judges stay the two that shipped, so the batch grows a
-    comparison without growing the judge set.
+    The defaults are the pruned comparison: the two models that characterise
+    every region and relate every touching pair, scored by the decoupled NLI
+    judge rather than by each other. The two lists stay independent —
+    `--judges` names the judge outright, and no model is a judge unless it
+    is named.
     """
     models, judges = suite._selection(",".join(suite.DEFAULT_MODELS))
 
     assert models == list(suite.DEFAULT_MODELS)
     assert judges == list(suite.DEFAULT_JUDGES)
-    assert {"qwen3:0.6b", "functiongemma:270m"} <= set(models)
-    assert not {"qwen3:0.6b", "functiongemma:270m"} & set(judges)
+    assert suite.NLI_JUDGE in judges
+    assert not set(models) & set(judges)
 
 
 def test_an_explicit_judges_list_replaces_the_default(suite):
     _, judges = suite._selection("m1", "j1,j2")
 
     assert judges == ["j1", "j2"]
+
+
+def test_the_nli_judge_is_a_decoupled_judge(monkeypatch, suite):
+    """`nli` names the NLI judge; any other name is a generation model.
+
+    The judge the batch injects is one place, and pinning it here keeps the
+    `nli` token from silently falling through to a model judge.
+    """
+    monkeypatch.setattr(suite, "nli_judge", lambda: "the NLI judge")
+
+    assert suite._judge_for("nli") == {"judge": "the NLI judge"}
+    assert "judge" not in suite._judge_for("qwen2.5:0.5b")
+    assert set(suite._judge_for("qwen2.5:0.5b")) == {"llm"}
