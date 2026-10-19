@@ -2,21 +2,8 @@
 
 Items to be done, delete once done:
 
-- should qwen2.5 stay in benchmark_all? Haven't we found it fails
-  relations at least?
-- widen the model comparison beyond the two downloaded models, on the
-  relation loop's tool choice. Both fail it — 0 of 6 pairs in the shipped
-  loop (`benchmarks/relations.md`, "What is not settled") — and the
-  failure is unassisted tool use, not the corpus, so a model trained for
-  tools is the thing to try. `qwen3:0.6b` and `functiongemma:270m` are the
-  cheapest informative pair: small, CPU-only, both carry Ollama's `tools`
-  capability, and `functiongemma` is a Gemma 3 270M fine-tuned for
-  function calling, against the `gemma3:270m` already on disk that failed.
-  No machinery is needed — `scripts/benchmark_all.py` takes
-  `--models`/`--judges` — only a run. It runs as a named follow-up run,
-  not by extending `DEFAULT_MODELS`: growing the default would change
-  what a resumed batch covers, and the batch that has been measured so
-  far stands as it is.
+- should qwen2.5 stay in benchmark_all? I think it proved not to be
+  tool-capable?
 - A `tune` tool for corpus-adaptive knobs (k, resolution, and whether
   the evidence ever makes mutual depend on the corpus). Not now, but the
   encoder swap sharpened what it would be for: mutual is a shape call,

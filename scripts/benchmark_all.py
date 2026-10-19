@@ -28,7 +28,7 @@ Usage:
     uv run python scripts/benchmark_all.py
         [--corpus tests/fixtures/in-domain/notes] [--corpus …/heterogeneous/notes]
         [--corpus …/multilingual/notes]
-        [--models qwen2.5:0.5b,llama3.2:latest]
+        [--models qwen2.5:0.5b,llama3.2:latest,qwen3:0.6b,functiongemma:270m]
         [--judges qwen2.5:0.5b,llama3.2:latest]
         [--work /tmp/opencode/suite] [--out benchmarks/runs/YYYY-MM-DD/run.json] [--force]
 """
@@ -53,8 +53,13 @@ from grappoli.model import DEFAULT_MAX_TOKENS, DEFAULT_MODEL, structured
 from grappoli.relations import read_relations
 
 STEPS = ("structure", "throughput", "characterisation", "read", "relations", "measure")
-DEFAULT_MODELS = ("qwen2.5:0.5b", "llama3.2:latest")
-DEFAULT_JUDGE = "llama3.2:latest"
+DEFAULT_MODELS = (
+    "qwen2.5:0.5b",
+    "llama3.2:latest",
+    "qwen3:0.6b",
+    "functiongemma:270m",
+)
+DEFAULT_JUDGES = ("qwen2.5:0.5b", "llama3.2:latest")
 DEFAULT_CORPORA = (
     "tests/fixtures/in-domain/notes",
     "tests/fixtures/heterogeneous/notes",
@@ -296,12 +301,16 @@ def _split(value: str) -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
-def _unique(items) -> list[str]:
-    seen: list[str] = []
-    for item in items:
-        if item not in seen:
-            seen.append(item)
-    return seen
+def _selection(models_arg: str, judges_arg: str | None = None) -> tuple[list[str], list[str]]:
+    """The models to run and the judges to score them, from the two flags.
+
+    Models and judges are independent: a model added to the batch is not
+    thereby a judge of it, so the batch can widen without widening the
+    judge set. An explicit `--judges` names the judges outright.
+    """
+    models = _split(models_arg)
+    judges = _split(judges_arg) if judges_arg else list(DEFAULT_JUDGES)
+    return models, judges
 
 
 def main(argv=None) -> int:
@@ -314,7 +323,7 @@ def main(argv=None) -> int:
                         help="comma-separated generation models")
     parser.add_argument("--judges", default=None,
                         help="comma-separated faithfulness judges "
-                             f"(default: the models plus {DEFAULT_JUDGE})")
+                             f"(default: {', '.join(DEFAULT_JUDGES)})")
     parser.add_argument("--work", default="/tmp/opencode/suite",
                         help="where corpus copies are built; not part of the record")
     parser.add_argument("--out", default=None,
@@ -324,8 +333,7 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
 
     corpora = [Corpus.discover(path) for path in (args.corpus or DEFAULT_CORPORA)]
-    models = _split(args.models)
-    judges = _split(args.judges) if args.judges else _unique([*models, DEFAULT_JUDGE])
+    models, judges = _selection(args.models, args.judges)
     out = (Path(args.out) if args.out
            else Path("benchmarks") / "runs" / date.today().isoformat() / "run.json")
 

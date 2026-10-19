@@ -169,5 +169,23 @@ def test_a_corpus_without_a_reference_is_not_scored(suite, tmp_path):
     assert suite.Corpus.discover(notes).reference is None
 
 
-def test_unique_keeps_the_first_order(suite):
-    assert suite._unique(["a", "b", "a", "c", "b"]) == ["a", "b", "c"]
+def test_models_and_judges_are_separate_defaults(suite):
+    """A model added to the batch is not thereby made a judge of it.
+
+    The pair added for the relation loop's tool choice — `qwen3:0.6b` and
+    `functiongemma:270m` — runs every model-backed step but scores none of
+    them: the judges stay the two that shipped, so the batch grows a
+    comparison without growing the judge set.
+    """
+    models, judges = suite._selection(",".join(suite.DEFAULT_MODELS))
+
+    assert models == list(suite.DEFAULT_MODELS)
+    assert judges == list(suite.DEFAULT_JUDGES)
+    assert {"qwen3:0.6b", "functiongemma:270m"} <= set(models)
+    assert not {"qwen3:0.6b", "functiongemma:270m"} & set(judges)
+
+
+def test_an_explicit_judges_list_replaces_the_default(suite):
+    _, judges = suite._selection("m1", "j1,j2")
+
+    assert judges == ["j1", "j2"]

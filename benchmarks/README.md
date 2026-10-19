@@ -50,18 +50,22 @@ In order, it runs:
    channels, per model.
 6. **measure** — the four numbers once per judge; each model's
    characterisations are read by every judge named, so a map is scored by
-   a decoupled judge as well as by the model that wrote it.
+   a judge decoupled from the model that wrote it.
 
 ```
 uv run python scripts/benchmark_all.py
     [--corpus tests/fixtures/in-domain/notes] [--corpus …/heterogeneous/notes]
     [--corpus …/multilingual/notes]
-    [--models qwen2.5:0.5b,llama3.2:latest]
-    [--judges …]                       # default: the models plus llama3.2:latest
+    [--models qwen2.5:0.5b,llama3.2:latest,qwen3:0.6b,functiongemma:270m]
+    [--judges qwen2.5:0.5b,llama3.2:latest]
     [--work /tmp/opencode/suite]
     [--out benchmarks/runs/YYYY-MM-DD/run.json]
     [--force]
 ```
+
+`--models` and `--judges` default independently: the first is what the
+batch runs, the second is what scores their maps, and a model added to
+the batch is not thereby made a judge of it.
 
 A corpus is copied under `--work` before it is built in: a fixture is
 never written to, and each model gets its own copy, so two models'
