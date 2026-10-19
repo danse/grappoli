@@ -27,6 +27,7 @@ from pathlib import Path
 
 from grappoli.corpus import load_corpus
 from grappoli.map import build_map
+from grappoli.relations import relatable_edges
 
 WRITE_RELATION = {
     "type": "function",
@@ -155,7 +156,9 @@ def sweep(notes: dict[str, str], characterisations, model: str, edge: str | None
 
     `characterisations` is the line file a `grappoli read` run wrote;
     `sweep` builds the map from `notes` itself, so the regions the
-    prompts name are the corpus's. The CLI renders the list;
+    prompts name are the corpus's. Only pairs whose two regions have a
+    characterisation are asked about, because a relation is written
+    between characterisations only. The CLI renders the list;
     `benchmark_all.py` records it.
     """
     mapping = build_map(notes, progress=lambda *e: None)
@@ -164,12 +167,19 @@ def sweep(notes: dict[str, str], characterisations, model: str, edge: str | None
         if line.strip():
             record = json.loads(line)
             chars[record["region"]] = record
-    edges = [(e["source"], e["target"]) for e in mapping["edges"]]
+    # A relation is written between characterisations only, so the probe
+    # asks only about pairs whose two regions have one; a region a read
+    # left uncharacterised is not an endpoint (relations.relatable_edges).
+    edges = relatable_edges(mapping, chars)
 
     if edge:
         a, b = (int(x) for x in edge.split(","))
-    else:
+        if a not in chars or b not in chars:
+            raise ValueError(f"edge ({a},{b}) names a region with no characterisation")
+    elif edges:
         a, b = edges[0]
+    else:
+        return []
     neighbours = sorted({y for x, y in edges if x == a} | {x for x, y in edges if y == a})
 
     sizes = [

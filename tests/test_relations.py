@@ -20,6 +20,7 @@ from grappoli.relations import (
     build_prompt,
     read_relations,
     relate_regions,
+    relatable_edges,
     round_budget,
     run_agent,
     validate_relation,
@@ -88,6 +89,29 @@ def test_relations_are_keyed_by_unordered_pair(tmp_path):
     path = tmp_path / "relations"
     path.write_text(json.dumps({"source": 1, "target": 0, "statement": "x"}) + "\n")
     assert set(read_relations(path)) == {(0, 1)}
+
+
+def test_relatable_edges_drop_an_uncharacterised_endpoint():
+    """An edge to a region with no characterisation is not a pair to relate.
+
+    A read can leave a region uncharacterised — a model that gave up on
+    it — and there is nothing to characterise a relation from. Both the
+    loop and the granularity probe start from this list rather than
+    building a prompt around an empty region (architecture.md, Agent
+    tools).
+    """
+    mapping = {"regions": REGIONS3, "edges": [
+        {"source": 0, "target": 1}, {"source": 0, "target": 2}, {"source": 1, "target": 2}]}
+
+    assert relatable_edges(mapping, {0: CHARS3[0], 1: CHARS3[1]}) == [(0, 1)]
+
+
+def test_relatable_edges_are_normalised_and_deduplicated():
+    """The pair key is low-then-high, so a line either way round is one pair."""
+    mapping = {"regions": REGIONS3, "edges": [
+        {"source": 1, "target": 0}, {"source": 0, "target": 1}]}
+
+    assert relatable_edges(mapping, CHARS3) == [(0, 1)]
 
 
 def test_a_torn_line_is_not_a_completed_pair(tmp_path):

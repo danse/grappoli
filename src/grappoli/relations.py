@@ -67,6 +67,24 @@ def read_relations(path: Path) -> dict[tuple[int, int], dict]:
     return done
 
 
+def relatable_edges(mapping: dict, characterisations: dict[int, dict]) -> list[tuple[int, int]]:
+    """The map's edges whose two regions both have a characterisation.
+
+    A relation is written between characterisations only, so an edge to a
+    region a `read` left uncharacterised — a model that gave up on it —
+    is not a pair the relation step can answer. Every caller that names
+    pairs, the loop and the granularity probe alike, starts from this
+    list, so none of them builds a prompt around a region with nothing to
+    read. Pairs are normalised low-then-high and sorted; parallel edges
+    collapse to one.
+    """
+    return sorted({
+        (min(edge["source"], edge["target"]), max(edge["source"], edge["target"]))
+        for edge in mapping.get("edges", [])
+        if edge["source"] in characterisations and edge["target"] in characterisations
+    })
+
+
 def validate_relation(source, target, statement, characterisations) -> dict:
     """Return a normalised relation record, or raise InvalidRelation.
 
@@ -386,11 +404,7 @@ def relate_regions(mapping: dict, characterisations: dict[int, dict], path: Path
     path.parent.mkdir(parents=True, exist_ok=True)
     linefile.drop_torn_tail(path)
     characterisations = characterisations or {}
-    relatable = sorted({
-        (min(edge["source"], edge["target"]), max(edge["source"], edge["target"]))
-        for edge in mapping.get("edges", [])
-        if edge["source"] in characterisations and edge["target"] in characterisations
-    })
+    relatable = relatable_edges(mapping, characterisations)
     total = len(relatable)
     if all(pair in read_relations(path) for pair in relatable):
         return []
