@@ -29,6 +29,7 @@ from grappoli.measure import (
     judge_claim,
     map_labels,
     measure,
+    nli_encoder,
     nli_judge,
     premises,
     probabilities,
@@ -404,13 +405,31 @@ def test_probabilities_reads_a_probability_row_and_softmaxes_logits():
     assert logits[2] > 0.9
 
 
-def test_premises_windows_a_long_evidence_without_dropping_a_note():
-    """A region longer than the model's length is split, not truncated.
+def test_premises_cuts_the_evidence_into_sentences_and_adjacent_pairs():
+    """The judge is given short premises, not the whole region.
+
+    A region's notes are long and multi-topic, and the NLI model drifts to
+    neutral on them: the same verbatim claim scores 0.97 against its
+    sentence and 0.06 against the note it sits in
+    (`benchmarks/measurement.md`). Each sentence is a premise, and each
+    adjacent pair too, so an anaphor and its antecedent stay together.
+    """
+    evidence = "One is first.  Two is second.\n\nThree is third."
+    got = premises(FakeTokenizer(), evidence, 50)
+    assert "One is first." in got
+    assert "Two is second." in got
+    assert "Three is third." in got
+    assert "One is first. Two is second." in got
+    assert "Two is second. Three is third." in got
+
+
+def test_premises_splits_a_sentence_longer_than_the_model_length():
+    """No note is truncated: a run-on sentence is cut by tokens.
 
     The windows are contiguous and cover every token exactly once, so a
-    note past the model's limit still reaches the judge.
+    sentence past the model's limit still reaches the judge.
     """
-    evidence = " ".join(f"t{i}" for i in range(20))
+    evidence = " ".join(f"t{i}" for i in range(20)) + "."
     windows = premises(FakeTokenizer(), evidence, 8)
     assert [len(window.split()) for window in windows] == [8, 8, 4]
     assert " ".join(windows) == evidence
@@ -445,6 +464,31 @@ def test_nli_judge_loads_the_model_only_when_none_is_injected(monkeypatch):
     encoder = FakeNLI(lambda p, h: _row(0.9))
     monkeypatch.setattr("grappoli.measure.nli_encoder", lambda model: encoder)
     assert nli_judge()("a claim", "the notes")["supported"] is True
+
+
+def test_nli_encoder_raises_a_cpu_model_out_of_float16(monkeypatch):
+    """A CPU cross-encoder runs in float32, whatever the checkpoint says.
+
+    `mDeBERTa`'s config declares float16 and the loader honours it; on CPU
+    that is an order of magnitude slower than float32 and no more
+    accurate, so the weights are cast. The cast is skipped off CPU.
+    """
+    cast = []
+
+    class FakeModel:
+        device = SimpleNamespace(type="cpu")
+
+        def float(self):
+            cast.append("float")
+
+    class FakeCrossEncoder:
+        def __init__(self, name):
+            self.model = FakeModel()
+
+    monkeypatch.setattr("sentence_transformers.CrossEncoder", FakeCrossEncoder)
+    monkeypatch.setattr("grappoli.measure._CROSS_ENCODERS", {})
+    nli_encoder("a/cpu-model")
+    assert cast == ["float"]
 
 
 def test_faithfulness_uses_the_judge_it_is_given():

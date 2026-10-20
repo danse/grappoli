@@ -40,6 +40,7 @@ judge the model decision has been waiting on.
 """
 
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -91,6 +92,20 @@ MAX_JUDGE_ATTEMPTS = 3
 # The cross-encoders are held in memory by name, so measuring twice in a
 # process (a test of the whole command, a report) loads the weights once.
 _CROSS_ENCODERS: dict[str, object] = {}
+
+
+def _cpu_float32(encoder):
+    """Run a CPU cross-encoder in float32, whatever the checkpoint says.
+
+    `mDeBERTa`'s config declares float16 and the loader honours it. CPU
+    float16 is an order of magnitude slower than float32 — 28.8 s against
+    2.0 s for one short pair on the 2-core benchmark host — and no more
+    accurate, so the weights are raised on CPU. A device that can use
+    float16 keeps it.
+    """
+    if encoder.model.device.type == "cpu":
+        encoder.model.float()
+    return encoder
 
 
 def comprehensiveness(mapping: dict, notes: dict[str, str]) -> float:
@@ -204,7 +219,7 @@ def cross_encoder(model: str = REDUNDANCY_MODEL):
 
     encoder = _CROSS_ENCODERS.get(model)
     if encoder is None:
-        encoder = CrossEncoder(model)
+        encoder = _cpu_float32(CrossEncoder(model))
         _CROSS_ENCODERS[model] = encoder
 
     def compare(left: str, right: str) -> float:
@@ -414,25 +429,56 @@ def nli_encoder(model: str = NLI_MODEL):
 
     encoder = _CROSS_ENCODERS.get(model)
     if encoder is None:
-        encoder = CrossEncoder(model)
+        encoder = _cpu_float32(CrossEncoder(model))
         _CROSS_ENCODERS[model] = encoder
     return encoder
 
 
-def premises(tokenizer, evidence: str, width: int) -> list[str]:
-    """The evidence as premises no longer than `width` tokens.
+_SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
 
-    The cross-encoder has a fixed input length, and a region longer than
-    it would be truncated with its tail dropped. Splitting the evidence
-    into token windows that each fit keeps every note in some premise; the
-    claim is supported when any window entails it, which is the rubric's
-    "the notes state it" read at window size.
+
+def _sentences(evidence: str) -> list[str]:
+    """The evidence as sentences, with hard-wrapped lines rejoined.
+
+    The notes are prose wrapped at a fixed width, so a newline is not a
+    sentence boundary: whitespace is collapsed before the split. The split
+    is on terminal punctuation followed by whitespace, which leaves
+    decimals (4.6) and temperatures (18-22°C) whole.
     """
-    ids = tokenizer(evidence, add_special_tokens=False)["input_ids"]
+    text = re.sub(r"\s+", " ", evidence).strip()
+    return [part for part in _SENTENCE_END.split(text) if part]
+
+
+def _windows(tokenizer, text: str, width: int) -> list[str]:
+    """`text` as contiguous token windows no longer than `width`."""
+    ids = tokenizer(text, add_special_tokens=False)["input_ids"]
     if len(ids) <= width:
-        return [evidence]
+        return [text]
     return [tokenizer.decode(ids[start:start + width], skip_special_tokens=True)
             for start in range(0, len(ids), width)]
+
+
+def premises(tokenizer, evidence: str, width: int) -> list[str]:
+    """The evidence as short premises no longer than `width` tokens.
+
+    An NLI cross-encoder is trained on sentence pairs, and a region's
+    notes are a long, multi-topic premise on which entailment drifts to
+    neutral: on the in-domain fixture a verbatim claim scores 0.97 against
+    the sentence that carries it and 0.06 against the note it sits in
+    (`benchmarks/measurement.md`). So the evidence is cut into sentences
+    and adjacent pairs — a pair keeps an anaphor and its antecedent
+    together — and the judge takes the best. A sentence longer than the
+    model's input is still split by tokens, so no note is truncated.
+    """
+    sentences = _sentences(evidence)
+    if not sentences:
+        return [evidence]
+    spans = []
+    for index, sentence in enumerate(sentences):
+        spans.append(sentence)
+        if index + 1 < len(sentences):
+            spans.append(f"{sentence} {sentences[index + 1]}")
+    return [window for span in spans for window in _windows(tokenizer, span, width)]
 
 
 def nli_judge(model: str = NLI_MODEL, threshold: float = NLI_THRESHOLD, encoder=None):
@@ -440,11 +486,12 @@ def nli_judge(model: str = NLI_MODEL, threshold: float = NLI_THRESHOLD, encoder=
 
     Decoupled from the model under test and effectively deterministic, so
     it is the judge the model decision has been waiting on. The premise is
-    the region's evidence, scored in windows when it exceeds the model's
-    input length; the claim is supported when the highest entailment
-    reaches `threshold`. An entailment model answers the rubric's two
-    clauses at once: not-entailment is unsupported, and a contradiction is
-    one way to fail it.
+    the region's evidence, cut into sentences and adjacent pairs so the
+    model sees the short premises it was trained on; a span longer than
+    the model's input is split by tokens. The claim is supported when the
+    highest entailment reaches `threshold`. An entailment model answers
+    the rubric's two clauses at once: not-entailment is unsupported, and a
+    contradiction is one way to fail it.
 
     `encoder` is injected so the rule is pinned on a stub; the real model
     is loaded, and cached, only when none is given.

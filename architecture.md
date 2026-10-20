@@ -284,9 +284,14 @@ The four numbers are `grappoli.measure`:
   characterisation is — or, under `--judge nli`, the
   `mDeBERTa-v3-base-mnli-xnli` cross-encoder, which scores entailment
   straight off the notes and is decoupled from the model by construction.
-  A claim the model judge never answers is recorded undecided and left
-  out of the share, so a failing judge cannot move the number it reports;
-  the NLI judge always answers, so it leaves no claim undecided.
+  The cross-encoder is trained on sentence pairs, so the evidence is cut
+  into sentences and adjacent pairs and the claim is supported when any
+  premise entails it; a whole region's notes are a long, multi-topic
+  premise on which entailment drifts to neutral (`benchmarks/measurement.md`,
+  "Reading (2026-10-20)"). A claim the model judge never answers is
+  recorded undecided and left out of the share, so a failing judge cannot
+  move the number it reports; the NLI judge always answers, so it leaves
+  no claim undecided.
 - **Structure match** — adjusted Rand index of the map's regions
   against a reference, the score `scripts/benchmark_structure.py` also
   sweeps the rule with, through the same `reference_labels` check. It
