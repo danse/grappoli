@@ -1,0 +1,5122 @@
+{
+  "meta": {
+    "date": "2026-10-19",
+    "command": "scripts/benchmark_all.py",
+    "models": [
+      "qwen2.5:0.5b",
+      "llama3.2:latest"
+    ],
+    "judges": [
+      "nli"
+    ],
+    "defaults": {
+      "build_map": {
+        "provider": "e5",
+        "k": 4,
+        "target": 5,
+        "mutual": true,
+        "resolution": 2.0,
+        "weighted": true,
+        "progress": null
+      },
+      "model": "qwen2.5:0.5b",
+      "max_tokens": 384,
+      "redundancy_model": "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1",
+      "redundancy_threshold": 0.0,
+      "nli_model": "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli",
+      "nli_threshold": 0.5
+    },
+    "corpora": {
+      "in-domain": {
+        "path": "tests/fixtures/in-domain/notes",
+        "reference": "tests/fixtures/in-domain/reference-regions.json",
+        "notes": 14
+      },
+      "heterogeneous": {
+        "path": "tests/fixtures/heterogeneous/notes",
+        "reference": "tests/fixtures/heterogeneous/reference-regions.json",
+        "notes": 14
+      },
+      "multilingual": {
+        "path": "tests/fixtures/multilingual/notes",
+        "reference": "tests/fixtures/multilingual/reference-regions.json",
+        "notes": 14
+      }
+    }
+  },
+  "structure": {
+    "in-domain": {
+      "date": "2026-10-19",
+      "notes": 14,
+      "reference": true,
+      "similarity": {
+        "e5": {
+          "mean_intra": 0.8758357167243958,
+          "mean_inter": 0.8421749472618103
+        },
+        "tfidf": {
+          "mean_intra": 0.09000541269779205,
+          "mean_inter": 0.04939916357398033
+        }
+      },
+      "rows": [
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.19469026548672566
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.334841628959276
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.24731182795698925
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.24731182795698925
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.2608695652173913
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.2608695652173913
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.3036649214659686
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.23036649214659685
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 3,
+          "ari": 0.3036649214659686
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 3,
+          "ari": 0.23036649214659685
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.2222222222222222
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.14035087719298245
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.334841628959276
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.334841628959276
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.26519337016574585
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.26519337016574585
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.34782608695652173
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.34782608695652173
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.6519337016574586
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.6519337016574586
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 3,
+          "ari": 0.6519337016574586
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 3,
+          "ari": 0.6519337016574586
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.3973509933774834
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.3973509933774834
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.334841628959276
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.334841628959276
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.3383084577114428
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.3383084577114428
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.30409356725146197
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.30409356725146197
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.782608695652174
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.782608695652174
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.782608695652174
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.782608695652174
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.9041095890410958
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.9041095890410958
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": 0.13071895424836602
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.08144796380090498
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.1566265060240964
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.1566265060240964
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 7,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 7,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.782608695652174
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.6086956521739131
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.7123287671232876
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.7123287671232876
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.7123287671232876
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.7123287671232876
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.0
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.08144796380090498
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.08695652173913043
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.15706806282722513
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.05673758865248227
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.08695652173913043
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.2608695652173913
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.43478260869565216
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.2608695652173913
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.2608695652173913
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.2608695652173913
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.2608695652173913
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.01809954751131222
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.08144796380090498
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.08695652173913043
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.1878453038674033
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.05673758865248227
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.17391304347826086
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.17204301075268819
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.08376963350785341
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 3,
+          "ari": 0.17204301075268819
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.1566265060240964
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.026490066225165563
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.1566265060240964
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": -0.17194570135746606
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.19469026548672566
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.08695652173913043
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.24096385542168675
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": -0.07692307692307693
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.19230769230769232
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.17391304347826086
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.2608695652173913
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.17391304347826086
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.2608695652173913
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.14479638009049775
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.334841628959276
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.05847953216374269
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.17204301075268819
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 8,
+          "ari": -0.015267175572519083
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 7,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.3036649214659686
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.3036649214659686
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.34782608695652173
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.19230769230769232
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.38235294117647056
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.07352941176470588
+        }
+      ],
+      "best": {
+        "provider": "e5",
+        "k": 4,
+        "mutual": true,
+        "weighted": false,
+        "resolution": 2.0,
+        "regions": 5,
+        "ari": 0.9041095890410958
+      },
+      "partitions": {
+        "e5": [
+          [
+            "airlock-checks.md",
+            "jar-inventory.md"
+          ],
+          [
+            "cellar-temperature-notes.md"
+          ],
+          [
+            "cucumber-pickling-log.md",
+            "quick-pickles-vinegar-ratio.md",
+            "salt-brine-basics.md"
+          ],
+          [
+            "kimchi-microbiology.md",
+            "lacto-fermentation-101.md",
+            "sourdough-starter-rhythm.md"
+          ],
+          [
+            "osmosis-and-salt.md",
+            "ph-and-spoilage.md",
+            "vinegar-chemistry.md"
+          ]
+        ],
+        "tfidf": [
+          [
+            "cellar-temperature-notes.md",
+            "jar-inventory.md"
+          ],
+          [
+            "cucumber-pickling-log.md",
+            "quick-pickles-vinegar-ratio.md",
+            "salt-brine-basics.md"
+          ],
+          [
+            "kimchi-microbiology.md",
+            "sourdough-starter-rhythm.md"
+          ],
+          [
+            "lacto-fermentation-101.md",
+            "ph-and-spoilage.md",
+            "vinegar-chemistry.md"
+          ]
+        ]
+      },
+      "standalone": {
+        "e5": [
+          "book-recommendations.md",
+          "neighbour-garden-trade.md"
+        ],
+        "tfidf": [
+          "airlock-checks.md",
+          "book-recommendations.md",
+          "neighbour-garden-trade.md",
+          "osmosis-and-salt.md"
+        ]
+      }
+    },
+    "heterogeneous": {
+      "date": "2026-10-19",
+      "notes": 14,
+      "reference": true,
+      "similarity": {
+        "e5": {
+          "mean_intra": 0.8575154542922974,
+          "mean_inter": 0.8121265172958374
+        },
+        "tfidf": {
+          "mean_intra": 0.050222691148519516,
+          "mean_inter": 0.011792907491326332
+        }
+      },
+      "rows": [
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.5454545454545454
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.5454545454545454
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.782608695652174
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.782608695652174
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 1.0
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 1.0
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.6818181818181818
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.6818181818181818
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.7123287671232876
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.7123287671232876
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.7123287671232876
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.7123287671232876
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.504424778761062
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.504424778761062
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 3,
+          "ari": 0.504424778761062
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 3,
+          "ari": 0.504424778761062
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.4939759036144578
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.4939759036144578
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.5454545454545454
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.5454545454545454
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.782608695652174
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.782608695652174
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.782608695652174
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.782608695652174
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.25663716814159293
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.504424778761062
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.3225806451612903
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.6236559139784946
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.6410256410256411
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.6410256410256411
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.5454545454545454
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.5454545454545454
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.6865671641791045
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.6865671641791045
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.782608695652174
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.782608695652174
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": 0.27906976744186046
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": 0.17647058823529413
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.5483870967741935
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.4678362573099415
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 7,
+          "ari": 0.2553191489361702
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.3973509933774834
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.334841628959276
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.4424778761061947
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 3,
+          "ari": 0.4424778761061947
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 3,
+          "ari": 0.4424778761061947
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.4731182795698925
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.4731182795698925
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 5,
+          "ari": 0.28205128205128205
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.24242424242424243
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.28205128205128205
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.26519337016574585
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.28205128205128205
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.26519337016574585
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.3253012048192771
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.4939759036144578
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.3253012048192771
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.4939759036144578
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.3287671232876712
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.3253012048192771
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.08144796380090498
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.3978494623655914
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 6,
+          "ari": -0.0547945205479452
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.3769633507853403
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.08695652173913043
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.2553191489361702
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.3253012048192771
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.3033175355450237
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.3287671232876712
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.3253012048192771
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.3287671232876712
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.3253012048192771
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": -0.05309734513274336
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.30278884462151395
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.07228915662650602
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 6,
+          "ari": 0.3973509933774834
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 7,
+          "ari": -0.0547945205479452
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.17391304347826086
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": 0.24096385542168675
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.3033175355450237
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.24096385542168675
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.3253012048192771
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.3287671232876712
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.3253012048192771
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.09803921568627451
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.30278884462151395
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 6,
+          "ari": 0.0
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.4198895027624309
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 7,
+          "ari": -0.0425531914893617
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.2553191489361702
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.10426540284360189
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.32038834951456313
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.24096385542168675
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.3253012048192771
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.27941176470588236
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.2328767123287671
+        }
+      ],
+      "best": {
+        "provider": "e5",
+        "k": 2,
+        "mutual": false,
+        "weighted": false,
+        "resolution": 2.0,
+        "regions": 5,
+        "ari": 1.0
+      },
+      "partitions": {
+        "e5": [
+          [
+            "bike-chain-care.md",
+            "brake-pad-replacement.md",
+            "commuting-tyre-notes.md"
+          ],
+          [
+            "commit-message-guide.md",
+            "pre-commit-hook-checklist.md",
+            "rebasing-git-history.md"
+          ],
+          [
+            "community-garden-rota.md",
+            "library-shelving-notes.md"
+          ],
+          [
+            "hiking-gear-layering.md",
+            "route-planning-and-weather.md",
+            "south-ridge-trail-log.md"
+          ],
+          [
+            "houseplant-pests.md",
+            "propagating-by-cuttings.md",
+            "watering-houseplants.md"
+          ]
+        ],
+        "tfidf": [
+          [
+            "bike-chain-care.md",
+            "community-garden-rota.md",
+            "commuting-tyre-notes.md"
+          ],
+          [
+            "brake-pad-replacement.md",
+            "commit-message-guide.md",
+            "pre-commit-hook-checklist.md"
+          ],
+          [
+            "hiking-gear-layering.md",
+            "rebasing-git-history.md",
+            "route-planning-and-weather.md",
+            "south-ridge-trail-log.md"
+          ],
+          [
+            "houseplant-pests.md",
+            "propagating-by-cuttings.md",
+            "watering-houseplants.md"
+          ]
+        ]
+      },
+      "standalone": {
+        "e5": [],
+        "tfidf": [
+          "library-shelving-notes.md"
+        ]
+      }
+    },
+    "multilingual": {
+      "date": "2026-10-19",
+      "notes": 14,
+      "reference": true,
+      "similarity": {
+        "e5": {
+          "mean_intra": 0.7981845140457153,
+          "mean_inter": 0.7744045257568359
+        },
+        "tfidf": {
+          "mean_intra": 0.026339838281273842,
+          "mean_inter": 0.008324822410941124
+        }
+      },
+      "rows": [
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": -0.12154696132596685
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": -0.12154696132596685
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": -0.12154696132596685
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": -0.12154696132596685
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.08376963350785341
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.08376963350785341
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.08695652173913043
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.17391304347826086
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.08695652173913043
+        },
+        {
+          "provider": "e5",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.17391304347826086
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": -0.12154696132596685
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": -0.12154696132596685
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.05904059040590406
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.05904059040590406
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.11049723756906077
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.11049723756906077
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.2119205298013245
+        },
+        {
+          "provider": "e5",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.2119205298013245
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": -0.04419889502762431
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 3,
+          "ari": -0.016597510373443983
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": -0.08764940239043825
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": -0.08764940239043825
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": -0.13612565445026178
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": -0.13612565445026178
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": -0.04419889502762431
+        },
+        {
+          "provider": "e5",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": -0.04419889502762431
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 3,
+          "ari": -0.024390243902439025
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 3,
+          "ari": -0.024390243902439025
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 2,
+          "ari": -0.09302325581395349
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.03314917127071823
+        },
+        {
+          "provider": "e5",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 4,
+          "ari": 0.03314917127071823
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": -0.016597510373443983
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": -0.009950248756218905
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.03314917127071823
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 6,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.08695652173913043
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 5,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 5,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 2,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": -0.06060606060606061
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": -0.009950248756218905
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.08695652173913043
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.05847953216374269
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.08695652173913043
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": -0.009950248756218905
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": -0.009950248756218905
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.05847953216374269
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 6,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 3,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": -0.06060606060606061
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": -0.009950248756218905
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": -0.023391812865497075
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.17391304347826086
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": -0.08695652173913043
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 3,
+          "ari": 0.12121212121212122
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": -0.009950248756218905
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": 0.010471204188481676
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.17391304347826086
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 5,
+          "ari": 0.07228915662650602
+        },
+        {
+          "provider": "tfidf",
+          "k": 4,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.024922118380062305
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": -0.009950248756218905
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": -0.07960199004975124
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.17391304347826086
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 7,
+          "ari": 0.026490066225165563
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": false,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.15602836879432624
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.0,
+          "regions": 2,
+          "ari": -0.006535947712418301
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.0,
+          "regions": 4,
+          "ari": -0.009950248756218905
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 1.5,
+          "regions": 4,
+          "ari": -0.009950248756218905
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 1.5,
+          "regions": 5,
+          "ari": 0.17391304347826086
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": false,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.11920529801324503
+        },
+        {
+          "provider": "tfidf",
+          "k": 5,
+          "mutual": true,
+          "weighted": true,
+          "resolution": 2.0,
+          "regions": 6,
+          "ari": 0.15602836879432624
+        }
+      ],
+      "best": {
+        "provider": "e5",
+        "k": 3,
+        "mutual": true,
+        "weighted": false,
+        "resolution": 2.0,
+        "regions": 5,
+        "ari": 0.2119205298013245
+      },
+      "partitions": {
+        "e5": [
+          [
+            "caricare-il-kayak.md",
+            "esposizione-pellicola.md",
+            "sviluppo-bianconero.md"
+          ],
+          [
+            "conservare-i-funghi.md",
+            "riconoscere-i-funghi.md"
+          ],
+          [
+            "forward-stroke.md",
+            "rooftop-hive-siting.md",
+            "spring-inspection.md",
+            "tides-and-weather.md"
+          ],
+          [
+            "mushroom-habitats.md",
+            "rooftop-herb-garden.md"
+          ],
+          [
+            "prestito-biblioteca.md",
+            "smielatura.md"
+          ]
+        ],
+        "tfidf": [
+          [
+            "caricare-il-kayak.md",
+            "forward-stroke.md",
+            "prestito-biblioteca.md",
+            "scanning-negatives.md"
+          ],
+          [
+            "conservare-i-funghi.md",
+            "riconoscere-i-funghi.md",
+            "smielatura.md"
+          ],
+          [
+            "esposizione-pellicola.md",
+            "sviluppo-bianconero.md"
+          ],
+          [
+            "mushroom-habitats.md",
+            "tides-and-weather.md"
+          ],
+          [
+            "rooftop-herb-garden.md",
+            "rooftop-hive-siting.md",
+            "spring-inspection.md"
+          ]
+        ]
+      },
+      "standalone": {
+        "e5": [
+          "scanning-negatives.md"
+        ],
+        "tfidf": []
+      }
+    }
+  },
+  "throughput": {
+    "qwen2.5:0.5b": {
+      "date": "2026-10-19",
+      "model": "qwen2.5:0.5b",
+      "num_thread": null,
+      "gen": 256,
+      "prompt_tokens": 278,
+      "prompt_rate": 3.6550314044768455,
+      "gen_tokens": 256,
+      "gen_rate": 2.319719572725415,
+      "wall": 190.32314972499807
+    },
+    "llama3.2:latest": {
+      "date": "2026-10-19",
+      "model": "llama3.2:latest",
+      "num_thread": null,
+      "gen": 256,
+      "prompt_tokens": 268,
+      "prompt_rate": 1.3450166363250822,
+      "gen_tokens": 93,
+      "gen_rate": 0.753352875954981,
+      "wall": 333.2848620279983
+    }
+  },
+  "characterisation": {
+    "in-domain": {
+      "qwen2.5:0.5b": [
+        {
+          "region": 0,
+          "members": [
+            "airlock-checks.md",
+            "jar-inventory.md"
+          ],
+          "representatives": [
+            "airlock-checks.md",
+            "jar-inventory.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\n  \"about\": \"airlocks, the three-piece airlock, bulk buying, S-shaped glass one, long-term storage, use of rubber bales, failed seals, jar organisation\",\n  \"topics\": [\n    \"airlocks\", \"three-piece airlock\", \"bulk buying\", \"glass one\", \"long-term storage\"\n  ],\n  \"key_claims\": [\n    \"slow and silent failure of airlocks\",\n    \"daily water level check for airlocks\",\n    \"soap for cleaning the airlock\",\n    \"use of hot vinegar for airlock cleaning\",\n    \"soap and residue for the next month to break surface tension and correct airlock bubbles\"\n  ]\n}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 223.70613877399956,
+          "prompt_tokens": 584,
+          "gen_tokens": 140
+        },
+        {
+          "region": 1,
+          "members": [
+            "cellar-temperature-notes.md"
+          ],
+          "representatives": [
+            "cellar-temperature-notes.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\n  \"about\": \"The cellar holds 14-16\u00b0C through the year and the corner near the boiler drifts to 18\u00b0C, with vegetables at 18-22\u00b0C for the quick first phase.\",\n  \"topics\": [\n    \"fermentation\",\n    \"temperature control\",\n    \"fermentation temperatures\"\n  ],\n  \"key_claims\": [\n    \"vegetables at 18-22\u00b0C\",\n    \"fermentation wins for impatience\",\n    \"fermentation wins for flavour\"\n  ]\n}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 178.00490616800016,
+          "prompt_tokens": 471,
+          "gen_tokens": 114
+        },
+        {
+          "region": 2,
+          "members": [
+            "cucumber-pickling-log.md",
+            "quick-pickles-vinegar-ratio.md",
+            "salt-brine-basics.md"
+          ],
+          "representatives": [
+            "cucumber-pickling-log.md",
+            "quick-pickles-vinegar-ratio.md",
+            "salt-brine-basics.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\n  \"about\": \"A recipe for making pickles from cucumbers, using a 50/50 vinegar-brine ratio.\",\n  \"topics\": [\n    \"Pickles\",\n    \"Cucumbers\",\n    \"Canning\",\n    \"Brine\",\n    \"Cancer research\"\n  ],\n  \"key_claims\": [\n    \"The recipe for making pickles from cucumbers uses a 50/50 vinegar-brine ratio.\",\n    \"The brine stays clear if the jar is not opened, but the pickles are fine for weeks.\",\n    \"The critical part is keeping the vegetables submerged. A brine that touches air goes fuzzy.\",\n    \"The critical part is keeping the vegetables submerged. A brine that touches air goes fuzzy.\"\n  ]\n}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 286.50343871699806,
+          "prompt_tokens": 763,
+          "gen_tokens": 164
+        },
+        {
+          "region": 3,
+          "members": [
+            "kimchi-microbiology.md",
+            "lacto-fermentation-101.md",
+            "sourdough-starter-rhythm.md"
+          ],
+          "representatives": [
+            "kimchi-microbiology.md",
+            "lacto-fermentation-101.md",
+            "sourdough-starter-rhythm.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"The kimchi ferment is a succession, not a single culture.\", \"topics\": [\"Kimchi fermentation\"], \"key_claims\": [\"Early on, Leuconostoc species dominate\", \"Weissella and Lactobacillus take over\", \"Salt levels around 2-3% keep the vegetables crisp and select for the lab community over spoilage organisms.\", \"The sequence is predictable\", \"The starter is a small mixed community with yeast and lactic acid bacteria in one jar.\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 253.60597568600133,
+          "prompt_tokens": 749,
+          "gen_tokens": 106
+        },
+        {
+          "region": 4,
+          "members": [
+            "osmosis-and-salt.md",
+            "ph-and-spoilage.md",
+            "vinegar-chemistry.md"
+          ],
+          "representatives": [
+            "osmosis-and-salt.md",
+            "ph-and-spoilage.md",
+            "vinegar-chemistry.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"Salt preserves by drawing moisture across the membrane until the osmolarity is equalized.\", \"topics\": [\"preserving\", \"food preservation\"], \"key_claims\": [\"salt draws moisture across the membrane until the osmolarity is equalized\", \"salt lowers aw more efficiently per gram\", \"the two are interchangeable on the aw scale\", \"most spoilage organisms cannot multiply\", \"a crispness of the osmotic pressure holds the cell walls taut for vegetables to avoid softness\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 273.4865484469992,
+          "prompt_tokens": 799,
+          "gen_tokens": 105
+        }
+      ],
+      "llama3.2:latest": [
+        {
+          "region": 0,
+          "members": [
+            "airlock-checks.md",
+            "jar-inventory.md"
+          ],
+          "representatives": [
+            "airlock-checks.md",
+            "jar-inventory.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"A region focused on airlock maintenance and usage for fermenting\", \"topics\": [\"airlock maintenance\", \"ferment organization\", \"jar selection\"], \"key_claims\": [\"Use the three-piece airlock in bulk\", \"Avoid using soap for cleaning airlocks due to residue buildup\", \"Organize jars properly to prevent issues with sealing\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 537.7450516200006,
+          "prompt_tokens": 584,
+          "gen_tokens": 74
+        },
+        {
+          "region": 1,
+          "members": [
+            "cellar-temperature-notes.md"
+          ],
+          "representatives": [
+            "cellar-temperature-notes.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"A region focused on temperature control for various fermentations, particularly in home brewing and food preservation.\", \"topics\": [\"Temperature control for fermentations\", \"Home brewing and food preservation\", \"Optimizing fermentation conditions\"], \"key_claims\": [\"The ideal temperature range for vegetables is 18-22\u00b0C for the initial fermentation phase.\", \"Jars in the corner ferment faster and have better flavour compared to those near the outer wall.\", \"Vinegar ferments thrive at warm temperatures around 25\u00b0C.\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 500.0136009589987,
+          "prompt_tokens": 469,
+          "gen_tokens": 108
+        },
+        {
+          "region": 2,
+          "members": [
+            "cucumber-pickling-log.md",
+            "quick-pickles-vinegar-ratio.md",
+            "salt-brine-basics.md"
+          ],
+          "representatives": [
+            "cucumber-pickling-log.md",
+            "quick-pickles-vinegar-ratio.md",
+            "salt-brine-basics.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"Preserving cucumbers through lacto-fermentation using a brine solution.\", \"topics\": [\"Salt content\", \"Acidity\", \"Vegetable submersion\", \"Temperature and time control\"], \"key_claims\": [\"The critical part of lacto-fermentation is keeping the vegetables submerged.\", \"A brine that touches air goes fuzzy within days.\", \"Weights and whole leaves can hold down the vegetables and give the lactobacilli a head start.\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 723.501641513998,
+          "prompt_tokens": 759,
+          "gen_tokens": 103
+        },
+        {
+          "region": 3,
+          "members": [
+            "kimchi-microbiology.md",
+            "lacto-fermentation-101.md",
+            "sourdough-starter-rhythm.md"
+          ],
+          "representatives": [
+            "kimchi-microbiology.md",
+            "lacto-fermentation-101.md",
+            "sourdough-starter-rhythm.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"The kimchi ferment is a succession of microorganisms, with Leuconostoc, Weissella, and Lactobacillus species dominating at different stages.\", \"topics\": [\"The role of Leuconostoc in kimchi fermentation\", \"The importance of salt levels in kimchi\", \"The sequence of microorganisms in a kimchi ferment\"], \"key_claims\": [\"The kimchi ferment is a succession of microorganisms, not a single culture.\", \"Salt levels around 2-3% are essential for preserving the vegetable and selecting for the lab community.\", \"The starter is a small mixed community of yeast and lactic acid bacteria that runs on a schedule.\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 787.8627866290008,
+          "prompt_tokens": 753,
+          "gen_tokens": 143
+        },
+        {
+          "region": 4,
+          "members": [
+            "osmosis-and-salt.md",
+            "ph-and-spoilage.md",
+            "vinegar-chemistry.md"
+          ],
+          "representatives": [
+            "osmosis-and-salt.md",
+            "ph-and-spoilage.md",
+            "vinegar-chemistry.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"Preservation of foods by removing water, using salt, and controlling acidity.\", \"topics\": [\"Salt's effect on water activity\", \"Acidity in food preservation\", \"Fermentation and osmotic pressure\", \"pH levels in food safety\"], \"key_claims\": [\"A 5% brine draws moisture across the membrane until osmolarity equalsizes\", \"Sugar lowers water activity, salt lowers it more efficiently\", \"The line at pH 4.6 is the one that matters for Clostridium botulinum growth control\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 776.8075524919986,
+          "prompt_tokens": 801,
+          "gen_tokens": 115
+        }
+      ]
+    },
+    "heterogeneous": {
+      "qwen2.5:0.5b": [
+        {
+          "region": 0,
+          "members": [
+            "bike-chain-care.md",
+            "brake-pad-replacement.md",
+            "commuting-tyre-notes.md",
+            "hiking-gear-layering.md"
+          ],
+          "representatives": [
+            "bike-chain-care.md",
+            "brake-pad-replacement.md",
+            "commuting-tyre-notes.md",
+            "hiking-gear-layering.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\n  \"about\": \"A clean, lubed chain costs seconds a week and buys months of drivetrain life.\",\n  \"topics\": [\n    \"clean\",\n    \"drivetrain\",\n    \"chain\",\n    \"drivetrain costs\",\n    \"months\"\n  ],\n  \"key_claims\": [\n    \"A clean, lubed chain costs seconds a week and buys months of drivetrain life.\",\n    \"Three layers are enough until the thermometer drops below freezing: a base that wicks, a mid layer that insulates, and a shell that stops\",\n    \"The pack's hip padding is what actually carries the weight.\"\n  ]\n}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 254.15112915499776,
+          "prompt_tokens": 699,
+          "gen_tokens": 133
+        },
+        {
+          "region": 1,
+          "members": [
+            "commit-message-guide.md",
+            "pre-commit-hook-checklist.md",
+            "rebasing-git-history.md"
+          ],
+          "representatives": [
+            "commit-message-guide.md",
+            "pre-commit-hook-checklist.md",
+            "rebasing-git-history.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"This region about creating a diff for review, focusing on topics like the changes made, why they changed, and what was left out.\", \"topics\": [\"diff\", \"review\", \"topic\", \"reason\", \"changes\"], \"key_claims\": [\"What changed, why, and what was left out in the diff.\", \"topic\", \"reason\", \"changes\", \"review\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 204.9239774689995,
+          "prompt_tokens": 613,
+          "gen_tokens": 83
+        },
+        {
+          "region": 2,
+          "members": [
+            "community-garden-rota.md",
+            "library-shelving-notes.md"
+          ],
+          "representatives": [
+            "community-garden-rota.md",
+            "library-shelving-notes.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\n  \"about\": \"The region deals with watering rota, shaded ventilation, and managing greenhouse operations.\",\n  \"topics\": [\n    \"gardening\",\n    \"greenhouse management\",\n    \"vegetable market\",\n    \"weather patterns\",\n    \"committee approvals\"\n  ],\n  \"key_claims\": [\n    \"rota of watering logs\",\n    \"rotations with greenhouse plants\",\n    \"volunteering with a late slot\",\n    \"running the trolley for lost property pens\",\n    \"changing the market pattern in June\"\n  ]\n}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 190.3384011399976,
+          "prompt_tokens": 509,
+          "gen_tokens": 113
+        },
+        {
+          "region": 3,
+          "members": [
+            "houseplant-pests.md",
+            "propagating-by-cuttings.md",
+            "watering-houseplants.md"
+          ],
+          "representatives": [
+            "houseplant-pests.md",
+            "propagating-by-cuttings.md",
+            "watering-houseplants.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"Pests arrive on new plants and through open windows, and by the time a plant looks sick the colony is large.\", \"topics\": [\"pests\", \"plant health\"], \"key_claims\": [\"Pests arrive on new plants and through open windows, and by the time a plant looks sick the colony is large.\", \"Pests arrive on new plants and through open windows, and by the time a plant looks sick the colony is large.\", \"Pests arrive on new plants and through open windows, and by the time a plant looks sick the colony is large.\", \"Pests arrive on new plants and through open windows, and by the time a plant looks sick the colony is large.\", \"Pests arrive on new plants and through open windows, and by the time a plant looks sick the colony is large.\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 246.2932415500036,
+          "prompt_tokens": 610,
+          "gen_tokens": 172
+        },
+        {
+          "region": 4,
+          "members": [
+            "route-planning-and-weather.md",
+            "south-ridge-trail-log.md"
+          ],
+          "representatives": [
+            "route-planning-and-weather.md",
+            "south-ridge-trail-log.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"Mountain weather changes by the hour, so trust the forecast for the ridge at midday rather than the one for the valley at dawn.\", \"topics\": [\"Mountain weather\", \"route selection\", \"forecast\", \"way down\", \"route choice\"], \"key_claims\": [\"How steep, how long, and where the obvious line goes wrong\", \"How dry weather affects route selection\", \"Forecast window\", \"Way down\", \"Route choice\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 186.9661427559986,
+          "prompt_tokens": 525,
+          "gen_tokens": 95
+        }
+      ],
+      "llama3.2:latest": [
+        {
+          "region": 0,
+          "members": [
+            "bike-chain-care.md",
+            "brake-pad-replacement.md",
+            "commuting-tyre-notes.md",
+            "hiking-gear-layering.md"
+          ],
+          "representatives": [
+            "bike-chain-care.md",
+            "brake-pad-replacement.md",
+            "commuting-tyre-notes.md",
+            "hiking-gear-layering.md"
+          ],
+          "path": "tool_call",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": [
+              {
+                "function": {
+                  "name": "characterise_region",
+                  "arguments": {
+                    "about": "The region is about bike maintenance and care, covering topics such as chain lubrication, brake pads, tire choice, puncture protection, and winter gear.",
+                    "topics": [
+                      "chain lubrication",
+                      "brake pads",
+                      "tyre choice",
+                      "puncture protection",
+                      "winter gear"
+                    ],
+                    "key_claims": [
+                      "Base every claim on the notes; do not add anything you cannot point to.",
+                      "Keep it short: one sentence for \"about\", three to five short phrases for \"topics\", and at most five one-clause \"key_claims\" in your own words \u2014 do not quote or copy the notes.",
+                      "Use the characterise_region tool.",
+                      "A clean, lubed chain costs seconds a week and buys months of drivetrain life.",
+                      "Puncture protection costs rolling resistance, so the balance depends on how many glass-strewn shoulders the route crosses."
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "seconds": 814.7957064350048,
+          "prompt_tokens": 703,
+          "gen_tokens": 182
+        },
+        {
+          "region": 1,
+          "members": [
+            "commit-message-guide.md",
+            "pre-commit-hook-checklist.md",
+            "rebasing-git-history.md"
+          ],
+          "representatives": [
+            "commit-message-guide.md",
+            "pre-commit-hook-checklist.md",
+            "rebasing-git-history.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"This region is about Git commit practices, focusing on clarity, consistency, and team collaboration.\", \"topics\": [\"Clarity in commit messages\", \"Consistency in code style\", \"Team collaboration and shared setup\", \"Branch management and rebase routine\"], \"key_claims\": [\"Base every claim on the notes\", \"Keep it short and legible\", \"Use a mechanical checklist to pay for itself\", \"Rebase rewrites the past, belonging on personal branches\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 602.278616951,
+          "prompt_tokens": 617,
+          "gen_tokens": 100
+        },
+        {
+          "region": 2,
+          "members": [
+            "community-garden-rota.md",
+            "library-shelving-notes.md"
+          ],
+          "representatives": [
+            "community-garden-rota.md",
+            "library-shelving-notes.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"The region appears to be about garden maintenance and volunteer work.\", \"topics\": [\"watering rota\", \"greenhouse maintenance\", \"volunteering\", \"returns trolley\"], \"key_claims\": [\"Anybody who waters logs it in the book\", \"Two volunteers have offered to take the late slot\", \"The fiction aisle self-corrects, but the non-fiction shelves drift\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 503.1129320730033,
+          "prompt_tokens": 513,
+          "gen_tokens": 85
+        },
+        {
+          "region": 3,
+          "members": [
+            "houseplant-pests.md",
+            "propagating-by-cuttings.md",
+            "watering-houseplants.md"
+          ],
+          "representatives": [
+            "houseplant-pests.md",
+            "propagating-by-cuttings.md",
+            "watering-houseplants.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"The region covers pest management, plant care, and propagation of houseplants.\", \"topics\": [\"Pest management\", \"Houseplant care\", \"Propagation\"], \"key_claims\": [\"Base every claim on the notes; do not add anything you cannot point to.\", \"Keep it short: one sentence for 'about', three to five short phrases for 'topics', and at most five one-clause 'key_claims' in your own words \u2014 do not quote or copy the notes.\"] }",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 607.0957097229984,
+          "prompt_tokens": 614,
+          "gen_tokens": 104
+        },
+        {
+          "region": 4,
+          "members": [
+            "route-planning-and-weather.md",
+            "south-ridge-trail-log.md"
+          ],
+          "representatives": [
+            "route-planning-and-weather.md",
+            "south-ridge-trail-log.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"The region revolves around mountain hiking and navigation, focusing on finding bail-out points, understanding weather patterns, and navigating with the aid of contour lines and trail markings.\", \"topics\": [\"Finding bail-out points\", \"Understanding mountain weather\", \"Navigating with contour lines\"], \"key_claims\": [\"Always trust the forecast for the ridge at midday\", \"The contour lines tell more than the gradient markings\", \"The south ridge route should be walked clockwise in dry weather\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 539.8105986490045,
+          "prompt_tokens": 529,
+          "gen_tokens": 99
+        }
+      ]
+    },
+    "multilingual": {
+      "qwen2.5:0.5b": [
+        {
+          "region": 0,
+          "members": [
+            "caricare-il-kayak.md",
+            "esposizione-pellicola.md",
+            "riconoscere-i-funghi.md"
+          ],
+          "representatives": [
+            "caricare-il-kayak.md",
+            "esposizione-pellicola.md",
+            "riconoscere-i-funghi.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"Caricare il kayak \u00e8 una questione di peso e posizione, non di volume.\", \"topics\": [\"gavoni di prua\", \"gavoni di poppa\", \"barca di coperta\", \"barca di poppa\", \"barca di gavoni di prua e poppa\"], \"key_claims\": [\"gi\u00e0 tenuto basso: gli oggetti pesanti nel gavone centrale, appoggiati sullo scafo\", \"scegliere insieme diaframma, tempo e sensibilit\u00e0 per un pericolo alla prima onda\", \"evitare l'incrociare l'onda con una barca appesantita di poppa\", \"scegliere insieme diaframma, tempo e sensibilit\u00e0 per una barca di poppa\", \"evitare l'incrociare l'onda con una barca di gavoni di prua e poppa\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 364.95225499100343,
+          "prompt_tokens": 945,
+          "gen_tokens": 208
+        },
+        {
+          "region": 1,
+          "members": [
+            "conservare-i-funghi.md",
+            "prestito-biblioteca.md",
+            "smielatura.md",
+            "sviluppo-bianconero.md"
+          ],
+          "representatives": [
+            "conservare-i-funghi.md",
+            "prestito-biblioteca.md",
+            "smielatura.md",
+            "sviluppo-bianconero.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"about the preservation of mushrooms\", \"topics\": [\"mushroom preservation\", \"horticulture\", \"gardening\"], \"key_claims\": [\"the preservation method for mushrooms is more straightforward than gathering them\", \"it helps to prevent spoilage in a day\", \"the method involves sieving out fatter spots and using air currents\", \"the method involves multiple boultings and sterilization\", \"the method involves oil without acidification to prevent mold growth\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 360.7217834129988,
+          "prompt_tokens": 1138,
+          "gen_tokens": 99
+        },
+        {
+          "region": 2,
+          "members": [
+            "forward-stroke.md",
+            "scanning-negatives.md",
+            "tides-and-weather.md"
+          ],
+          "representatives": [
+            "forward-stroke.md",
+            "scanning-negatives.md",
+            "tides-and-weather.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"The forward stroke is a rotation of the torso, not a pull of the arms.\", \"topics\": [\"boat operation\"], \"key_claims\": [\"plant the blade near the foot, unwind the hips, and lift it out level with the hip.\", \"set the stroke on one side against the boat's tendency to turn, the paddle does the work a rudder would.\", \"bracing is the same movement with a flat blade: slap the surface, lean into the support instead of fighting it, and let the hip carry the weight.\", \"anyone whose arms ache after an hour on flat sea is paddling with the wrong muscles.\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 283.0995734290045,
+          "prompt_tokens": 802,
+          "gen_tokens": 134
+        },
+        {
+          "region": 3,
+          "members": [
+            "mushroom-habitats.md",
+            "rooftop-herb-garden.md",
+            "rooftop-hive-siting.md",
+            "spring-inspection.md"
+          ],
+          "representatives": [
+            "mushroom-habitats.md",
+            "rooftop-herb-garden.md",
+            "rooftop-hive-siting.md",
+            "spring-inspection.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"a mushroom fruits is as telling as what it looks like.\", \"topics\": [\"mushroom\", \"fungi\"], \"key_claims\": [\"a mushroom fruits is as telling as what it looks like.\", \"the fruiting body of a mushroom is its telling factor.\", \"the fruiting body of a mushroom serves as the key evidence for identification.\", \"the description of the fruiting body of a mushroom is important for the identification process.\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 307.38704805100133,
+          "prompt_tokens": 958,
+          "gen_tokens": 96
+        }
+      ],
+      "llama3.2:latest": [
+        {
+          "region": 0,
+          "members": [
+            "caricare-il-kayak.md",
+            "esposizione-pellicola.md",
+            "riconoscere-i-funghi.md"
+          ],
+          "representatives": [
+            "caricare-il-kayak.md",
+            "esposizione-pellicola.md",
+            "riconoscere-i-funghi.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"The article discusses the importance of proper kayak balance and the risks of overloading, as well as the best practices for photography and mushroom identification.\", \"topics\": [\"Kayak balance\", \"Photography\", \"Mushroom identification\"], \"key_claims\": [\"A kayak with a low center of gravity is more stable.\", \"Proper exposure is crucial for photography.\", \"Identify mushrooms by examining the lamellae, not the cap.\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 866.1461042879964,
+          "prompt_tokens": 952,
+          "gen_tokens": 94
+        },
+        {
+          "region": 1,
+          "members": [
+            "conservare-i-funghi.md",
+            "prestito-biblioteca.md",
+            "smielatura.md",
+            "sviluppo-bianconero.md"
+          ],
+          "representatives": [
+            "conservare-i-funghi.md",
+            "prestito-biblioteca.md",
+            "smielatura.md",
+            "sviluppo-bianconero.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\":\"Il libro di storia naturale \u00e8 una raccolta di informazioni su piante e animali\",\"topics\":[\"Piante e animali\",\"La natura\",\"Il mondo\",\"La vita\",\"La scienza\"],\"key_claims\":[\"Il libro contiene informazioni accurate su piante e animali\",\"Le informazioni sono raccolte tramite osservazioni e ricerche\",\"Il libro \u00e8 una fonte importante per la conoscenza della natura\",\"Il libro \u00e8 una guida utile per chi vuole imparare sulla scienza della natura\",\"Il libro \u00e8 un esempio di come la conoscenza possa essere ottenuta attraverso l'osservazione e la ricerca\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 1130.1452574980067,
+          "prompt_tokens": 1141,
+          "gen_tokens": 148
+        },
+        {
+          "region": 2,
+          "members": [
+            "forward-stroke.md",
+            "scanning-negatives.md",
+            "tides-and-weather.md"
+          ],
+          "representatives": [
+            "forward-stroke.md",
+            "scanning-negatives.md",
+            "tides-and-weather.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"Kayak paddling techniques\", \"topics\": [\"Blade stroke\", \"Bracing\", \"Scanning\", \"Film scanning\"], \"key_claims\": [\"The power belongs to the torso and the leg drive\", \"A short, quick cadence holds a loaded kayak on course better\", \"Bracing is the same movement with a flat blade\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 716.7030958649993,
+          "prompt_tokens": 805,
+          "gen_tokens": 75
+        },
+        {
+          "region": 3,
+          "members": [
+            "mushroom-habitats.md",
+            "rooftop-herb-garden.md",
+            "rooftop-hive-siting.md",
+            "spring-inspection.md"
+          ],
+          "representatives": [
+            "mushroom-habitats.md",
+            "rooftop-herb-garden.md",
+            "rooftop-hive-siting.md",
+            "spring-inspection.md"
+          ],
+          "path": "content",
+          "ok": true,
+          "error": null,
+          "raw": {
+            "role": "assistant",
+            "content": "{\"about\": \"The region focuses on mushroom cultivation, beekeeping, and rooftop gardens.\", \"topics\": [\"Mushroom identification\", \"Beekeeping best practices\", \"Rooftop gardening tips\"], \"key_claims\": [\"Mushroom fruiting is just as important as its appearance\", \"Learning three habitats is key to successful beekeeping\", \"Wind is a crucial factor in rooftop beekeeping\"]}",
+            "thinking": null,
+            "images": null,
+            "tool_name": null,
+            "tool_calls": null
+          },
+          "seconds": 858.5339003469999,
+          "prompt_tokens": 962,
+          "gen_tokens": 85
+        }
+      ]
+    }
+  },
+  "read": {
+    "in-domain": {
+      "qwen2.5:0.5b": {
+        "exit": 1,
+        "seconds": 1654.480085373998,
+        "regions": 5,
+        "standalone": 2,
+        "characterised": 5,
+        "failed": [],
+        "relations": 0,
+        "relatable": 5,
+        "missing": [
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            3,
+            4
+          ]
+        ]
+      },
+      "llama3.2:latest": {
+        "exit": 1,
+        "seconds": 4286.420283169002,
+        "regions": 5,
+        "standalone": 2,
+        "characterised": 5,
+        "failed": [],
+        "relations": 0,
+        "relatable": 5,
+        "missing": [
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            2,
+            4
+          ],
+          [
+            3,
+            4
+          ]
+        ]
+      }
+    },
+    "heterogeneous": {
+      "qwen2.5:0.5b": {
+        "exit": 1,
+        "seconds": 1933.9356194840002,
+        "regions": 5,
+        "standalone": 0,
+        "characterised": 5,
+        "failed": [],
+        "relations": 0,
+        "relatable": 4,
+        "missing": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      "llama3.2:latest": {
+        "exit": 1,
+        "seconds": 3782.6385778429976,
+        "regions": 5,
+        "standalone": 0,
+        "characterised": 5,
+        "failed": [],
+        "relations": 0,
+        "relatable": 4,
+        "missing": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      }
+    },
+    "multilingual": {
+      "qwen2.5:0.5b": {
+        "exit": 1,
+        "seconds": 2110.6660648660036,
+        "regions": 4,
+        "standalone": 0,
+        "characterised": 4,
+        "failed": [],
+        "relations": 0,
+        "relatable": 2,
+        "missing": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      "llama3.2:latest": {
+        "exit": 1,
+        "seconds": 4312.449701703998,
+        "regions": 4,
+        "standalone": 0,
+        "characterised": 4,
+        "failed": [],
+        "relations": 0,
+        "relatable": 2,
+        "missing": [
+          [
+            0,
+            1
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      }
+    }
+  },
+  "relations": {
+    "in-domain": {
+      "qwen2.5:0.5b": {
+        "native": [
+          {
+            "prompt_tokens": 262,
+            "gen_tokens": 70,
+            "seconds": 101.23052590400039,
+            "tool_calls": 0,
+            "valid": false,
+            "detail": "- none",
+            "content": "The cellar in Region 1 has temperatures ranging from 14-16\u00b0C throughout the year, while Region 2 involves a cucumber pickling recipe that involves a 50/50 vinegar-brine ratio to preserve cucumbers wit",
+            "approach": "per edge",
+            "chars": 394
+          },
+          {
+            "prompt_tokens": 443,
+            "gen_tokens": 84,
+            "seconds": 155.5412995029983,
+            "tool_calls": 0,
+            "valid": false,
+            "detail": "- none",
+            "content": "To understand how the regions touch each other, we can use the write_relation function. For Region 1 and Region 2, we can describe it as the cellar touching the cabbage pickling recipe and the kimchi ",
+            "approach": "per region",
+            "chars": 1224
+          },
+          {
+            "prompt_tokens": 758,
+            "gen_tokens": 237,
+            "seconds": 319.4893469310009,
+            "tool_calls": 0,
+            "valid": false,
+            "detail": "- none",
+            "content": "To relate the touching pairs in the mapping of regions to the characters of the notes, we use the tool `write_relation`. The regions and their corresponding topics are as follows:\n- Region 0: agricult",
+            "approach": "whole map",
+            "chars": 2585
+          }
+        ],
+        "structured": [
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 104.35253262699916,
+            "valid": true,
+            "detail": "- `write_relation({'source': 1, 'target': 2, 'statement': \"The cellar's temperature range is from 14-16\u00b0C throughout the year, while the cucumber pickling recipe involves a 50/50 vinegar-brine ratio to preserve cucumbers without fermenting them, ensuring the brine stays clear if the jar is not opened.\"})`",
+            "content": null,
+            "approach": "per edge",
+            "chars": 394
+          },
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 154.4681468009985,
+            "valid": true,
+            "detail": "- `write_relation({'source': 3, 'target': 1, 'statement': 'The kimchi ferment is a succession, not a single culture. The topic involves early on, Weissella, Lactobacillus, Salt levels, Gochugaru, and the claim is that it tolerates cold start working in the fridge and that it keeps the vegetables crisp and selects for the lab community.'})`",
+            "content": null,
+            "approach": "per region",
+            "chars": 1224
+          },
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 235.22925696700258,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 1, 'statement': 'The cellar holds temperatures ranging from 14-16\u00b0C throughout the year. This temperature range is suitable for fruit fermentation, as it allows for the preservation of the fruit without the risk of spoilage due to the brine level.'})`",
+            "content": null,
+            "approach": "whole map",
+            "chars": 2585
+          }
+        ]
+      },
+      "llama3.2:latest": {
+        "native": [
+          {
+            "prompt_tokens": 252,
+            "gen_tokens": 65,
+            "seconds": 269.25143324600504,
+            "tool_calls": 1,
+            "valid": false,
+            "detail": "- `write_relation({'source': 'notes about fermentation temperatures and processes', 'statement': 'These regions touch in that they both focus on preserving food, with one covering fermentation temperatures and processes and the other covering refrigerator pickling methods', 'target': 'notes about refrigerator pickling methods'})`",
+            "content": "",
+            "approach": "per edge",
+            "chars": 404
+          },
+          {
+            "prompt_tokens": 501,
+            "gen_tokens": 133,
+            "seconds": 559.6336901929972,
+            "tool_calls": 3,
+            "valid": false,
+            "detail": "- `write_relation({'source': '3', 'statement': 'Kimchi fermentation is a succession of microorganisms, including Leuconostoc, Weissella, and Lactobacillus species.', 'target': '2'})`\n- `write_relation({'source': '3', 'statement': 'The community replaces itself as the environment turns more acidic.', 'target': '1'})`\n- `write_relation({'source': '2', 'statement': 'The critical part is keeping the vegetables submerged to prevent mould growth', 'target': '1'})`",
+            "content": "",
+            "approach": "per region",
+            "chars": 1706
+          },
+          {
+            "prompt_tokens": 683,
+            "gen_tokens": 231,
+            "seconds": 871.4408899570044,
+            "tool_calls": 6,
+            "valid": false,
+            "detail": "- `write_relation({'source': '1', 'statement': 'fermentation temperatures affect fermentation rate and quality', 'target': '2'})`\n- `write_relation({'target': '3', 'source': '1', 'statement': 'temperature control is crucial for optimal fermentation'})`\n- `write_relation({'target': '3', 'source': '2', 'statement': 'the critical part is keeping the vegetables submerged to prevent mould growth'})`\n- `write_relation({'source': '2', 'statement': 'the type of vinegar matters more than the strength', 'target': '4'})`\n- `write_relation({'source': '3', 'statement': 'salt levels select for the lab community over spoilage organisms', 'target': '4'})`\n- `write_relation({'source': '4', 'statement': 'vinegar is the only preserving acid that is volatile and can escape a closed jar', 'target': '1'})`",
+            "content": "",
+            "approach": "whole map",
+            "chars": 2497
+          }
+        ],
+        "structured": [
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 259.75894797199726,
+            "valid": true,
+            "detail": "- `write_relation({'source': 1, 'target': 2, 'statement': 'These two regions of notes touch as the first discusses fermentation temperatures and processes, while the second explores the application of vinegar and salt solutions in refrigerator pickling methods, indicating a connection between food preservation techniques.'})`",
+            "content": null,
+            "approach": "per edge",
+            "chars": 404
+          },
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 435.0032042699968,
+            "valid": true,
+            "detail": "- `write_relation({'source': 1, 'target': 2, 'statement': 'Region 1 touches Region 2 by touching temperature control and fermentation processes, which are related to the use of vinegar and salt solutions in refrigerator pickling methods.'})`",
+            "content": null,
+            "approach": "per region",
+            "chars": 1706
+          },
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 549.6115566090011,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 1, 'statement': 'Fermentations require specific temperature ranges for optimal fermentation, which affects fermentation rate and quality.'})`",
+            "content": null,
+            "approach": "whole map",
+            "chars": 2497
+          }
+        ]
+      }
+    },
+    "heterogeneous": {
+      "qwen2.5:0.5b": {
+        "native": [
+          {
+            "prompt_tokens": 272,
+            "gen_tokens": 85,
+            "seconds": 111.07594400100061,
+            "tool_calls": 0,
+            "valid": false,
+            "detail": "- none",
+            "content": "To state in one sentence how Region 0 and Region 1 touch, we can use the write_relation tool as follows: write_relation Region 0, Region 1. {object <nil> <nil> [Region 0 Statement Region 1]} {\"Source ",
+            "approach": "per edge",
+            "chars": 470
+          },
+          {
+            "prompt_tokens": 523,
+            "gen_tokens": 34,
+            "seconds": 157.79413766600192,
+            "tool_calls": 0,
+            "valid": false,
+            "detail": "- none",
+            "content": "Sure, I can help with that. Let's break down the corpus of notes into two regions. Please provide the two regions so we can proceed with the analysis.",
+            "approach": "per region",
+            "chars": 1698
+          },
+          {
+            "prompt_tokens": 764,
+            "gen_tokens": 113,
+            "seconds": 261.9499238520002,
+            "tool_calls": 0,
+            "valid": false,
+            "detail": "- none",
+            "content": "The touching pairs in the given regions are (0, 1), (0, 4), (1, 3), and (2, 3). Each touching pair relates to the characteristics described in the region, such as drivetrain (Region 1), garden organiz",
+            "approach": "whole map",
+            "chars": 2864
+          }
+        ],
+        "structured": [
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 93.89613792699674,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 1, 'statement': \"Region 0 and Region 1 both touch the same topic: the review of message content and its impact on the user's expectations.\"})`",
+            "content": null,
+            "approach": "per edge",
+            "chars": 470
+          },
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 198.6220750240027,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 4, 'statement': \"Region 4 covers a route with winding hills and valleys, with the north-facing ridge being preferred in dry weather. It discusses the importance of the upper and lower routes, the advantages of the south ridge route, and the challenges of navigating the route. It touches the upper and lower routes, the upper route more so as it's more detailed and in depth. The region is about navigating a route with a winding, rugged landscape. The statement uses the write_relation function to describe how Region 4 touches each neighbour.\"})`",
+            "content": null,
+            "approach": "per region",
+            "chars": 1698
+          },
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 232.94076715599658,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 1, 'statement': 'The watering rota covers the raised beds and the greenhouse, with an evening slot every day from May to September, and the rota changes seasonally. '})`",
+            "content": null,
+            "approach": "whole map",
+            "chars": 2864
+          }
+        ]
+      },
+      "llama3.2:latest": {
+        "native": [
+          {
+            "prompt_tokens": 254,
+            "gen_tokens": 85,
+            "seconds": 300.021235608001,
+            "tool_calls": 1,
+            "valid": false,
+            "detail": "- `write_relation({'statement': 'Two regions of a corpus of notes touch when the maintenance of bicycles, specifically chain lube and tire pressure, as well as braking and boot wear, are compared to the Git version control system, which emphasizes commit messages, hooks, and branches to maintain integrity and consistency in the development process.', 'target': '1', 'source': '0'})`",
+            "content": "",
+            "approach": "per edge",
+            "chars": 404
+          },
+          {
+            "prompt_tokens": 531,
+            "gen_tokens": 59,
+            "seconds": 481.28547148800135,
+            "tool_calls": 1,
+            "valid": false,
+            "detail": "- `write_relation({'source': '4', 'target': '0', 'statement': 'Region 4 touches region 0 through the topic of boot wear, as both regions emphasize the importance of well-maintained footwear for safety and comfort.'})`",
+            "content": "",
+            "approach": "per region",
+            "chars": 1753
+          },
+          {
+            "prompt_tokens": 721,
+            "gen_tokens": 54,
+            "seconds": 610.2484061060022,
+            "tool_calls": 1,
+            "valid": false,
+            "detail": "- `write_relation({'statement': 'The region of bicycle maintenance shares similarities with the Git version control system in emphasizing the importance of consistency and integrity in the development process.', 'source': '0', 'target': '1'})`",
+            "content": "",
+            "approach": "whole map",
+            "chars": 2647
+          }
+        ],
+        "structured": [
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 266.1269451430053,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 1, 'statement': 'The Git version control system maintains integrity and consistency in the development process through commit messages, hooks, and branches, similar to the emphasis on chain lube and tire pressure, as well as braking and boot wear in the maintenance of bicycles.'})`",
+            "content": null,
+            "approach": "per edge",
+            "chars": 404
+          },
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 485.89502477000497,
+            "valid": true,
+            "detail": "- `write_relation({'source': 1, 'target': 0, 'statement': 'Region 1 touches region 0 through the shared topic of commuting, where the emphasis on cleanliness and efficiency from region 1 can be applied to bicycle maintenance, specifically in the area of chain lube and tire pressure.'})`",
+            "content": null,
+            "approach": "per region",
+            "chars": 1753
+          },
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 643.6637370820026,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 1, 'statement': 'The Git version control system helps maintain integrity and consistency in the development process by emphasizing commit messages, hooks, and branches.'})`",
+            "content": null,
+            "approach": "whole map",
+            "chars": 2647
+          }
+        ]
+      }
+    },
+    "multilingual": {
+      "qwen2.5:0.5b": {
+        "native": [
+          {
+            "prompt_tokens": 326,
+            "gen_tokens": 145,
+            "seconds": 150.98224046199903,
+            "tool_calls": 0,
+            "valid": false,
+            "detail": "- none",
+            "content": "To understand how the two regions of the corpus of notes (Region 0 and Region 1) touch, we can use the write_relation function. The region about the weight, position, and volume of a boat has a charac",
+            "approach": "per edge",
+            "chars": 829
+          },
+          {
+            "prompt_tokens": 436,
+            "gen_tokens": 59,
+            "seconds": 143.3845441989979,
+            "tool_calls": 0,
+            "valid": false,
+            "detail": "- none",
+            "content": "The two regions touch each other, as they both cover the maintenance and conservation of plants and their growth, including the removal of soil and cultivation of fungous cultures and the preservation",
+            "approach": "per region",
+            "chars": 1483
+          },
+          {
+            "prompt_tokens": 677,
+            "gen_tokens": 81,
+            "seconds": 219.98511915600102,
+            "tool_calls": 0,
+            "valid": false,
+            "detail": "- none",
+            "content": "Each touching pair of regions in the map relates to the following:\n\n- (0, 1): The region about the weight, position, and volume of a boat is related to the region about the maintenance and conservatio",
+            "approach": "whole map",
+            "chars": 2481
+          }
+        ],
+        "structured": [
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 121.5390117920033,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 1, 'statement': 'The two regions touch by the common topic of boat navigation, as they both discuss the weight, position, and volume of a boat and its maintenance and conservation. They also share a common subject matter of plants and fungi, with Region 1 being about the preservation and cultivation of these topics.'})`",
+            "content": null,
+            "approach": "per edge",
+            "chars": 829
+          },
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 157.80196961500042,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 1, 'statement': 'region 0 covers the maintenance and conservation of plants and their growth, including the process of removing soil, the cultivation of fungous cultures, and the preservation of fungal species. It also includes the storage and transportation of fungi and their preservation for scientific research and education. The removal of soil and cultivation of plants preserve fungal species and fungi preservation for scientific research and education.'})`",
+            "content": null,
+            "approach": "per region",
+            "chars": 1483
+          },
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 218.28613521900115,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 1, 'statement': 'The weight is the main consideration in boat design, the lower barometric pressure is beneficial for heavier objects, the gavel is typically positioned lower on the ship, and water level adjustments are crucial. The barometric pressure lower means lighter objects like boats can float in water.'})`",
+            "content": null,
+            "approach": "whole map",
+            "chars": 2481
+          }
+        ]
+      },
+      "llama3.2:latest": {
+        "native": [
+          {
+            "prompt_tokens": 266,
+            "gen_tokens": 62,
+            "seconds": 278.06065845501143,
+            "tool_calls": 1,
+            "valid": false,
+            "detail": "- `write_relation({'source': '0', 'statement': 'These two regions touch as they both discuss the subject of fungi, with one focusing on the handling and identification of fungi for camera use and the other on mushroom conservation and harvesting.', 'target': '1'})`",
+            "content": "",
+            "approach": "per edge",
+            "chars": 471
+          },
+          {
+            "prompt_tokens": 383,
+            "gen_tokens": 42,
+            "seconds": 335.1377887069975,
+            "tool_calls": 1,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 1, 'statement': 'Region 1 touches Region 0 through mushroom conservation and harvesting, which is a related topic to camera handling.'})`",
+            "content": "",
+            "approach": "per region",
+            "chars": 1145
+          },
+          {
+            "prompt_tokens": 523,
+            "gen_tokens": 76,
+            "seconds": 498.17540950799594,
+            "tool_calls": 1,
+            "valid": false,
+            "detail": "- `write_relation({'source': '0', 'target': '1', 'statement': 'Proper loading and securing of items on a kayak, camera handling, and identification of fungi are essential for a smooth and safe kayaking experience, whereas mushroom conservation and harvesting methods, such as drying and storing, are critical for maintaining mushroom quality'})`",
+            "content": "",
+            "approach": "whole map",
+            "chars": 1733
+          }
+        ],
+        "structured": [
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 277.1330739289988,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 1, 'statement': 'These two regions of the corpus of notes touch in that they both focus on aspects of the outdoors, with Region 0 exploring camera handling and fungi identification, and Region 1 delving into mushroom conservation and harvesting.'})`",
+            "content": null,
+            "approach": "per edge",
+            "chars": 471
+          },
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 353.0116850040067,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 1, 'statement': 'Region 0 touches region 1 through the proper handling of camera equipment, allowing for the capture of high-quality images of fungi, which are essential for documenting mushroom conservation and harvesting methods.'})`",
+            "content": null,
+            "approach": "per region",
+            "chars": 1145
+          },
+          {
+            "prompt_tokens": null,
+            "gen_tokens": null,
+            "tool_calls": null,
+            "seconds": 502.6954776519997,
+            "valid": true,
+            "detail": "- `write_relation({'source': 0, 'target': 1, 'statement': 'The subject of region 0, about proper loading and securing on a kayak, relates to region 1, mushroom conservation and harvesting, as proper loading and securing is key to a smooth and safe kayaking experience, while mushroom conservation and harvesting involves drying methods that require attention to detail and knowledge of characteristics.'})`",
+            "content": null,
+            "approach": "whole map",
+            "chars": 1733
+          }
+        ]
+      }
+    }
+  },
+  "measure": {
+    "in-domain": {
+      "qwen2.5:0.5b": {
+        "nli": {
+          "notes": 14,
+          "regions": 5,
+          "standalone": 2,
+          "comprehensiveness": 0.8571428571428571,
+          "redundancy": 0.8,
+          "faithfulness": 0.08695652173913043,
+          "faithfulness_detail": {
+            "score": 0.08695652173913043,
+            "supported": 2,
+            "unsupported": 21,
+            "undecided": 0,
+            "total": 23,
+            "verdicts": [
+              {
+                "region": 0,
+                "claim": "check the water level every two weeks",
+                "supported": false,
+                "reason": "entailment 0.08 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "always use a dry airlock",
+                "supported": false,
+                "reason": "entailment 0.01 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "always use soap to clean",
+                "supported": false,
+                "reason": "entailment 0.01 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "always replace the bung",
+                "supported": false,
+                "reason": "entailment 0.02 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "always replace the Fido ring",
+                "supported": false,
+                "reason": "entailment 0.03 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "ferments want three different temperatures",
+                "supported": true,
+                "reason": "entailment 0.97 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "vegetables are best at 18-22\u00b0C",
+                "supported": false,
+                "reason": "entailment 0.29 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "vinesferment like it warm",
+                "supported": true,
+                "reason": "entailment 0.89 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "fruits are best at 25\u00b0C",
+                "supported": false,
+                "reason": "entailment 0.02 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "jars are chosen based on taste",
+                "supported": false,
+                "reason": "entailment 0.19 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "to ensure cucumbers remain submerged",
+                "supported": false,
+                "reason": "entailment 0.38 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "to prevent mold from growing",
+                "supported": false,
+                "reason": "entailment 0.21 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "to prevent the brine from fading",
+                "supported": false,
+                "reason": "entailment 0.18 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "tolerates cold",
+                "supported": false,
+                "reason": "entailment 0.06 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "start working in the fridge",
+                "supported": false,
+                "reason": "entailment 0.05 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "keep the vegetables crisp and select for the lab community",
+                "supported": false,
+                "reason": "entailment 0.05 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "preserve with the salt and cold",
+                "supported": false,
+                "reason": "entailment 0.04 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "determine the ratio between yeasts and bacteria and the starter for fermentation",
+                "supported": false,
+                "reason": "entailment 0.09 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "Salt preserves by pulling water out of cells \u2014 microorganism cells as much as vegetable cells.",
+                "supported": false,
+                "reason": "entailment 0.07 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "A 5% brine draws moisture across the membrane until the osmolarity equalises, and at that point most spoilage organisms can no longer multiply.",
+                "supported": false,
+                "reason": "entailment 0.07 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "Salt lowers aw too, which is why jams keep without acid.",
+                "supported": false,
+                "reason": "entailment 0.09 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "The crispness of a fermented vegetable is the osmotic pressure holding the cell walls taut \u2014 the trade-off with softness at high salt is a balance, not a defect.",
+                "supported": false,
+                "reason": "entailment 0.06 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "The line at pH 4.6 is the one that matters. Below it, Clostridium botulinum cannot grow, which is why any preserved food that is not acidic enough on its own must be acidified before it is canned.",
+                "supported": false,
+                "reason": "entailment 0.10 (threshold 0.50)"
+              }
+            ]
+          },
+          "structure_match": 0.9041095890410958,
+          "reference": "tests/fixtures/in-domain/reference-regions.json"
+        }
+      },
+      "llama3.2:latest": {
+        "nli": {
+          "notes": 14,
+          "regions": 5,
+          "standalone": 2,
+          "comprehensiveness": 0.8571428571428571,
+          "redundancy": 0.8,
+          "faithfulness": 0.23529411764705882,
+          "faithfulness_detail": {
+            "score": 0.23529411764705882,
+            "supported": 4,
+            "unsupported": 13,
+            "undecided": 0,
+            "total": 17,
+            "verdicts": [
+              {
+                "region": 0,
+                "claim": "Regularly check airlock water levels to prevent mould growth",
+                "supported": false,
+                "reason": "entailment 0.46 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "Use hot vinegar to clean stubborn film on airlocks",
+                "supported": true,
+                "reason": "entailment 0.50 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "Organize jars by type and size to prevent clogging",
+                "supported": false,
+                "reason": "entailment 0.13 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "ferments require specific temperature ranges for optimal fermentation",
+                "supported": true,
+                "reason": "entailment 0.84 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "temperature affects fermentation rate and quality",
+                "supported": false,
+                "reason": "entailment 0.41 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "location affects fermentation speed and flavor",
+                "supported": true,
+                "reason": "entailment 0.64 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "The type of vinegar matters more than the strength: white vinegar at 5% acidity is forgiving",
+                "supported": false,
+                "reason": "entailment 0.07 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "A 5% salt solution is the default for fermenting cucumbers",
+                "supported": false,
+                "reason": "entailment 0.29 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "The critical part is keeping the vegetables submerged to prevent mould growth",
+                "supported": false,
+                "reason": "entailment 0.17 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "A brine that touches air goes fuzzy within days",
+                "supported": false,
+                "reason": "entailment 0.27 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "Weights and whole leaves can help hold things down and give lactobacilli a head start",
+                "supported": true,
+                "reason": "entailment 0.75 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "The community replaces itself as the environment turns more acidic.",
+                "supported": false,
+                "reason": "entailment 0.04 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "Salt levels select for the lab community over spoilage organisms.",
+                "supported": false,
+                "reason": "entailment 0.21 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "The sequence is predictable: at the start many microorganisms compete, then the acid drives the pH down and they win outright.",
+                "supported": false,
+                "reason": "entailment 0.04 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "Salt lowers water activity more efficiently than sugar.",
+                "supported": false,
+                "reason": "entailment 0.07 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "The pH level of 4.6 is crucial for preventing Clostridium botulinum growth.",
+                "supported": false,
+                "reason": "entailment 0.06 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "Vinegar is the only preserving acid that is volatile and can escape a closed jar.",
+                "supported": false,
+                "reason": "entailment 0.13 (threshold 0.50)"
+              }
+            ]
+          },
+          "structure_match": 0.9041095890410958,
+          "reference": "tests/fixtures/in-domain/reference-regions.json"
+        }
+      }
+    },
+    "heterogeneous": {
+      "qwen2.5:0.5b": {
+        "nli": {
+          "notes": 14,
+          "regions": 5,
+          "standalone": 0,
+          "comprehensiveness": 1.0,
+          "redundancy": 0.8,
+          "faithfulness": 0.21739130434782608,
+          "faithfulness_detail": {
+            "score": 0.21739130434782608,
+            "supported": 5,
+            "unsupported": 18,
+            "undecided": 0,
+            "total": 23,
+            "verdicts": [
+              {
+                "region": 0,
+                "claim": "a clean, lubed chain costs seconds a week and buys months of drivetrain life.",
+                "supported": false,
+                "reason": "entailment 0.06 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "wipe the chain dry after wet rides \u2014 water washes the grease out and grit grinds it in.",
+                "supported": false,
+                "reason": "entailment 0.07 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "spongy casing and the right width run at lower pressure and soak up the broken asphalt most city routes are paved with.",
+                "supported": false,
+                "reason": "entailment 0.19 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "three layers are enough until the thermometer drops below freezing: a base that wicks, a mid layer that insulates, and a shell that stops wind and rain.",
+                "supported": false,
+                "reason": "entailment 0.07 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "trailing shoes are fine on dry ground and miserable in a wet crossing.",
+                "supported": false,
+                "reason": "entailment 0.09 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "diff boring",
+                "supported": false,
+                "reason": "entailment 0.03 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "changes",
+                "supported": false,
+                "reason": "entailment 0.01 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "left out content",
+                "supported": false,
+                "reason": "entailment 0.01 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "The watering rota covers the raised beds and the greenhouse, with an evening slot every day from May to September.",
+                "supported": true,
+                "reason": "entailment 0.66 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "The rota changes seasonally.",
+                "supported": true,
+                "reason": "entailment 0.98 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "The rota covers the raised beds and the greenhouse, with an evening slot every day from May to September.",
+                "supported": true,
+                "reason": "entailment 0.89 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "Volunteering means running the returns trolley and reshelving.",
+                "supported": true,
+                "reason": "entailment 0.89 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "The fiction aisle self-corrects; the non-fiction shelves drift and need a full pass once a month.",
+                "supported": false,
+                "reason": "entailment 0.12 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "identify and treat different plant pests and diseases",
+                "supported": false,
+                "reason": "entailment 0.15 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "recommend a treatment plan for plants",
+                "supported": false,
+                "reason": "entailment 0.21 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "describe the process of isolating and treating plants",
+                "supported": true,
+                "reason": "entailment 0.61 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "describe the importance of using water effectively",
+                "supported": false,
+                "reason": "entailment 0.18 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "recommend practices for preventing plant diseases",
+                "supported": false,
+                "reason": "entailment 0.11 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "there should be a place for turning back after every walk",
+                "supported": false,
+                "reason": "entailment 0.11 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "the contour lines tell more than the gradient markings",
+                "supported": false,
+                "reason": "entailment 0.03 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "how steep, long, and where the line goes wrong",
+                "supported": false,
+                "reason": "entailment 0.05 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "the south ridge route is best walked clockwise",
+                "supported": false,
+                "reason": "entailment 0.02 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "the upper line is shorter and exposed, the lower line drops to a stream",
+                "supported": false,
+                "reason": "entailment 0.29 (threshold 0.50)"
+              }
+            ]
+          },
+          "structure_match": 0.782608695652174,
+          "reference": "tests/fixtures/heterogeneous/reference-regions.json"
+        }
+      },
+      "llama3.2:latest": {
+        "nli": {
+          "notes": 14,
+          "regions": 5,
+          "standalone": 0,
+          "comprehensiveness": 1.0,
+          "redundancy": 0.4,
+          "faithfulness": 0.2222222222222222,
+          "faithfulness_detail": {
+            "score": 0.2222222222222222,
+            "supported": 4,
+            "unsupported": 14,
+            "undecided": 0,
+            "total": 18,
+            "verdicts": [
+              {
+                "region": 0,
+                "claim": "A clean, lubed chain costs seconds a week and buys months of drivetrain life.",
+                "supported": false,
+                "reason": "entailment 0.07 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "Pads wear fastest where you brake hardest.",
+                "supported": false,
+                "reason": "entailment 0.14 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "Boots are the piece worth buying once \u2014 trail shoes are fine on dry ground and miserable in a wet crossing.",
+                "supported": false,
+                "reason": "entailment 0.05 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "Base every claim on the notes; do not add anything you cannot point to.",
+                "supported": false,
+                "reason": "entailment 0.01 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "Keep it short: one sentence for 'about', three to five short phrases for 'topics', and at most five one-clause 'key_claims' in your own words \u2014 do not quote or copy the notes.",
+                "supported": false,
+                "reason": "entailment 0.03 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "The watering rota covers the raised beds and the greenhouse.",
+                "supported": true,
+                "reason": "entailment 0.95 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "Volunteering means running the returns trolley and reshelving.",
+                "supported": true,
+                "reason": "entailment 0.89 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "The tray of lost-property pens lives under the desk and is never full enough.",
+                "supported": false,
+                "reason": "entailment 0.31 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "To control pests, isolate and spray the plant, and water thoroughly",
+                "supported": true,
+                "reason": "entailment 0.89 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "A healthy plant can withstand pests, but a stressed one is more susceptible",
+                "supported": false,
+                "reason": "entailment 0.14 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "To propagate plants, cut just below a node and use a rooting medium",
+                "supported": false,
+                "reason": "entailment 0.33 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "Most houseplants die from overcare, so monitor soil moisture",
+                "supported": false,
+                "reason": "entailment 0.25 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "Winter slows plant growth, and summer over-watering can be detrimental",
+                "supported": false,
+                "reason": "entailment 0.04 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "Always choose a bail-out point where turning back is still an easy decision.",
+                "supported": false,
+                "reason": "entailment 0.33 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "Trust the forecast for the ridge at midday rather than the one for the valley at dawn.",
+                "supported": false,
+                "reason": "entailment 0.03 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "Pay attention to contour lines for a better understanding of the terrain.",
+                "supported": false,
+                "reason": "entailment 0.42 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "Never underestimate the power of a dead phone battery and always carry a paper map.",
+                "supported": false,
+                "reason": "entailment 0.00 (threshold 0.50)"
+              },
+              {
+                "region": 4,
+                "claim": "Walking the south ridge route clockwise is recommended in dry weather.",
+                "supported": true,
+                "reason": "entailment 0.94 (threshold 0.50)"
+              }
+            ]
+          },
+          "structure_match": 0.782608695652174,
+          "reference": "tests/fixtures/heterogeneous/reference-regions.json"
+        }
+      }
+    },
+    "multilingual": {
+      "qwen2.5:0.5b": {
+        "nli": {
+          "notes": 14,
+          "regions": 4,
+          "standalone": 0,
+          "comprehensiveness": 1.0,
+          "redundancy": 0.75,
+          "faithfulness": 0.0,
+          "faithfulness_detail": {
+            "score": 0.0,
+            "supported": 0,
+            "unsupported": 18,
+            "undecided": 0,
+            "total": 18,
+            "verdicts": [
+              {
+                "region": 0,
+                "claim": "The barometric pressure lower means lighter objects like boats can float in water.",
+                "supported": false,
+                "reason": "entailment 0.02 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "The lower barometric pressure is more beneficial for heavier objects like boats.",
+                "supported": false,
+                "reason": "entailment 0.02 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "The gavel is typically positioned lower on the ship.",
+                "supported": false,
+                "reason": "entailment 0.02 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "Water level adjustments are essential for boat navigation.",
+                "supported": false,
+                "reason": "entailment 0.00 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "remove soil and cultivate plants",
+                "supported": false,
+                "reason": "entailment 0.02 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "cultivate fungi",
+                "supported": false,
+                "reason": "entailment 0.00 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "preserve fungal species",
+                "supported": false,
+                "reason": "entailment 0.01 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "storage and transportation of fungi",
+                "supported": false,
+                "reason": "entailment 0.00 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "fungus preservation for scientific research and education",
+                "supported": false,
+                "reason": "entailment 0.00 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "The forward stroke is a rotation of the torso, not a pull of the arms.",
+                "supported": false,
+                "reason": "entailment 0.06 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "Plant the blade near the foot, unwind the hips, and lift it out level with the hip.",
+                "supported": false,
+                "reason": "entailment 0.03 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "The top hand stays loose; the power belongs to the torso and the leg drive.",
+                "supported": false,
+                "reason": "entailment 0.03 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "The forward stroke is a rotation of the torso, not a pull of the arms.",
+                "supported": false,
+                "reason": "entailment 0.06 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "Plant the blade near the foot, unwind the hips, and lift it out level with the hip.",
+                "supported": false,
+                "reason": "entailment 0.03 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "Where a mushroom fruits is as telling as what it looks like.",
+                "supported": false,
+                "reason": "entailment 0.07 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "Mushrooms follow beech and oak leaf litter and show up where the moss thins.",
+                "supported": false,
+                "reason": "entailment 0.07 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "Porcini keep to spruce and chestnut, often on a slope where the soil drains and warms.",
+                "supported": false,
+                "reason": "entailment 0.07 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "Field mushrooms want grazed pasture and short grass, not the deep shade, and they fruit in rings a season can predict.",
+                "supported": false,
+                "reason": "entailment 0.09 (threshold 0.50)"
+              }
+            ]
+          },
+          "structure_match": -0.04419889502762431,
+          "reference": "tests/fixtures/multilingual/reference-regions.json"
+        }
+      },
+      "llama3.2:latest": {
+        "nli": {
+          "notes": 14,
+          "regions": 4,
+          "standalone": 0,
+          "comprehensiveness": 1.0,
+          "redundancy": 0.75,
+          "faithfulness": 0.15384615384615385,
+          "faithfulness_detail": {
+            "score": 0.15384615384615385,
+            "supported": 2,
+            "unsupported": 11,
+            "undecided": 0,
+            "total": 13,
+            "verdicts": [
+              {
+                "region": 0,
+                "claim": "Proper loading and securing is key to a smooth and safe kayaking experience",
+                "supported": false,
+                "reason": "entailment 0.01 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "Camera handling involves understanding the importance of light, exposure, and handling of film",
+                "supported": false,
+                "reason": "entailment 0.01 (threshold 0.50)"
+              },
+              {
+                "region": 0,
+                "claim": "Identifying fungi requires attention to detail and knowledge of characteristics such as shape, color, and attachment",
+                "supported": true,
+                "reason": "entailment 0.99 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "Drying is the most secure method for mushroom conservation",
+                "supported": false,
+                "reason": "entailment 0.00 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "Mushrooms should be handled gently to avoid damage",
+                "supported": false,
+                "reason": "entailment 0.00 (threshold 0.50)"
+              },
+              {
+                "region": 1,
+                "claim": "Proper storage conditions are crucial for maintaining mushroom quality",
+                "supported": false,
+                "reason": "entailment 0.00 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "The power belongs to the torso and the leg drive",
+                "supported": false,
+                "reason": "entailment 0.02 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "A short, quick cadence is better than a long, slow one",
+                "supported": false,
+                "reason": "entailment 0.24 (threshold 0.50)"
+              },
+              {
+                "region": 2,
+                "claim": "Bracing is the same movement as paddling with a flat blade",
+                "supported": false,
+                "reason": "entailment 0.02 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "Fungi grow in specific habitats",
+                "supported": false,
+                "reason": "entailment 0.43 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "Bees choose their hives carefully",
+                "supported": false,
+                "reason": "entailment 0.19 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "Wind affects beekeeping",
+                "supported": true,
+                "reason": "entailment 0.68 (threshold 0.50)"
+              },
+              {
+                "region": 3,
+                "claim": "Water is crucial for bee colonies",
+                "supported": false,
+                "reason": "entailment 0.40 (threshold 0.50)"
+              }
+            ]
+          },
+          "structure_match": -0.04419889502762431,
+          "reference": "tests/fixtures/multilingual/reference-regions.json"
+        }
+      }
+    }
+  }
+}
