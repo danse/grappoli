@@ -10,6 +10,11 @@ still provisional.
 The numbers are defined in `architecture.md` (Measurements) and
 implemented in `grappoli.measure`.
 
+The command judges with the decoupled cross-encoder by default
+(`grappoli measure`, `--judge llm` puts the model under test in that
+seat instead), so a run today scores faithfulness the way the 2026-10-20
+run below does.
+
 ## The run — both fixtures, both models, both judges (2026-10-13)
 
 The `measure` step of the batch (`benchmarks/runs/2026-10-13/run.json`),

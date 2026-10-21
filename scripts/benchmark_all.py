@@ -280,8 +280,15 @@ def runners(work_root: Path) -> dict:
         grappoli = work / ".grappoli"
         mapping = json.loads((grappoli / "map.json").read_text())
         characterisations = read_characterisations(grappoli / "characterisations")
-        return measure_map(mapping, characterisations, load_corpus(work),
-                           reference=corpus.reference, **_judge_for(judge))
+        started = time.monotonic()
+        result = measure_map(mapping, characterisations, load_corpus(work),
+                             reference=corpus.reference, **_judge_for(judge))
+        # The seconds are the measurement's own cost, the judge included:
+        # the decoupled judge is the default, and what it costs is a
+        # number the record carries rather than a question left to a
+        # live run.
+        result["seconds"] = time.monotonic() - started
+        return result
 
     return {"structure": structure, "throughput": throughput,
             "characterisation": characterisation, "read": read,

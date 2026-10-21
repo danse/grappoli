@@ -248,6 +248,40 @@ def test_the_relation_step_runs_the_shipped_loop_over_the_cell(suite, corpus, tm
     assert not (work / ".grappoli" / "relations").exists()
 
 
+def test_the_measure_step_records_what_it_cost(suite, corpus, tmp_path, monkeypatch):
+    """The record carries the seconds the measurement took.
+
+    The decoupled judge is the default, and what a measurement costs is a
+    number the batch should carry rather than a question left to a live
+    run (`benchmarks/measurement.md`). The judge and the redundancy
+    encoder are stubbed: what is pinned is the step's wiring and what it
+    writes down, not the numbers themselves.
+    """
+    import grappoli.measure as measure_module
+
+    monkeypatch.setattr(suite, "_judge_for",
+                        lambda name: {"judge": lambda claim, evidence: {"supported": True,
+                                                                       "reason": "stubbed"}})
+    monkeypatch.setattr(measure_module, "cross_encoder",
+                        lambda *args, **kwargs: lambda left, right: -1.0)
+
+    work_root = tmp_path / "work"
+    work = work_root / f"{corpus.name}--{suite._slug('m1')}"
+    shutil.copytree(corpus.path, work)
+    (work / "b.md").write_text("another note")
+    (work / ".grappoli").mkdir()
+    (work / ".grappoli" / "map.json").write_text(json.dumps(MAP))
+    (work / ".grappoli" / "characterisations").write_text(
+        "".join(json.dumps({"region": region, **characterisation}) + "\n"
+                for region, characterisation in CHARACTERS.items()))
+
+    record = suite.runners(work_root)["measure"](corpus=corpus, model="m1", judge="m1")
+
+    assert record["seconds"] >= 0
+    assert record["faithfulness"] == 1.0
+    assert record["redundancy"] == 0.0
+
+
 def test_the_record_is_pretty_printed(suite, corpus, tmp_path):
     out = tmp_path / "run.json"
     suite.run([corpus], ["m1"], ["m1"], out,

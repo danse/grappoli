@@ -70,7 +70,9 @@ In order, it runs:
 7. **measure** — the four numbers once per judge. A judge named `nli` is
    the NLI cross-encoder, decoupled from every model by construction; any
    other name is a generation model, and each model's characterisations
-   are read by every judge named, so a map is scored by each.
+   are read by every judge named, so a map is scored by each. The entry
+   carries the seconds the measurement took, the judge included: what the
+   decoupled judge costs is a number the record keeps.
 
 ```
 uv run python scripts/benchmark_all.py
