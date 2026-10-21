@@ -71,9 +71,9 @@ map is being made, and is gone before anything is read.
 
 ## Progress and logging
 
-The pipeline is slow by design: a characterisation runs roughly four
-minutes under `qwen2.5:0.5b` and about eleven under `llama3.2:latest`,
-with generation ~1.9 tok/s (0.5B) and ~0.6 tok/s (3B)
+The pipeline is slow by design: a characterisation runs about eleven minutes
+under the shipped `llama3.2:latest` and roughly four under
+`qwen2.5:0.5b`, with generation ~0.6 tok/s (3B) and ~1.9 tok/s (0.5B)
 (`benchmarks/throughput.md`). A build must be observable while it runs
 and able to survive an interrupt.
 
@@ -362,20 +362,26 @@ better (`benchmarks/structure.md`, "Coarser resolution (2026-10-15)";
 measurements reach; if it is wanted it is a presentation choice for the
 render, to be judged by reading rather than scored.
 
-**qwen2.5:0.5b as the model — confirmed by faithfulness.** The row stood
-open until a judge decoupled from the model under test could score the two
-characterisers, because both LLM judges misread verbatim claims (the 0.5B
+**llama3.2:latest as the model — settled by the relation step.** The row
+stood open until a judge decoupled from the model under test could score the
+two characterisers, because both LLM judges misread verbatim claims (the 0.5B
 judge ten of ten) and neither could rank the models at all
 (`benchmarks/measurement.md`, "The judge is the larger term"). The NLI
-cross-encoder has now done it: qwen2.5:0.5b scores 0.478, 0.857 and
-0.950 over the three corpora against llama3.2:latest's 0.800, 0.765 and
-0.750 — behind on the saturated one, ahead on the other two, level on the
-average (0.762 against 0.772) — while generating at three times the speed
-(`benchmarks/measurement.md`, "Reading (2026-10-20)"). Faithfulness does
-not overturn the smaller model, so it stands. The relation step is the
-other leg of the row, and it is settled the other way round: the tool
-channel fails for both models, which is why the shipped step asks one
-pair a call rather than running a conversation (`benchmarks/relations.md`).
+cross-encoder has now done it, and it does not separate them: qwen2.5:0.5b
+scores 0.478, 0.857 and 0.950 over the three corpora against
+llama3.2:latest's 0.800, 0.765 and 0.750 — behind on the saturated one, ahead
+on the other two, level on the average (0.762 against 0.772)
+(`benchmarks/measurement.md`, "Reading (2026-10-20)"). The relation step is
+the other leg of the row, and it is settled the other way round: asked one
+pair at a time, the smaller model writes one region's notes where a relation
+belongs — a live run of the shipped path wrote two well-formed relations and
+neither said how its two regions touch — while this one writes a relation for
+every pair it was asked, naming the common ground and the difference
+(`benchmarks/relations.md`, "What the shape rests on"). What the choice costs
+is throughput: this model generates at about a third of the smaller one's
+rate, so a pair costs minutes and a read costs hours
+(`benchmarks/throughput.md`). The smaller model stays in the batch as
+the comparison.
 
 **The relation step asks one pair a call — settled by the batch.** The
 native channel was the one that shipped, because it was the only one
@@ -410,7 +416,7 @@ Python 3.12 under `uv`; `sentence-transformers`, `ollama`,
 `scikit-learn`, `pytest`. CPU-only — there is no GPU, and no framework
 for the agent.
 
-Generation goes through Ollama (`qwen2.5:0.5b`). Its server has no
+Generation goes through Ollama (`llama3.2:latest`). Its server has no
 embedding support and is left as it is.
 
 Generation runs at ~1.9 tok/s for `qwen2.5:0.5b` and ~0.6 for

@@ -190,3 +190,16 @@ def test_unusable_replies_are_malformed(ollama_chat, message):
     ollama_chat(message)
     with pytest.raises(model.ModelError):
         model.structured("prompt", {"type": "function"})
+
+
+def test_the_shipped_default_model_is_the_one_that_writes_relations():
+    """The default is `llama3.2:latest`, and the relation step is why.
+
+    Faithfulness does not separate the two models the batch runs — the
+    decoupled judge scores them level on the average — and the relation
+    step does: asked one pair at a time, the smaller model writes one
+    region's notes where a relation belongs, and this one writes the
+    relation (`benchmarks/measurement.md`, "Reading (2026-10-20)";
+    `benchmarks/relations.md`, "What the shape rests on").
+    """
+    assert model.DEFAULT_MODEL == "llama3.2:latest"

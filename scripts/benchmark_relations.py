@@ -17,7 +17,7 @@ and `scripts/benchmark_relation_loop.py` is the instrument for it.
 
 Usage:
     uv run python scripts/benchmark_relations.py NOTES --characterisations PATH
-        [--model qwen2.5:0.5b] [--edge 0,1] [--out REPORT.md]
+        [--model llama3.2:latest] [--edge 0,1] [--out REPORT.md]
 """
 
 import argparse
@@ -28,6 +28,7 @@ from pathlib import Path
 
 from grappoli.corpus import load_corpus
 from grappoli.map import build_map
+from grappoli.model import DEFAULT_MODEL
 from grappoli.relations import relatable_edges
 
 WRITE_RELATION = {
@@ -231,7 +232,7 @@ def main() -> None:
     parser.add_argument("notes")
     parser.add_argument("--characterisations", required=True,
                         help="the line file a `grappoli read` run wrote")
-    parser.add_argument("--model", default="qwen2.5:0.5b")
+    parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--edge", default=None, help="edge to use for per-edge/per-region, 'a,b'")
     parser.add_argument("--out", default=None)
     parser.add_argument("--approaches", default="per edge,per region,whole map",

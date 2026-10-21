@@ -26,9 +26,9 @@ MAX_ATTEMPTS = 3
 # throughput.md (2026-10-13): one characterisation is ≈450 prompt tokens
 # and ≈150 answer tokens at ~1.9 tok/s generation for qwen2.5:0.5b and
 # ~0.6 tok/s for llama3.2:latest — about four and eleven minutes. The
-# ETA starts here and is replaced by this run's own measurements once a
-# region has finished.
-SECONDS_PER_REGION = 240.0
+# figure here is the shipped model's, and the ETA is replaced by this
+# run's own measurements once a region has finished.
+SECONDS_PER_REGION = 660.0
 
 TOOL_SCHEMA = {
     "type": "function",

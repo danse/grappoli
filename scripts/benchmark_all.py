@@ -63,8 +63,9 @@ from grappoli.relations import read_relations
 STEPS = ("structure", "throughput", "characterisation", "read", "relations",
          "relation_loop", "measure")
 # The comparison the batch runs by default: the two models that characterise
-# every region and relate every touching pair — `qwen2.5:0.5b`, the shipped
-# default, and `llama3.2:latest`, the larger one — over the three corpora.
+# every region and relate every touching pair — `llama3.2:latest`, the
+# shipped default, and `qwen2.5:0.5b`, the smaller one it is compared
+# against — over the three corpora.
 # The tool-trained pair added for the relation loop's tool choice did not
 # drive it and doubled the run; `--models` still runs them.
 DEFAULT_MODELS = (

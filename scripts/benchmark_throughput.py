@@ -10,7 +10,7 @@ Rates come from the timing Ollama itself reports, so they are the
 server's own numbers rather than wall-clock around a request.
 
 Usage:
-    uv run python scripts/benchmark_throughput.py [--model qwen2.5:0.5b]
+    uv run python scripts/benchmark_throughput.py [--model llama3.2:latest]
                                                 [--num-thread N] [--gen 256]
 """
 

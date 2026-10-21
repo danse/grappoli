@@ -17,7 +17,13 @@ fenced, and anything else is called malformed
 
 import json
 
-DEFAULT_MODEL = "qwen2.5:0.5b"
+# The shipped model. The relation step is what the choice turns on: asked
+# one pair at a time, the smaller model writes one region's notes where a
+# relation belongs, and this one writes the relation. Faithfulness does
+# not separate them:
+# `benchmarks/relations.md`, "What the shape rests on";
+# `benchmarks/measurement.md`, "Reading (2026-10-20)".
+DEFAULT_MODEL = "llama3.2:latest"
 
 # A characterisation is ≈150 tokens; throughput.md (2026-10-13)
 # records 123–256 tokens on the representative prompt. 0.5B answers can be

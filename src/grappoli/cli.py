@@ -68,7 +68,7 @@ def main(argv=None, *, llm=structured, agent_llm=converse, compare=None) -> int:
                           help="similarity provider (default: e5)")
     read_cmd.add_argument("-k", type=int, help="neighbourhood size (default: 4)")
     read_cmd.add_argument("--target", type=int, help="representatives per region (default: 5)")
-    read_cmd.add_argument("--model", help="generation model (default: qwen2.5:0.5b)")
+    read_cmd.add_argument("--model", help="generation model (default: llama3.2:latest)")
     read_cmd.add_argument("--relation-channel", choices=("native", "structured"),
                           default="structured",
                           help="how the relation loop asks the model: one call a "
@@ -81,7 +81,7 @@ def main(argv=None, *, llm=structured, agent_llm=converse, compare=None) -> int:
     measure_cmd.add_argument("--reference",
                              help="reference regions to score structure match against "
                                   "(same shape as tests/fixtures/in-domain/reference-regions.json)")
-    measure_cmd.add_argument("--model", help="judge model (default: qwen2.5:0.5b)")
+    measure_cmd.add_argument("--model", help="judge model (default: llama3.2:latest)")
     measure_cmd.add_argument("--judge", choices=("llm", "nli"), default="llm",
                              help="faithfulness judge: the model under test (llm) "
                                   "or the decoupled NLI cross-encoder (nli)")

@@ -12,7 +12,7 @@ taken.
 
 Usage:
     uv run python scripts/benchmark_characterisation.py NOTES
-        [--model qwen2.5:0.5b] [--out REPORT.md]
+        [--model llama3.2:latest] [--out REPORT.md]
 """
 
 import argparse
@@ -25,7 +25,8 @@ from grappoli.characterise import TOOL_SCHEMA, build_prompt, validate
 from grappoli.characterise import InvalidCharacterisation
 from grappoli.corpus import load_corpus
 from grappoli.map import build_map
-from grappoli.model import DEFAULT_MAX_TOKENS, ModelError, parse_content
+from grappoli.model import (DEFAULT_MAX_TOKENS, DEFAULT_MODEL, ModelError,
+                             parse_content)
 
 
 def _message_dict(message) -> dict:
@@ -137,7 +138,7 @@ def sweep(notes: dict[str, str], model: str, limit: int | None = None,
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("notes", help="path to the branch of notes")
-    parser.add_argument("--model", default="qwen2.5:0.5b")
+    parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--limit", type=int, default=None,
                         help="probe only the first N regions (for a quick look)")
     parser.add_argument("--out", default=None, help="write the report here instead of stdout")

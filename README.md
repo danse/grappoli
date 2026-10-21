@@ -2,7 +2,7 @@
 
 A command that turns a branch of notes into a map: regions, their
 characterisations, and the relations between them. Everything runs
-locally — embeddings, a small local model, and arithmetic.
+locally — embeddings, a local model, and arithmetic.
 
 ## Quickstart
 

@@ -3,17 +3,19 @@
 Items to be done, delete once done:
 
 - Make the model relate rather than paraphrase. One live run of the
-  shipped path (multilingual corpus, 0.5B, 2026-10-21) wrote two
+  shipped path at 0.5B (multilingual corpus, 2026-10-21) wrote two
   relations, both well-formed and both about one region's notes: the
   kayak loading and the film in one, the forward stroke in the other,
   with the other region of each pair nowhere in the sentence
-  (`benchmarks/relations.md`, "What the shape rests on"). The prompt
-  asks for one sentence about how two regions touch, and the model
-  answers with the material it has. What settles it is what the prompt
-  leaves out — the probe's pair-size prompt carried only each region's
-  `about` and the answer was shorter — and whether this model can write
-  a relation at all, or whether the honest answer is that the relation
-  step needs a model that can.
+  (`benchmarks/relations.md`, "What the shape rests on"). The shipped
+  model is now the one that writes the relation, so the question is what
+  the loop does with an answer that does not: the batch's `relation_loop`
+  step already measures whether a statement is about both regions it
+  names (`mentions`, `both_regions`), and nothing in the shipped loop
+  reads that. What settles it is whether a relation the notes do not
+  bear is worse than a missing one — a pair left missing is a hole in
+  the page, and a wrong sentence is a lie on it — and whether the guard
+  belongs in the loop or in the measurement.
 - Should the four measurements police the relations? They score the map, the
   characterisations and their claims; a relation is not among them, so a
   statement about two regions that the notes do not hold would pass every

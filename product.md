@@ -95,10 +95,16 @@ measurements reach (`architecture.md`, Graph; `benchmarks/structure.md`,
 **Representative selection is deterministic** — centrality within the
 region, redundancy reduced by marginal gain. It makes no model calls.
 
-**The model is qwen2.5:0.5b, run locally through Ollama.** Small enough
-that its failures are visible rather than rare, which is what the
-faithfulness measurement exists to catch. It sits behind a single
-interface so that larger models can be compared without rework.
+**The model is llama3.2:latest, run locally through Ollama.** It is the
+larger of the two the batch runs. The decoupled judge scores the two level
+on the average (0.762 against 0.772) and the relation step separates them:
+asked one pair at a time, the smaller model writes one region's notes where
+a relation belongs, and this one writes the relation
+(`benchmarks/measurement.md`; `benchmarks/relations.md`). It costs about
+three times the generation, and its failures are rarer, which is why the
+relation step's content had to be looked at rather than assumed. It sits
+behind a single interface so that other models can be compared without
+rework.
 
 **The relation step asks one pair at a time.** The orchestration names
 the pair and the model is asked for one relation, in one call, from the

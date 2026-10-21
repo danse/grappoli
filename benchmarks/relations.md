@@ -81,6 +81,17 @@ Both are about notes rather than about the two regions they name, and
 neither says how those regions touch. The shape is right, and the 0.5B
 fills it with one region's material instead of a relation between two.
 
+The shipped model writes the relation. Asked the same (0,1) pair the
+same day, with its own characterisations of the same map,
+llama3.2:latest answered in 861 s: "Region 0, which focuses on boat
+handling, photography, and mycology, shares the common ground of
+recognizing edible fungi, while differing in its emphasis on keeping the
+center of gravity low compared to Region 1, which prioritizes mushroom
+conservation and honey production methods…" — the common ground and the
+difference, named for both regions, which is what the step asks for. It
+is one long sentence rather than a short one, and it costs about twice
+what the 0.5B's answer cost.
+
 ## What is not settled
 
 What the loop writes, read for truth. The probe measures whether a call

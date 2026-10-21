@@ -15,6 +15,7 @@ import pytest
 
 from grappoli.characterise import (
     MAX_ATTEMPTS,
+    SECONDS_PER_REGION,
     CharacterisationFailed,
     InvalidCharacterisation,
     build_prompt,
@@ -204,7 +205,12 @@ def test_failed_regions_are_the_only_ones_retried_next_run(tmp_path):
 
 
 def test_progress_is_reported_per_region_with_an_eta(tmp_path):
-    """Region 3 of 16, with the estimate falling as regions finish."""
+    """Region 3 of 16, with the estimate falling as regions finish.
+
+    The figure is the shipped model's cost for one region, so the first
+    estimate is the regions left times that figure; the run's own
+    measurements replace it as regions finish.
+    """
     path = tmp_path / "characterisations"
     events = []
     characterise_regions(mapping_of(0, 1, 2), NOTES, path, StubLLM(VALID, VALID, VALID),
@@ -213,7 +219,7 @@ def test_progress_is_reported_per_region_with_an_eta(tmp_path):
     assert [(e[1], e[2]) for e in events] == [(1, 3), (2, 3), (3, 3)]
     assert all(e[0] == "region" for e in events)
     etas = [e[3] for e in events]
-    assert etas[0] == pytest.approx(3 * 240.0)
+    assert etas[0] == pytest.approx(3 * SECONDS_PER_REGION)
     assert etas[0] > etas[-1] >= 0
 
 

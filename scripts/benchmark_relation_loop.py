@@ -22,7 +22,7 @@ it rather than a second of its own.
 
 Usage:
     uv run python scripts/benchmark_relation_loop.py NOTES --characterisations PATH
-        [--model qwen2.5:0.5b] [--map MAP.json] [--relations PATH]
+        [--model llama3.2:latest] [--map MAP.json] [--relations PATH]
         [--judge nli|none] [--fresh] [--out RECORD.json]
 """
 
@@ -36,7 +36,7 @@ from grappoli.characterise import read_characterisations
 from grappoli.corpus import load_corpus
 from grappoli.map import build_map
 from grappoli.measure import JudgeFailed, nli_judge
-from grappoli.model import structured
+from grappoli.model import DEFAULT_MODEL, structured
 from grappoli.relations import read_relations, relatable_edges, relate_pairs
 from grappoli.render import render
 from grappoli.words import stopwords, terms
@@ -199,7 +199,7 @@ def main() -> None:
     parser.add_argument("notes", help="path to the branch of notes")
     parser.add_argument("--characterisations", required=True,
                         help="the line file a `grappoli read` run wrote")
-    parser.add_argument("--model", default="qwen2.5:0.5b")
+    parser.add_argument("--model", default=DEFAULT_MODEL)
     parser.add_argument("--map", default=None,
                         help="the map.json a read wrote; built here when absent")
     parser.add_argument("--relations", default=None,

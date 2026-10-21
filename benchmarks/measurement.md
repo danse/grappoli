@@ -164,17 +164,21 @@ threshold is conservative on real text.
 
 ## Reading (2026-10-20)
 
-- **The decoupled judge does not separate the two models, so the model
-  decision stands.** qwen2.5:0.5b scores 0.478, 0.857 and 0.950 against
-  llama3.2:latest's 0.800, 0.765 and 0.750 over the three corpora: behind
-  on the saturated in-domain corpus, ahead on the other two, level on the
-  average (0.762 against 0.772). The LLM judges could not rank them at all
+- **The decoupled judge does not separate the two models.** qwen2.5:0.5b
+  scores 0.478, 0.857 and 0.950 against llama3.2:latest's 0.800, 0.765 and
+  0.750 over the three corpora: behind on the saturated in-domain corpus,
+  ahead on the other two, level on the average (0.762 against 0.772). The LLM
+  judges could not rank them at all
   ("The judge is the larger term"); this judge can rank them and finds
-  them the same, which is the answer the row was waiting for. Faithfulness
-  does not overturn qwen2.5:0.5b, and the smaller model is three times the
-  throughput, so it stands (`architecture.md`, Provisional). Note what the
-  level is made of: the judge is strict on paraphrase and on a claim
-  written as a fragment — "always replace the bung" against the note's
+  them the same, which is the answer the row was waiting for. What it does
+  not settle is which model ships: the smaller one is three times the
+  throughput, and the step this record does not measure separates them —
+  asked one pair at a time, the smaller model writes one region's notes
+  where a relation belongs (`benchmarks/relations.md`, "What the shape
+  rests on"). The shipped model is decided on that, not on these numbers
+  (`architecture.md`, Provisional). Note what the level is made of: the
+  judge is strict on paraphrase and on a claim written as a fragment —
+  "always replace the bung" against the note's
   "Replace the bung with the year" scores 0.03 — so this is the level of
   the claims, not a ceiling on what a claim can earn.
 - **The redundancy threshold is calibrated on the wrong text.** It is set
