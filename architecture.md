@@ -318,12 +318,7 @@ do not reproduce structure match (`benchmarks/structure.md`).
 ## Provisional
 
 Choices taken to get moving, with the measurement that can overturn
-them. Three have been confirmed and left the table for the readings that
-confirm them; the one that remains is stated with what settles it:
-
-| Decision | Overturned by | Standing |
-|---|---|---|
-| qwen2.5:0.5b | faithfulness | Open — both LLM judges misread verbatim claims (the 0.5B judge ten of ten), so neither can settle it (`benchmarks/measurement.md`, "Reading (2026-10-13)"); the decoupled judge is now built (`grappoli measure --judge nli`) and the next run's number is what settles the row. |
+them. All four are settled now, and each is stated with what settled it:
 
 **Communities as regions — confirmed by structure match.** Mutual-filtered
 communities reach 0.904 on the saturated corpus
@@ -350,20 +345,34 @@ better (`benchmarks/structure.md`, "Coarser resolution (2026-10-15)";
 measurements reach; if it is wanted it is a presentation choice for the
 render, to be judged by reading rather than scored.
 
+**qwen2.5:0.5b as the model — confirmed by faithfulness.** The row stood
+open until a judge decoupled from the model under test could score the two
+characterisers, because both LLM judges misread verbatim claims (the 0.5B
+judge ten of ten) and neither could rank the models at all
+(`benchmarks/measurement.md`, "The judge is the larger term"). The NLI
+cross-encoder has now done it: qwen2.5:0.5b scores 0.478, 0.857 and
+0.950 over the three corpora against llama3.2:latest's 0.800, 0.765 and
+0.750 — behind on the saturated one, ahead on the other two, level on the
+average (0.762 against 0.772) — while generating at three times the speed
+(`benchmarks/measurement.md`, "Reading (2026-10-20)"). Faithfulness does
+not overturn the smaller model, so it stands. The other leg of the row is
+not settled by this: the relation loop's tool channel fails for both
+models, so the map's relations are out of reach of either one unassisted
+(`benchmarks/relations.md`).
+
 Characterisation put 0.5B's failure modes on record — the tool ignored
 on a real prompt, prose instead of JSON without `format`, an over-long
 answer that truncates under a cap (`benchmarks/characterisation.md`).
 The relation loop put its own prompt on the same record: at 3b the
 shipped whole-map loop names `list_regions` and then serialises its
 writes in content, so whether a model drives the tools unassisted is part
-of what the model row decides (`benchmarks/relations.md`). That is the
-ground the faithfulness row now stands on: across both fixtures the 0.5B
-judge flags ten claims and every one is a sentence lying verbatim in the
+of what the model row decides (`benchmarks/relations.md`). That was the
+ground the faithfulness row stood on: across both fixtures the 0.5B judge
+flags ten claims and every one is a sentence lying verbatim in the
 region's own notes, and the 3B judge errs often enough to be a floor too —
 the judge, not the map, is the weak link (`benchmarks/measurement.md`,
-"Reading (2026-10-13)"). The choice of model is still open, to be settled
-by a judge decoupled from the model under test — now built as the NLI
-cross-encoder behind `--judge nli`.
+"The judge is the larger term"). The judge decoupled from the model under test
+has since scored both characterisers, and found them level.
 
 ## Environment
 

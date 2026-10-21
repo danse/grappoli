@@ -79,6 +79,70 @@ the thermometer drops below freezing" (`hiking-gear-layering`), both
 verbatim. Where the 0.5B judge is systematically wrong, the 3B judge is
 wrong often enough that its numbers are floors too.
 
+## The run — the decoupled judge (2026-10-20)
+
+The `measure` step of the batch (`benchmarks/runs/2026-10-20/run.json`),
+with the NLI cross-encoder as the only judge: one row per corpus and
+characteriser, the judge named `nli` in the record. The map is the map's —
+`build_map` calls no model — so the two rows of a corpus share their
+comprehensiveness and their structure match, and differ only in the prose
+the characteriser wrote, the redundancy of that prose, and the number that
+scores it.
+
+| corpus | characteriser | judge | compr. | redundancy | faithfulness | structure |
+|---|---|---|---|---|---|---|
+| in-domain | qwen2.5:0.5b | nli | 0.857 | 0.800 | 0.478 | 0.904 |
+| in-domain | llama3.2:latest | nli | 0.857 | 0.800 | 0.800 | 0.904 |
+| heterogeneous | qwen2.5:0.5b | nli | 1.000 | 0.800 | 0.857 | 0.783 |
+| heterogeneous | llama3.2:latest | nli | 1.000 | 0.800 | 0.765 | 0.783 |
+| multilingual | qwen2.5:0.5b | nli | 1.000 | 0.750 | 0.950 | -0.044 |
+| multilingual | llama3.2:latest | nli | 1.000 | 0.500 | 0.750 | -0.044 |
+
+### The first NLI column was an artefact
+
+The 2026-10-19 run judged the same way and scored 0.000 to 0.235, with 95
+of its 112 claims rejected — every one of them below 0.46 entailment, mean
+0.11 — and 31 of those 95 were claims the region's own notes state
+verbatim (7 of 21 in-domain, 3 of 13, 7 of 18, 5 of 14, 8 of 18, 1 of 11).
+A judge that rejects "check the water level every two weeks", which is the
+note's own sentence, is not judging the claim; it is measuring the
+premise. That column of the 2026-10-19 record is invalid and is kept only
+as the record of that run; the 2026-10-20 column is the one to read.
+
+The cause is the premise. A region's evidence is a note or two of prose,
+and the cross-encoder is trained on sentence pairs: given the whole note,
+the same claim scores 0.06, and given the sentence that carries it, 0.97.
+Entailment drifts to neutral as the premise grows to cover more than the
+claim. So the evidence is now cut into sentences and adjacent pairs — a
+pair keeps an anaphor and its antecedent together — and the claim is
+supported when any premise entails it. A span longer than the model's
+input is still cut by tokens, so no note is truncated.
+
+The same claim, on the same notes: 0.08 before, 0.99 after.
+
+The 2026-10-20 run re-characterised the corpora, so its claims are not the
+2026-10-19 run's claims and the two columns are not one map scored twice.
+What the two runs share is the verdict: 26 claims remain unsupported, and
+one of them is in its region's notes verbatim — "turning back is still an
+easy decision", at 0.48 against a 0.50 threshold, a hair under the line.
+The rest are the character's: some are claims the notes do not make at all
+— "always use soap to clean" (the note says never soap), "a dry airlock"
+(the note calls it an open door for mould), "fruits are best at 25°C" (the
+note gives 25°C to vinegar ferments), "jars are chosen based on taste" —
+and some are true in substance but not in a form the judge can credit,
+such as "always replace the bung" against the note's "Replace the bung
+with the year", or a claim written as a bare fragment. What is left of the
+0.5B's in-domain cell is the model, not the judge.
+
+### The judge ran in float16 on CPU
+
+The checkpoint declares `torch_dtype: float16` and the loader honours it.
+On CPU that is emulated, and it is not cheap: one short pair took 28.8 s
+in float16 and 2.0 s in float32, so the judge was fourteen times slower
+than it needed to be, and the sentence-level premises would have cost the
+run a day. The weights are raised on CPU now, and the six cells of the
+2026-10-20 run were measured in the last two hours of it.
+
 ## The threshold behind redundancy
 
 `ms-marco-MiniLM-L-6-v2` is a raw-logit model (Identity activation), so
@@ -98,20 +162,21 @@ cases, so "another phrasing of this" groups and "something else" does
 not. The six real pairs all fell below it, so on that calibration the
 threshold is conservative on real text.
 
-## Reading (2026-10-13)
+## Reading (2026-10-20)
 
-- **The judge, not the model, is what the model decision is waiting on.**
-  The 0.5B judge marks verbatim claims unsupported — ten of ten here — and
-  the 3B judge does so too, less systematically, in both directions. The
-  only judge that has never been caught misreading a claim is the map's own
-  writer, which is the one judge a model comparison cannot use. So neither
-  the 0.5B-judged nor the 3B-judged column can rank the two models: the
-  numbers are floors, and the deciding measurement is a judge decoupled
-  from the model under test. That judge is now built — the NLI
-  cross-encoder, `grappoli measure --judge nli` — so the model row stays
-  open only until a run scores on it (`architecture.md`, Provisional);
-  qwen2.5:0.5b is kept in the meantime, nothing here putting the 3B
-  ahead.
+- **The decoupled judge does not separate the two models, so the model
+  decision stands.** qwen2.5:0.5b scores 0.478, 0.857 and 0.950 against
+  llama3.2:latest's 0.800, 0.765 and 0.750 over the three corpora: behind
+  on the saturated in-domain corpus, ahead on the other two, level on the
+  average (0.762 against 0.772). The LLM judges could not rank them at all
+  ("The judge is the larger term"); this judge can rank them and finds
+  them the same, which is the answer the row was waiting for. Faithfulness
+  does not overturn qwen2.5:0.5b, and the smaller model is three times the
+  throughput, so it stands (`architecture.md`, Provisional). Note what the
+  level is made of: the judge is strict on paraphrase and on a claim
+  written as a fragment — "always replace the bung" against the note's
+  "Replace the bung with the year" scores 0.03 — so this is the level of
+  the claims, not a ceiling on what a claim can earn.
 - **The redundancy threshold is calibrated on the wrong text.** It is set
   on short prose pairs, but the run scores whole `characterisation_text` —
   `about`, `topics` and `key_claims` concatenated. The 0.250 above is one
@@ -119,4 +184,11 @@ threshold is conservative on real text.
   cannot be re-read from this run; it should be re-set on the distribution
   it is actually applied to, and the report should name the grouped pair
   the way the faithfulness side names its verdicts, so the 0.25 is readable
-  rather than only numerate.
+  rather than only numerate. The 2026-10-20 run shows what that costs:
+  0.800, 0.800, 0.800, 0.800, 0.750 and 0.500, which is most
+  characterisations flagged as repeating another region. The threshold was
+  also calibrated on the old encoder — the logit scale quoted above is
+  `ms-marco-MiniLM-L-6-v2`'s, and the run has used
+  `mmarco-mMiniLMv2-L12-H384-v1` since 2026-10-16 with the same 0.0, so
+  it is uncalibrated on both counts. The number is not usable until it is
+  set again.

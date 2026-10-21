@@ -72,7 +72,10 @@ the batch is not thereby made a judge of it. `--judges` takes the token
 The NLI judge loads `MoritzLaurer/mDeBERTa-v3-base-mnli-xnli` on first
 use. `grappoli` sets `HF_HUB_OFFLINE=1` so a cached model never waits on
 DNS, so fetch it once with `HF_HUB_OFFLINE=0` before the first run, or
-the judge fails at load.
+the judge fails at load. The checkpoint declares float16 and the loader
+honours it; on CPU that is emulated and fourteen times slower than
+float32, so the weights are raised on CPU and left alone elsewhere
+(`benchmarks/measurement.md`, "Reading (2026-10-20)").
 
 A corpus is copied under `--work` before it is built in: a fixture is
 never written to, and each model gets its own copy, so two models'
