@@ -622,7 +622,7 @@ def _nonrepeating(left, right):
 
 
 def test_measure_command_reports_the_four_numbers(branch, capsys):
-    rc = main(["measure", str(branch), "--reference", str(REFERENCE)],
+    rc = main(["measure", str(branch), "--reference", str(REFERENCE), "--judge", "llm"],
               llm=Judge([dict(VERDICT)] * 8), compare=_nonrepeating)
     assert rc == 0
     out = capsys.readouterr().out
@@ -633,7 +633,8 @@ def test_measure_command_reports_the_four_numbers(branch, capsys):
 
 
 def test_measure_command_without_a_reference_says_so(branch, capsys):
-    main(["measure", str(branch)], llm=Judge([dict(VERDICT)] * 8), compare=_nonrepeating)
+    main(["measure", str(branch), "--judge", "llm"],
+         llm=Judge([dict(VERDICT)] * 8), compare=_nonrepeating)
     assert "structure match: n/a (no reference given)" in capsys.readouterr().out
 
 
@@ -656,24 +657,70 @@ def test_measure_command_reports_a_broken_reference(branch, tmp_path, capsys):
     broken = tmp_path / "broken.json"
     broken.write_text(json.dumps({"regions": {"one": ["salt-brine-basics.md"]},
                                   "standalone": []}))
-    rc = main(["measure", str(branch), "--reference", str(broken)],
+    rc = main(["measure", str(branch), "--reference", str(broken), "--judge", "llm"],
               llm=Judge([dict(VERDICT)] * 8), compare=_nonrepeating)
     assert rc == 1
     assert "reference has no label for" in capsys.readouterr().err
 
 
-def test_measure_command_uses_the_nli_judge_when_asked(branch, capsys, monkeypatch):
-    """`--judge nli` swaps in the decoupled judge, so no model is consulted.
+def test_measure_command_judges_with_the_decoupled_judge_by_default(branch, capsys, monkeypatch):
+    """The default judge is the cross-encoder, so no model is consulted.
 
-    The judge is built from the flag rather than the injected `llm`, which
-    is what makes the number decoupled from the model under test; the
-    stub stands in for the cross-encoder a live run would load.
+    A judge that is the model under test reads its own prose, and the
+    record says how that ends: the 0.5B judge refused ten verbatim claims
+    in ten (`benchmarks/measurement.md`, "The judge is the larger term").
+    The default is therefore the decoupled cross-encoder, built from the
+    flag's default rather than from the injected `llm`; the stub stands in
+    for the cross-encoder a live run would load.
     """
     from grappoli import cli
 
     monkeypatch.setattr(cli, "nli_judge",
                         lambda: (lambda claim, evidence: {"supported": True, "reason": "nli"}))
-    rc = main(["measure", str(branch), "--judge", "nli"], compare=_nonrepeating)
+
+    def no_model(*args, **kwargs):
+        raise AssertionError("the model was consulted, but the judge is decoupled")
+
+    rc = main(["measure", str(branch)], llm=no_model, compare=_nonrepeating)
     assert rc == 0
     out = capsys.readouterr().out
     assert "faithfulness: 1.000" in out
+
+
+def test_measure_command_puts_the_model_in_the_judges_seat_when_asked(branch, capsys, monkeypatch):
+    """`--judge llm` is the model under test, and no cross-encoder is loaded.
+
+    The model-backed judge is kept because its verdicts are part of the
+    result — the disagreement is readable rather than smoothed away — but
+    it is the decoupled judge that is the default.
+    """
+    from grappoli import cli
+
+    def no_encoder():
+        raise AssertionError("the cross-encoder was built, but the judge is the model")
+
+    monkeypatch.setattr(cli, "nli_judge", no_encoder)
+    rc = main(["measure", str(branch), "--judge", "llm"],
+              llm=Judge([dict(VERDICT)] * 8), compare=_nonrepeating)
+    assert rc == 0
+    assert "faithfulness: 1.000" in capsys.readouterr().out
+
+
+def test_measure_command_says_what_to_fetch_when_the_judge_is_missing(branch, capsys, monkeypatch):
+    """A checkpoint that is not cached is a message, not a loader's traceback.
+
+    The default judge is a cross-encoder that has to be fetched once
+    (`benchmarks/README.md`); a machine that has not fetched it should be
+    told what to do rather than shown a stack from the loader.
+    """
+    from grappoli import cli
+
+    def missing():
+        raise OSError("we couldn't connect to 'https://huggingface.co'")
+
+    monkeypatch.setattr(cli, "nli_judge", missing)
+    rc = main(["measure", str(branch)], compare=_nonrepeating)
+    assert rc == 1
+    err = capsys.readouterr().err
+    assert "the NLI judge could not be loaded" in err
+    assert "HF_HUB_OFFLINE=0" in err

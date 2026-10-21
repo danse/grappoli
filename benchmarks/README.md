@@ -86,7 +86,10 @@ uv run python scripts/benchmark_all.py
 `--models` and `--judges` default independently: the first is what the
 batch runs, the second is what scores their maps, and a model added to
 the batch is not thereby made a judge of it. `--judges` takes the token
-`nli` for the NLI cross-encoder, or generation-model names.
+`nli` for the NLI cross-encoder, or generation-model names. The
+command's own default is the same decoupled judge — `grappoli measure`
+judges with the cross-encoder unless `--judge llm` puts the model under
+test in that seat — so the batch measures what the command measures.
 
 The NLI judge loads `MoritzLaurer/mDeBERTa-v3-base-mnli-xnli` on first
 use. `grappoli` sets `HF_HUB_OFFLINE=1` so a cached model never waits on

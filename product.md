@@ -62,7 +62,10 @@ measuring coverage alone optimises straight into it.
 
 **Faithfulness** — whether any characterisation claims something its notes do
 not support. This is the one a small model fails at while sounding fluent,
-and a judge without an explicit rubric rewards the fluency.
+and a judge without an explicit rubric rewards the fluency. The judge is
+decoupled from the model it scores — a cross-encoder reading entailment
+straight off the notes — because a model asked to judge its own prose
+misread verbatim claims ten times in ten (`benchmarks/measurement.md`).
 
 **Structure match** — whether the regions agree with what a reader would
 write by hand from reading the notes.

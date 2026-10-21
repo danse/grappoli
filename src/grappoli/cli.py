@@ -26,13 +26,14 @@ so a run can be exercised without Ollama: `structured` for
 characterisation, for the pair loop the relation step asks, and for the
 model-backed faithfulness judge; `converse` for the native channel, the
 one tool conversation over the whole map, which `--relation-channel
-native` selects. All are bound to `--model`; `measure --judge nli` swaps
-the model-backed judge for the decoupled NLI cross-encoder. A region that
-exhausts its attempts is logged and skipped, and the run exits non-zero so
-the failure is not mistaken for a finished map; a loop that stops with
-pairs still unrelating does the same, since the build is then partial.
-`measure` and `show` report on stdout, since a measurement and a page are
-not progress.
+native` selects. All are bound to `--model`. `measure` judges with the
+decoupled NLI cross-encoder by default — a judge that is not the model
+under test — and `--judge llm` puts that model in the seat instead. A
+region that exhausts its attempts is logged and skipped, and the run exits
+non-zero so the failure is not mistaken for a finished map; a loop that
+stops with pairs still unrelating does the same, since the build is then
+partial. `measure` and `show` report on stdout, since a measurement and a
+page are not progress.
 """
 
 import argparse
@@ -52,6 +53,10 @@ from .render import render
 from .words import stopwords
 
 PROVIDERS = ("e5", "tfidf")
+
+
+class JudgeUnavailable(Exception):
+    """The decoupled judge could not be built — its weights are not there."""
 
 
 def main(argv=None, *, llm=structured, agent_llm=converse, compare=None) -> int:
@@ -81,10 +86,12 @@ def main(argv=None, *, llm=structured, agent_llm=converse, compare=None) -> int:
     measure_cmd.add_argument("--reference",
                              help="reference regions to score structure match against "
                                   "(same shape as tests/fixtures/in-domain/reference-regions.json)")
-    measure_cmd.add_argument("--model", help="judge model (default: llama3.2:latest)")
-    measure_cmd.add_argument("--judge", choices=("llm", "nli"), default="llm",
-                             help="faithfulness judge: the model under test (llm) "
-                                  "or the decoupled NLI cross-encoder (nli)")
+    measure_cmd.add_argument("--model",
+                             help="judge model under --judge llm (default: llama3.2:latest)")
+    measure_cmd.add_argument("--judge", choices=("nli", "llm"), default="nli",
+                             help="faithfulness judge: the decoupled NLI "
+                                  "cross-encoder (nli, the default) or the model "
+                                  "under test (llm)")
     measure_cmd.set_defaults(run=_run_measure)
 
     show_cmd = sub.add_parser("show", help="print the map built under NOTES/.grappoli for a reader")
@@ -101,6 +108,33 @@ def _with_model(llm, model):
     if model is None:
         return llm
     return lambda *args, **kwargs: llm(*args, model=model, **kwargs)
+
+
+def _judge_for(name: str):
+    """The faithfulness judge the flag names, built when the first claim is judged.
+
+    `nli` is the decoupled NLI cross-encoder and `llm` is the model under
+    test, which the measurement reaches through `llm` itself and so is
+    left as `None` here. The cross-encoder is built on first use: a
+    measurement that fails before it judges a claim — no map, a reference
+    with no label for a note — then reports that error without loading the
+    weights, and a run whose checkpoint is not cached says what to fetch
+    rather than failing with a loader's traceback.
+    """
+    if name != "nli":
+        return None
+
+    built = []
+
+    def judge(claim, evidence):
+        if not built:
+            try:
+                built.append(nli_judge())
+            except OSError as err:
+                raise JudgeUnavailable(str(err)) from err
+        return built[0](claim, evidence)
+
+    return judge
 
 
 def _run_read(args, llm, agent_llm) -> int:
@@ -177,13 +211,18 @@ def _run_measure(args, llm, agent_llm) -> int:
         print(line, file=sys.stderr)
 
     reference = Path(args.reference) if args.reference else None
-    judge = nli_judge() if args.judge == "nli" else None
+    judge = _judge_for(args.judge)
     try:
         result = measure_map(mapping, characterisations, notes, reference,
                              llm=llm, judge=judge, compare=args.compare,
                              progress=progress, log=log)
     except ValueError as err:
         print(f"grappoli: {err}", file=sys.stderr)
+        return 1
+    except JudgeUnavailable as err:
+        print(f"grappoli: the NLI judge could not be loaded ({err}). Fetch it "
+              "once with HF_HUB_OFFLINE=0, or judge with the model under "
+              "test: --judge llm.", file=sys.stderr)
         return 1
     print(_report(result))
     return 0

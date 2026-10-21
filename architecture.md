@@ -295,12 +295,13 @@ The four numbers are `grappoli.measure`:
   the region under an explicit rubric: supported when the notes state
   or directly entail it, unsupported when it adds a fact, name, number
   or relation the notes do not hold, or contradicts them. The judge is
-  either the model under test — a known limit, the verdicts are part of
-  the result so the disagreement is readable rather than smoothed away,
-  and a malformed verdict is retried up to three attempts as a malformed
-  characterisation is — or, under `--judge nli`, the
-  `mDeBERTa-v3-base-mnli-xnli` cross-encoder, which scores entailment
-  straight off the notes and is decoupled from the model by construction.
+  the `mDeBERTa-v3-base-mnli-xnli` cross-encoder, which scores
+  entailment straight off the notes and is decoupled from the model under
+  test by construction; `--judge llm` puts that model in the seat
+  instead — a known limit, the verdicts are part of the result so the
+  disagreement is readable rather than smoothed away, and a malformed
+  verdict is retried up to three attempts as a malformed characterisation
+  is.
   The cross-encoder is trained on sentence pairs, so the evidence is cut
   into sentences and adjacent pairs and the claim is supported when any
   premise entails it; a whole region's notes are a long, multi-topic

@@ -36,7 +36,8 @@ test, a known limit rather than a hidden one: an undecided or wrong
 verdict is recorded as found, and the rubric is not tuned until the
 number improves. The NLI judge exists to lift that limit — it is
 decoupled by construction and effectively deterministic — and is the
-judge the model decision has been waiting on.
+judge the model decision has been waiting on, which is why the command
+judges with it by default (`grappoli/cli.py`).
 """
 
 import json
