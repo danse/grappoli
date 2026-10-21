@@ -52,7 +52,7 @@ The map is built once, offline, in one direction:
 ```
 notes ──(arithmetic)──▶ regions + edges
       ──(one call per region)──▶ characterisations
-      ──(one agent loop)──▶ relations
+      ──(one call per pair)──▶ relations
       ──(one page)──▶ document   ← no model after this point
 ```
 
@@ -66,7 +66,7 @@ intermediates and a rerun finds its own resume state.
 Each arrow is a component named for the artefact it produces. No model
 runs after the relations are written — making the document from the map,
 the characterisations and the relations is deterministic formatting. The
-relation agent is a build-time worker: it walks the graph once while the
+relation step is a build-time worker: it walks the graph once while the
 map is being made, and is gone before anything is read.
 
 ## Progress and logging
@@ -79,13 +79,13 @@ and able to survive an interrupt.
 
 - **Every step reports its own progress.** Each step's unit is its
   item: the map reports embedded and clustered notes, characterisation
-  the region in hand (region 3 of 16), the relation loop the agent's
-  round and the relation in hand (relation 5 of 9), and each tool call
-  the agent makes with the answer it got — each with an ETA derived from
-  the throughput record. The tool call is logged because the agent's
-  choice is what the relation loop exists to produce, and a loop that
-  stalls is read from the choice that stalled, not from its totals.
-  Progress writes to stderr and never enters the output artefact.
+  the region in hand (region 3 of 16), the relation step the relation in
+  hand (relation 5 of 9) — each with an ETA derived from the throughput
+  record. The native channel also reports the agent's round and each
+  tool call with the answer it got: the agent's choice is what that
+  channel exists to produce, and a loop that stalls is read from the
+  choice that stalled, not from its totals. Progress writes to stderr
+  and never enters the output artefact.
 - **Artefacts append; runs resume.** `characterisations` and
   `relations` are append-only line files, one item per line. An
   interrupt at region 12 of 16 resumes at region 12; a completed item
@@ -172,12 +172,13 @@ replacing it rather than by editing the pipeline steps; the import is
 lazy, so building a map still pulls no generation machinery into the
 process.
 
-The relation loop uses a second turn in the same module, `converse`: one
+The native channel uses a second turn in the same module, `converse`: one
 message of a tool-using conversation, the tool schemas sent natively and
 no `format` imposed, the assistant message returned unread for the loop
 to dispatch. The two are the whole model surface — `structured` forces a
-single JSON shape, `converse` lets the model name a tool — and neither
-imports `ollama` until it is called.
+single JSON shape, and the shipped relation step asks through it;
+`converse` lets the model name a tool, and only the native channel uses
+it — and neither imports `ollama` until it is called.
 
 Characterisation sits on top of it in `grappoli.characterise`: the
 prompt is the region's representatives and nothing else, the answer is
@@ -200,12 +201,26 @@ produces the tokens, our code does the work.
 - `compare_regions` — a computation over two characterisations
 - `write_relation` — append a relation to the output
 
-The list is the whole-map shape on purpose: one conversation, in which
+There are two channels, and the one that ships is the pair loop: the
+orchestration names the pair, and the model is asked for one relation in
+one call, with the two characterisations in the prompt and nothing else.
+The model's part is then local — a question about two regions — and the
+corpus is out of reach because the prompt is built from
+characterisations only (`product.md`, Approach). The `write_relation`
+schema is what that call asks through, so both channels write the same
+line file and one page renders either.
+
+The native channel is the one conversation over the whole map, in which
 the model — not the orchestration — chooses which region to read and
 which pair to relate, and `list_regions` is what lets it find the pairs
-itself. Splitting the loop per region or per edge was considered and set
-aside, because it takes that choice away from the model, which is the
-behaviour the relation loop is here to produce (`benchmarks/relations.md`).
+itself. It stays selectable (`--relation-channel native`), because the
+choice is what that channel exists to produce and is worth being able to
+run. Measured, it writes no relations on either model: neither drives
+the tools unassisted (`benchmarks/relations.md`, "What the shape rests
+on"). What splitting the loop costs the shipped step is that choice;
+what it buys is relations that exist, since the orchestration enumerates
+the pairs and every touching pair is related rather than the ones the
+model got to.
 
 The loop itself is `product.md`'s decision; the tool list is what makes
 its central constraint real. No tool returns a raw note, because no
@@ -216,7 +231,9 @@ An interrupted run resumes from what is on disk, so the loop never
 regenerates a completed relation: `list_regions` marks a pair already
 related, and `write_relation` refuses one that already has a line. The
 refusal sits in the toolbox rather than in the prompt, so a model that
-repeats itself cannot append a second line for a pair that is done.
+repeats itself cannot append a second line for a pair that is done. The
+pair loop resumes the same way, from the relations file itself: a pair
+already on disk is not asked again.
 
 ## The document
 
@@ -308,7 +325,7 @@ on coverage and cannot lose on redundancy, and no number says what the
 prose adds. So the measured set polices the characterisation; it does
 not justify it. Whether it is worth its cost is settled on the product's
 premise, not by a measurement: the statement of what each region is
-about, and the relations the agent reaches only through
+about, and the relations the relation step reaches only through
 characterisations (`product.md`, The problem; `roadmap.md`).
 
 ROUGE and the reference-free measures are deliberately not here: ROUGE
@@ -318,7 +335,7 @@ do not reproduce structure match (`benchmarks/structure.md`).
 ## Provisional
 
 Choices taken to get moving, with the measurement that can overturn
-them. All four are settled now, and each is stated with what settled it:
+them. All five are settled now, and each is stated with what settled it:
 
 **Communities as regions — confirmed by structure match.** Mutual-filtered
 communities reach 0.904 on the saturated corpus
@@ -355,18 +372,31 @@ cross-encoder has now done it: qwen2.5:0.5b scores 0.478, 0.857 and
 0.750 — behind on the saturated one, ahead on the other two, level on the
 average (0.762 against 0.772) — while generating at three times the speed
 (`benchmarks/measurement.md`, "Reading (2026-10-20)"). Faithfulness does
-not overturn the smaller model, so it stands. The other leg of the row is
-not settled by this: the relation loop's tool channel fails for both
-models, so the map's relations are out of reach of either one unassisted
-(`benchmarks/relations.md`).
+not overturn the smaller model, so it stands. The relation step is the
+other leg of the row, and it is settled the other way round: the tool
+channel fails for both models, which is why the shipped step asks one
+pair a call rather than running a conversation (`benchmarks/relations.md`).
+
+**The relation step asks one pair a call — settled by the batch.** The
+native channel was the one that shipped, because it was the only one
+where the loop recovers (`benchmarks/relations.md`, "What the shape
+rests on"). The 2026-10-20 batch falsified that: a `grappoli read`
+wrote no relations at all on either model in any of the six cells — the
+0.5B naming no tool, the 3B's arguments malformed every time — while the
+structured channel returned a valid relation in all eighteen calls, at
+81–645 s against a native call that returns nothing at 84–986 s
+(`benchmarks/runs/2026-10-20/run.json`). So the pair loop ships and the
+native channel stays selectable (`--relation-channel native`): what the
+split costs is the model's choice of what to relate, and what it buys is
+that the relations exist.
 
 Characterisation put 0.5B's failure modes on record — the tool ignored
 on a real prompt, prose instead of JSON without `format`, an over-long
 answer that truncates under a cap (`benchmarks/characterisation.md`).
 The relation loop put its own prompt on the same record: at 3b the
-shipped whole-map loop names `list_regions` and then serialises its
-writes in content, so whether a model drives the tools unassisted is part
-of what the model row decides (`benchmarks/relations.md`). That was the
+whole-map loop names `list_regions` and then serialises its writes in
+content, so whether a model drives the tools unassisted is part of what
+the model row decides (`benchmarks/relations.md`). That was the
 ground the faithfulness row stood on: across both fixtures the 0.5B judge
 flags ten claims and every one is a sentence lying verbatim in the
 region's own notes, and the 3B judge errs often enough to be a floor too —

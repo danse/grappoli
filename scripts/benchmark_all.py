@@ -3,22 +3,23 @@
 The steps were measured one at a time, each with its own script and its
 own markdown record. Deciding what is left needs them read together, so
 this runs them in one batch — structure, throughput, characterisation,
-the relation task, a real `grappoli read` per model, and `grappoli
-measure` — and writes everything to one pretty-printed JSON, under
-`benchmarks/runs/<date>/`, to be formatted into the step records and
-committed as the reference for the decisions.
+the relation task, a real `grappoli read` per model, the pair loop over
+each cell's touching pairs, and `grappoli measure` — and writes
+everything to one pretty-printed JSON, under `benchmarks/runs/<date>/`,
+to be formatted into the step records and committed as the reference for
+the decisions.
 
 It is only the batch: every number is still its own script's or its own
 measure's, and nothing here picks a model or a default. The only new
 behaviour is the record's shape and that a run resumes.
 
 The report is keyed by step, then corpus, then model (then judge, for
-`measure`). Each entry is written as soon as it completes, and an entry
-already present is skipped, so an interrupted overnight run resumes at
-the first missing one instead of at the start; `--force` throws the
-record away and runs the lot again. The corpus is copied to `--work`
-before it is built in, because a fixture is never written to and two
-models' working files must not mix.
+`measure` and for the relation loop). Each entry is written as soon as it
+completes, and an entry already present is skipped, so an interrupted
+overnight run resumes at the first missing one instead of at the start;
+`--force` throws the record away and runs the lot again. The corpus is
+copied to `--work` before it is built in, because a fixture is never
+written to and two models' working files must not mix.
 
 The structure sweep is arithmetic; the other steps need Ollama and take
 hours. The instruments are the sibling scripts, loaded by path so their
@@ -45,7 +46,7 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-from grappoli.characterise import read_characterisations
+from grappoli.characterise import characterise_regions, read_characterisations
 from grappoli.corpus import load_corpus
 from grappoli.map import build_map
 from grappoli.measure import (
@@ -53,12 +54,14 @@ from grappoli.measure import (
     NLI_THRESHOLD,
     REDUNDANCY_MODEL,
     REDUNDANCY_THRESHOLD,
+    judge_claim,
     nli_judge,
 )
 from grappoli.model import DEFAULT_MAX_TOKENS, DEFAULT_MODEL, structured
 from grappoli.relations import read_relations
 
-STEPS = ("structure", "throughput", "characterisation", "read", "relations", "measure")
+STEPS = ("structure", "throughput", "characterisation", "read", "relations",
+         "relation_loop", "measure")
 # The comparison the batch runs by default: the two models that characterise
 # every region and relate every touching pair — `qwen2.5:0.5b`, the shipped
 # default, and `llama3.2:latest`, the larger one — over the three corpora.
@@ -172,6 +175,45 @@ def _judge_for(name: str) -> dict:
     return {"llm": functools.partial(structured, model=name)}
 
 
+def _claim_judge_for(name: str):
+    """One callable that judges a claim against its evidence.
+
+    `measure` takes the two judges apart — the NLI cross-encoder as
+    `judge`, a generation model as `llm` — because it also measures
+    without a judge. A relation statement is a claim about two regions,
+    so the relation step wants the two as one: `(claim, evidence) ->
+    verdict`. The NLI judge is the decoupled one; a generation model is
+    the model under test, which is a limit and not a hidden one.
+    """
+    if name == NLI_JUDGE:
+        return nli_judge()
+    return functools.partial(judge_claim, llm=functools.partial(structured, model=name))
+
+
+def _prepared(model: str, work: Path) -> tuple[dict, dict, dict]:
+    """The map, the characterisations and the notes the pair loop reads.
+
+    The `read` step leaves both working files in the copy it built, so
+    these are that model's own map and characterisations; a copy that
+    holds neither — a run resumed after the work directory was cleared —
+    is given them here, because the loop has nothing to read without
+    them and a step that cannot run leaves a hole in the record.
+    """
+    grappoli = work / ".grappoli"
+    notes = load_corpus(work)
+    map_path = grappoli / "map.json"
+    if not map_path.is_file():
+        mapping = build_map(notes, progress=lambda *e: None)
+        map_path.parent.mkdir(parents=True, exist_ok=True)
+        map_path.write_text(json.dumps(mapping, indent=2) + "\n")
+    mapping = json.loads(map_path.read_text())
+    characters_path = grappoli / "characterisations"
+    if not characters_path.is_file():
+        characterise_regions(mapping, notes, characters_path,
+                             llm=functools.partial(structured, model=model))
+    return mapping, read_characterisations(characters_path), notes
+
+
 def runners(work_root: Path) -> dict:
     """The instrument behind each step, as `run` calls it.
 
@@ -209,6 +251,27 @@ def runners(work_root: Path) -> dict:
             for channel in ("native", "structured")
         }
 
+    def relation_loop(corpus, model=None, judge=None):
+        """The pair loop over the cell's touching pairs, and what it wrote.
+
+        The loop runs on the copy the `read` step built, so the
+        characterisations are that model's own. Its relations go to a file
+        of their own, `relations-loop`, because the file the `read` step
+        left is what that step recorded and the loop's statements are
+        this step's measurement.
+
+        The statements are judged by the judge the run names, as the
+        claims of a characterisation are: a relation is a claim about two
+        regions, and the evidence is the notes of both.
+        """
+        work = _stage(corpus, model, work_root)
+        script = _script("benchmark_relation_loop")
+        mapping, characters, notes = _prepared(model, work)
+        return script.run(notes, characters, model, mapping=mapping,
+                          relations_path=work / ".grappoli" / "relations-loop",
+                          judge=_claim_judge_for(judge),
+                          log=lambda line: print(line, file=sys.stderr, flush=True))
+
     def measure(corpus, model=None, judge=None):
         from grappoli.measure import measure as measure_map
 
@@ -221,7 +284,8 @@ def runners(work_root: Path) -> dict:
 
     return {"structure": structure, "throughput": throughput,
             "characterisation": characterisation, "read": read,
-            "relations": relations, "measure": measure}
+            "relations": relations, "relation_loop": relation_loop,
+            "measure": measure}
 
 
 def _meta(corpora, models, judges) -> dict:
@@ -260,11 +324,12 @@ def run(corpora, models, judges, out, *, runners, log=print, force=False, meta=N
     """Run the batch into `out`, skipping entries already recorded there.
 
     The report is keyed by step, then corpus, then model (then judge for
-    `measure`), and is written after every entry: an interrupt leaves a
-    readable partial record and a rerun resumes at the first missing one.
-    `meta` describes the run, not the invocation, so it is set only on a
-    fresh record: a resume keeps the date and the command the run began
-    with, even across midnight, rather than stamping the rerun's.
+    `measure` and for the relation loop), and is written after every
+    entry: an interrupt leaves a readable partial record and a rerun
+    resumes at the first missing one. `meta` describes the run, not the
+    invocation, so it is set only on a fresh record: a resume keeps the
+    date and the command the run began with, even across midnight,
+    rather than stamping the rerun's.
     """
     out = Path(out)
     if force or not out.is_file():
@@ -309,6 +374,10 @@ def run(corpora, models, judges, out, *, runners, log=print, force=False, meta=N
             if not done("relations", corpus.name, model):
                 record(runners["relations"](corpus=corpus, model=model),
                        "relations", corpus.name, model)
+            for judge in judges:
+                if not done("relation_loop", corpus.name, model, judge):
+                    record(runners["relation_loop"](corpus=corpus, model=model, judge=judge),
+                           "relation_loop", corpus.name, model, judge)
             for judge in judges:
                 if not done("measure", corpus.name, model, judge):
                     record(runners["measure"](corpus=corpus, model=model, judge=judge),

@@ -13,12 +13,17 @@ import json
 
 import pytest
 
+from grappoli.model import ModelError
 from grappoli.relations import (
     HARD_CAP,
     InvalidRelation,
+    MAX_PAIR_ATTEMPTS,
     Toolbox,
+    WRITE_RELATION,
     build_prompt,
+    pair_prompt,
     read_relations,
+    relate_pairs,
     relate_regions,
     relatable_edges,
     round_budget,
@@ -543,3 +548,145 @@ def test_relate_regions_is_bounded_when_the_model_never_stops(tmp_path):
     missing = relate_regions(MAPPING3, CHARS3, tmp_path / "r", llm=model)
     assert missing == [(0, 1), (1, 2)]
     assert len(model.calls) == round_budget(2)
+
+
+# --- the structured channel ------------------------------------------------
+#
+# The other channel: the orchestration names the pair and the model is
+# asked for one relation, in one call, from the two characterisations.
+
+
+class ScriptedAnswers:
+    """A model that fills the schema, from a script.
+
+    The structured channel is `(prompt, schema) -> dict`, so an answer is
+    the arguments the model filled the schema with. An exception in the
+    script is raised instead, which is how a model that produced nothing
+    usable arrives.
+    """
+
+    def __init__(self, *answers):
+        self.answers = list(answers)
+        self.calls = []
+
+    def __call__(self, prompt, schema):
+        self.calls.append((prompt, schema))
+        if not self.answers:
+            raise ModelError("no answer left")
+        answer = self.answers.pop(0)
+        if isinstance(answer, Exception):
+            raise answer
+        return answer
+
+
+def test_the_prompt_holds_the_two_characterisations_and_no_third_region():
+    """The pair is the whole of the model's world for the call.
+
+    The prompt is built from the characterisations, so no note can be in
+    it even by accident — the corpus is out of reach here as it is in the
+    toolbox (`architecture.md`, Agent tools).
+    """
+    prompt = pair_prompt(0, 1, CHARS3)
+    assert "Region 0" in prompt and "Region 1" in prompt
+    assert "vinegar" not in prompt
+    assert "NOTE-" not in prompt
+
+
+def test_the_call_carries_the_relation_schema(tmp_path):
+    """The answer is one relation: the schema is the relation's shape."""
+    model = ScriptedAnswers({"source": 0, "target": 1, "statement": "a"})
+    relate_pairs(MAPPING3, CHARS3, tmp_path / "r", llm=model)
+    assert model.calls[0][1] is WRITE_RELATION
+
+
+def test_relate_pairs_writes_one_relation_for_every_touching_pair(tmp_path):
+    """The loop's contract is a relation for every pair that touches."""
+    path = tmp_path / "relations"
+    model = ScriptedAnswers(
+        {"source": 0, "target": 1, "statement": "both are about salt"},
+        {"source": 1, "target": 2, "statement": "both are about brine"},
+    )
+    assert relate_pairs(MAPPING3, CHARS3, path, llm=model) == []
+    assert set(read_relations(path)) == {(0, 1), (1, 2)}
+    assert read_relations(path)[(1, 2)]["statement"] == "both are about brine"
+
+
+def test_relate_pairs_writes_the_line_the_native_loop_writes(tmp_path):
+    """One file and one shape: the page renders either channel's relations."""
+    path = tmp_path / "relations"
+    model = ScriptedAnswers({"source": 0, "target": 1, "statement": "a"})
+    relate_pairs(MAPPING3, CHARS3, path, llm=model)
+    assert [json.loads(line) for line in path.read_text().splitlines()] == [
+        {"source": 0, "target": 1, "statement": "a"},
+    ]
+
+
+def test_relate_pairs_does_not_ask_again_for_a_pair_already_written(tmp_path):
+    """A rerun spends no generation on a pair the file already holds."""
+    path = tmp_path / "relations"
+    path.write_text(json.dumps({"source": 0, "target": 1, "statement": "already"}) + "\n")
+    model = ScriptedAnswers({"source": 1, "target": 2, "statement": "b"})
+    assert relate_pairs(MAPPING3, CHARS3, path, llm=model) == []
+    assert len(model.calls) == 1
+    assert read_relations(path)[(0, 1)]["statement"] == "already"
+
+
+def test_relate_pairs_rejects_an_answer_that_names_another_pair(tmp_path):
+    """The orchestration chose the pair, so another one is a bad answer.
+
+    The call was about these two regions; a relation for a different pair
+    would be written under the wrong key, so the answer is refused and
+    asked again.
+    """
+    path = tmp_path / "relations"
+    model = ScriptedAnswers(
+        {"source": 1, "target": 2, "statement": "about the wrong pair"},
+        {"source": 0, "target": 1, "statement": "about the right pair"},
+    )
+    assert relate_pairs(MAPPING3, CHARS3, path, llm=model) == [(1, 2)]
+    assert set(read_relations(path)) == {(0, 1)}
+    assert read_relations(path)[(0, 1)]["statement"] == "about the right pair"
+
+
+def test_relate_pairs_leaves_a_pair_missing_when_no_answer_holds_up(tmp_path):
+    """A model that never answers leaves the map partial, and says so."""
+    path = tmp_path / "relations"
+    model = ScriptedAnswers(ModelError("no tool call and empty content"))
+    assert relate_pairs(MAPPING3, CHARS3, path, llm=model) == [(0, 1), (1, 2)]
+    assert len(model.calls) == 2 * MAX_PAIR_ATTEMPTS
+    assert not path.exists()
+
+
+def test_relate_pairs_ignores_edges_to_uncharacterised_regions(tmp_path):
+    """An edge to a region with no characterisation has nothing to relate."""
+    mapping = {"regions": REGIONS3,
+               "edges": [{"source": 0, "target": 1}, {"source": 0, "target": 2}]}
+    model = ScriptedAnswers({"source": 0, "target": 1, "statement": "a"})
+    assert relate_pairs(mapping, {0: CHARS3[0], 1: CHARS3[1]}, tmp_path / "r", llm=model) == []
+    assert len(model.calls) == 1
+
+
+def test_relate_pairs_reports_progress_per_pair_and_relation(tmp_path):
+    """The progress is the pair in hand and the relations written."""
+    events = []
+
+    def progress(label, done, total, eta=None):
+        events.append((label, done, total))
+
+    model = ScriptedAnswers(
+        {"source": 0, "target": 1, "statement": "a"},
+        {"source": 1, "target": 2, "statement": "b"},
+    )
+    relate_pairs(MAPPING3, CHARS3, tmp_path / "r", llm=model, progress=progress)
+    assert events == [("relation", 1, 2), ("written", 1, 2),
+                      ("relation", 2, 2), ("written", 2, 2)]
+
+
+def test_relate_pairs_reports_each_relation_it_writes(tmp_path):
+    """The instrument needs the statement and what it cost."""
+    written = []
+    model = ScriptedAnswers({"source": 0, "target": 1, "statement": "a"})
+    relate_pairs(MAPPING3, CHARS3, tmp_path / "r", llm=model,
+                 on_pair=lambda record, seconds: written.append((record["statement"], seconds)))
+    assert written[0][0] == "a"
+    assert written[0][1] >= 0

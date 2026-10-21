@@ -1,10 +1,10 @@
 # Throughput
 
 Record of measured generation speed, one row per run. The figure decides
-how many regions characterisation can afford and how many rounds the
-relation agent may run. Rows are produced by
-`scripts/benchmark_throughput.py`; not every run of the script earns a
-row — a row is a decision input.
+how many regions characterisation can afford, what one relation call
+costs, and how many rounds the native channel's agent may run. Rows are
+produced by `scripts/benchmark_throughput.py`; not every run of the
+script earns a row — a row is a decision input.
 
 | date | model | prompt_tok | prompt tok/s | gen_tok | gen tok/s | wall s |
 |---|---|---|---|---|---|---|
@@ -31,7 +31,8 @@ answer end, not the cap — so its rate is over a full generation.
 At these rates one region characterisation (≈450-token prompt,
 ≈150-token answer) is about four minutes under 0.5B and about eleven
 under 3B; sixteen regions is an hour and three hours respectively. The
-relation agent's round budget derives from these figures.
+native channel's round budget, and the cost of one pair call, derive
+from these figures.
 
 The 1.9 here is the figure to size against, not the 2.3 of the
 2026-10-08 row. Same model, prompt and thread setting; the rows differ

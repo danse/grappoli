@@ -11,11 +11,27 @@ what makes the record's shape a test rather than an accident of one run.
 
 import importlib.util
 import json
+import re
+import shutil
 from pathlib import Path
 
 import pytest
 
 SCRIPT = Path(__file__).parent.parent / "scripts" / "benchmark_all.py"
+
+MAP = {
+    "regions": [
+        {"id": 0, "members": ["a.md"], "representatives": ["a.md"]},
+        {"id": 1, "members": ["b.md"], "representatives": ["b.md"]},
+    ],
+    "edges": [{"source": 0, "target": 1}],
+    "standalone": [],
+}
+
+CHARACTERS = {
+    0: {"about": "the first note", "topics": ["one"], "key_claims": ["it is one"]},
+    1: {"about": "the second note", "topics": ["two"], "key_claims": ["it is two"]},
+}
 
 
 @pytest.fixture(scope="module")
@@ -58,6 +74,7 @@ def test_the_record_is_keyed_by_step_corpus_and_model(suite, corpus, tmp_path):
     assert report["characterisation"]["c1"]["m1"] == {"characterisation": True}
     assert report["read"]["c1"]["m1"] == {"read": True}
     assert report["relations"]["c1"]["m1"] == {"relations": True}
+    assert report["relation_loop"]["c1"]["m1"]["m1"] == {"relation_loop": True}
     assert report["measure"]["c1"]["m1"]["m1"] == {"measure": True}
     assert json.loads(out.read_text()) == report
 
@@ -135,6 +152,100 @@ def test_measure_runs_once_per_judge(suite, corpus, tmp_path):
               runners=_runners(suite, calls), log=lambda *a: None)
 
     assert [kwargs["judge"] for step, kwargs in calls if step == "measure"] == ["m1", "j1"]
+
+
+def test_the_relation_step_runs_once_per_judge(suite, corpus, tmp_path):
+    """The statements are judged by each judge named, as the claims are.
+
+    A relation statement is a claim about two regions, so the batch
+    scores it with the judge it scores a characterisation's claims with.
+    """
+    calls = []
+    out = tmp_path / "run.json"
+    suite.run([corpus], ["m1"], ["m1", "j1"], out,
+              runners=_runners(suite, calls), log=lambda *a: None)
+
+    assert [kwargs["judge"] for step, kwargs in calls
+            if step == "relation_loop"] == ["m1", "j1"]
+
+
+def test_the_relation_step_keeps_its_relations_to_itself(suite, corpus, tmp_path,
+                                                          monkeypatch):
+    """The loop writes to a file of its own, and reads the cell's own map.
+
+    The file the `read` step left is what that step recorded; the loop's
+    statements are this step's measurement, so they are kept apart from
+    it rather than written over it.
+    """
+    work_root = tmp_path / "work"
+    work = work_root / f"{corpus.name}--{suite._slug('m1')}"
+    shutil.copytree(corpus.path, work)
+    (work / ".grappoli").mkdir()
+    (work / ".grappoli" / "map.json").write_text(json.dumps({"regions": [], "edges": []}))
+    (work / ".grappoli" / "characterisations").write_text("")
+
+    seen = {}
+
+    class FakeScript:
+        @staticmethod
+        def run(notes, characters, model, *, mapping=None, relations_path=None,
+                judge=None, log=None):
+            seen.update(notes=notes, characters=characters, model=model,
+                        mapping=mapping, relations_path=relations_path, judge=judge)
+            return {"written": 0}
+
+    monkeypatch.setattr(suite, "_script", lambda name: FakeScript)
+
+    record = suite.runners(work_root)["relation_loop"](corpus=corpus, model="m1",
+                                                       judge="m1")
+
+    assert record == {"written": 0}
+    assert seen["relations_path"] == work / ".grappoli" / "relations-loop"
+    assert seen["mapping"] == {"regions": [], "edges": []}
+    assert seen["model"] == "m1"
+    assert callable(seen["judge"])
+
+
+def test_the_relation_step_runs_the_shipped_loop_over_the_cell(suite, corpus, tmp_path,
+                                                               monkeypatch):
+    """The stage runs the shipped loop, and the record says what it wrote.
+
+    The model and the judge are stubbed — the loop, the file it writes
+    and the page it renders are the shipped ones — so what is pinned is
+    the stage's wiring, not the model's answers.
+    """
+    instrument = suite._script("benchmark_relation_loop")
+
+    def canned(prompt, schema, **kwargs):
+        regions = [int(number) for number in re.findall(r"^Region (\d+):", prompt, re.M)]
+        return {"source": regions[0], "target": regions[1],
+                "statement": f"regions {regions[0]} and {regions[1]} touch"}
+
+    monkeypatch.setattr(instrument, "structured", canned)
+    monkeypatch.setattr(suite, "_claim_judge_for",
+                        lambda name: lambda claim, evidence: {"supported": True,
+                                                              "reason": "stubbed"})
+
+    work_root = tmp_path / "work"
+    work = work_root / f"{corpus.name}--{suite._slug('m1')}"
+    shutil.copytree(corpus.path, work)
+    (work / "b.md").write_text("another note")
+    (work / ".grappoli").mkdir()
+    (work / ".grappoli" / "map.json").write_text(json.dumps(MAP))
+    (work / ".grappoli" / "characterisations").write_text(
+        "".join(json.dumps({"region": region, **characterisation}) + "\n"
+                for region, characterisation in CHARACTERS.items()))
+
+    record = suite.runners(work_root)["relation_loop"](corpus=corpus, model="m1",
+                                                       judge="m1")
+
+    assert record["written"] == 1
+    assert record["supported"] == 1
+    assert record["relations"][0]["statement"] == "regions 0 and 1 touch"
+    assert record["relations"][0]["seconds"] is not None
+    assert "Relations" in record["page"]
+    assert (work / ".grappoli" / "relations-loop").is_file()
+    assert not (work / ".grappoli" / "relations").exists()
 
 
 def test_the_record_is_pretty_printed(suite, corpus, tmp_path):

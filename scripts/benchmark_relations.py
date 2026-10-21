@@ -1,18 +1,19 @@
 """Probe a model on the relation task at each conversation size.
 
-The relation loop's open decision is granularity: one loop over the
-whole map, one per region, or one per edge. The decision is settled with
-numbers, not taste. Conversation cost is one number; whether the model
-actually answers is another — characterisation showed 0.5B calls tools on
-short prompts and reverts to prose on long ones
-(`benchmarks/characterisation.md`), so a larger conversation can be both
-dearer and worse.
+The relation step's channel was decided with numbers, not taste: the
+native conversation and the one-relation call are asked the same task,
+and the batch runs both (`benchmarks/relations.md`). Conversation cost is
+one number; whether the model actually answers is another —
+characterisation showed 0.5B calls tools on short prompts and reverts to
+prose on long ones (`benchmarks/characterisation.md`), so a larger
+conversation can be both dearer and worse.
 
-This sends the same task at three sizes and records, per size, the prompt
-tokens, whether a tool call fired, and whether a well-formed relation came
-back. It is the instrument behind the granularity decision in
-`benchmarks/relations.md`, and the place the model comparison for the
-relation loop is taken.
+This sends the same task at three sizes — per edge, per region, whole map
+— and records, per size, the prompt tokens, whether a tool call fired,
+and whether a well-formed relation came back. It measures the shape of
+the answer, which is what the channel decision turned on. Whether the
+sentence is *true* of the two regions it names is a different question,
+and `scripts/benchmark_relation_loop.py` is the instrument for it.
 
 Usage:
     uv run python scripts/benchmark_relations.py NOTES --characterisations PATH

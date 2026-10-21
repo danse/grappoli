@@ -100,7 +100,13 @@ that its failures are visible rather than rare, which is what the
 faithfulness measurement exists to catch. It sits behind a single
 interface so that larger models can be compared without rework.
 
-**The agent is a hand-rolled tool loop,** roughly a hundred and fifty
-lines, with no framework. Its tools expose characterisations and never
-raw notes: the restriction that the corpus is never held in view is
-enforced by what the agent can ask for, not by what it is told.
+**The relation step asks one pair at a time.** The orchestration names
+the pair and the model is asked for one relation, in one call, from the
+two characterisations. A whole-map conversation, in which the model names
+the tools and chooses what to read and which pair to relate, is still
+there and still runnable — hand-rolled in about a hundred and fifty lines,
+with no framework — but it writes no relations on either model, and a
+local question is the one this hardware answers
+(`benchmarks/relations.md`). The corpus is never held in view either way:
+the prompt is built from characterisations only, and no tool returns a
+raw note.

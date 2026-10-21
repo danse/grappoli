@@ -2,7 +2,7 @@
 
 * `grappoli read NOTES` — read a branch of notes: build the map
   (arithmetic), characterise every region (one model call per region),
-  then relate the touching pairs (one agent loop), in that order. The
+  then relate the touching pairs (one call per pair), in that order. The
   pipeline's working files — `map.json`, the append-only
   `characterisations` and the append-only `relations` — live under
   `NOTES/.grappoli/`, which is not part of what the reader is meant
@@ -23,8 +23,10 @@ to stderr as plain lines and never into an artefact.
 
 The model is the single interface in `grappoli/model.py`, injected here
 so a run can be exercised without Ollama: `structured` for
-characterisation and the model-backed faithfulness judge, `converse` for
-the relation loop, both bound to `--model`; `measure --judge nli` swaps
+characterisation, for the pair loop the relation step asks, and for the
+model-backed faithfulness judge; `converse` for the native channel, the
+one tool conversation over the whole map, which `--relation-channel
+native` selects. All are bound to `--model`; `measure --judge nli` swaps
 the model-backed judge for the decoupled NLI cross-encoder. A region that
 exhausts its attempts is logged and skipped, and the run exits non-zero so
 the failure is not mistaken for a finished map; a loop that stops with
@@ -45,7 +47,7 @@ from .map import build_map
 from .measure import measure as measure_map
 from .measure import nli_judge
 from .model import converse, structured
-from .relations import read_relations, relate_regions
+from .relations import read_relations, relate_pairs, relate_regions
 from .render import render
 from .words import stopwords
 
@@ -67,6 +69,11 @@ def main(argv=None, *, llm=structured, agent_llm=converse, compare=None) -> int:
     read_cmd.add_argument("-k", type=int, help="neighbourhood size (default: 4)")
     read_cmd.add_argument("--target", type=int, help="representatives per region (default: 5)")
     read_cmd.add_argument("--model", help="generation model (default: qwen2.5:0.5b)")
+    read_cmd.add_argument("--relation-channel", choices=("native", "structured"),
+                          default="structured",
+                          help="how the relation loop asks the model: one call a "
+                               "pair (structured, the default), or one tool "
+                               "conversation over the whole map (native)")
     read_cmd.set_defaults(run=_run_read)
 
     measure_cmd = sub.add_parser("measure", help="score the map built under NOTES/.grappoli")
@@ -127,12 +134,18 @@ def _run_read(args, llm, agent_llm) -> int:
         progress=progress, log=log,
     )
 
-    missing = relate_regions(
-        mapping, read_characterisations(work / "characterisations"),
-        work / "relations", stop=stopwords(notes.values()),
-        llm=agent_llm, progress=progress, log=log,
-    )
-
+    characterisations = read_characterisations(work / "characterisations")
+    if args.relation_channel == "structured":
+        missing = relate_pairs(
+            mapping, characterisations, work / "relations",
+            llm=llm, progress=progress, log=log,
+        )
+    else:
+        missing = relate_regions(
+            mapping, characterisations, work / "relations",
+            stop=stopwords(notes.values()),
+            llm=agent_llm, progress=progress, log=log,
+        )
     characterised = len(mapping["regions"]) - len(failed)
     print(f"read {args.notes} — {len(mapping['regions'])} regions "
           f"({characterised} characterised, {len(mapping['standalone'])} standalone notes), "

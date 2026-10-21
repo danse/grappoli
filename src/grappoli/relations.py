@@ -2,11 +2,12 @@
 
 The map's edges already assert that regions touch; this step is what
 puts that into sentences. Each relation is derived from the two
-characterisations, never from the notes: the agent's whole world is the
+characterisations, never from the notes: the model's whole world is the
+two characterisations the prompt names — or, on the native channel, the
 `Toolbox` below, which holds the map structure, the stored
-characterisations, and the corpus's stopwords — no note. No shipped
-function returns a raw note, so the corpus is out of reach however the
-agent asks (`architecture.md`, Agent tools).
+characterisations, and the corpus's stopwords. No shipped function
+returns a raw note, so the corpus is out of reach however the model asks
+(`architecture.md`, Agent tools).
 
 A relation is one appended line, keyed by the unordered pair it names,
 so an interrupted run resumes at the first missing pair and never
@@ -14,16 +15,22 @@ regenerates a completed one. Relations are only ever written between
 regions that already have a characterisation: an edge to a region with
 no characterisation has nothing to characterise it from.
 
-`run_agent` is the hand-rolled loop — the model names a tool, we run it,
-append the result and ask again, until it names none or the round cap is
-reached (`architecture.md`, Agent tools). The tool surface, not an
-instruction, is what keeps the corpus out of view.
+`relate_pairs` is what ships: the orchestration names the pair and the
+model is asked for one relation, in one call, from the two
+characterisations. The model's part is then local, and no note is in
+that prompt either (`product.md`, Approach). One call a pair, so a map
+of five touching pairs costs five calls and each of them is a question
+about two regions and nothing else.
 
-`relate_regions` is the orchestration on top: it reads the relations
-already on disk, bounds the loop with a round budget drawn from the
-measured throughput, and reports progress per round and per relation. The
-toolbox refuses a pair that already has a relation, so an interrupted run
-resumes without regenerating a completed one.
+`run_agent` and `relate_regions` are the native channel, kept
+selectable with `--relation-channel native`: the model names a tool, we
+run it, append the result and ask again, until it names none or the
+round cap is reached (`architecture.md`, Agent tools). On that channel
+the model chooses what to read and which pair to relate, which is the
+behaviour the channel exists to produce; measured, it writes no
+relations on either model, because neither drives the tools unassisted
+(`benchmarks/relations.md`, "What the shape rests on"). The tool
+surface, not an instruction, is what keeps the corpus out of view.
 """
 
 import json
@@ -32,7 +39,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from . import linefile
-from .model import converse
+from .model import ModelError, converse, structured
 from .words import terms
 
 
@@ -112,6 +119,24 @@ def validate_relation(source, target, statement, characterisations) -> dict:
 # One schema per Python method on Toolbox, in the OpenAI/Ollama shape.
 # The agent names one; the loop matches the name and calls the method.
 
+WRITE_RELATION = {
+    "type": "function",
+    "function": {
+        "name": "write_relation",
+        "description": "Record, in one sentence, how two characterised regions touch.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "source": {"type": "integer"},
+                "target": {"type": "integer"},
+                "statement": {"type": "string", "description": "one sentence"},
+            },
+            "required": ["source", "target", "statement"],
+        },
+    },
+}
+
+
 TOOL_SCHEMAS = [
     {
         "type": "function",
@@ -148,22 +173,7 @@ TOOL_SCHEMAS = [
             },
         },
     },
-    {
-        "type": "function",
-        "function": {
-            "name": "write_relation",
-            "description": "Record, in one sentence, how two characterised regions touch.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "source": {"type": "integer"},
-                    "target": {"type": "integer"},
-                    "statement": {"type": "string", "description": "one sentence"},
-                },
-                "required": ["source", "target", "statement"],
-            },
-        },
-    },
+    WRITE_RELATION,
 ]
 
 TOOL_NAMES = {schema["function"]["name"] for schema in TOOL_SCHEMAS}
@@ -247,12 +257,13 @@ class Toolbox:
         return {"ok": True, **record}
 
 
-# --- the loop -------------------------------------------------------------
+# --- the native channel ---------------------------------------------------
 #
 # The loop. The model names a tool, we run it, append the result and ask
 # again, until it names none or the round cap is reached. A tool error is
 # just another result, so a bad round is recoverable
-# (architecture.md, Agent tools).
+# (architecture.md, Agent tools). This is the channel `--relation-channel
+# native` selects; the pair loop below is what ships.
 
 
 @dataclass
@@ -286,16 +297,17 @@ def run_agent(prompt: str, toolbox: Toolbox, llm=converse, *, max_rounds: int,
               on_round=None, on_call=None, on_relation=None, on_stop=None) -> AgentRun:
     """Run one tool-using conversation to its stop, or to `max_rounds`.
 
-    Each round asks the model for a message; a message that names tools
-    is executed and its results appended, and a message that names none
-    is the model stopping. `max_rounds` is the hard cap: a model that
-    keeps calling tools is bounded there rather than allowed to run, and
-    that is a bounded run rather than an error. A tool that cannot answer
-    returns an error object, which is appended like any result, so a bad
-    call costs one round and not the run. `on_round`, `on_call`,
-    `on_relation` and `on_stop` are how a caller watches that happen —
-    the round starting, the tool answered, a relation written, and the
-    message that stopped it — without the loop itself printing anything.
+    The native channel's loop. Each round asks the model for a message; a
+    message that names tools is executed and its results appended, and a
+    message that names none is the model stopping. `max_rounds` is the
+    hard cap: a model that keeps calling tools is bounded there rather
+    than allowed to run, and that is a bounded run rather than an error.
+    A tool that cannot answer returns an error object, which is appended
+    like any result, so a bad call costs one round and not the run.
+    `on_round`, `on_call`, `on_relation` and `on_stop` are how a caller
+    watches that happen — the round starting, the tool answered, a
+    relation written, and the message that stopped it — without the loop
+    itself printing anything.
     """
     messages = [{"role": "user", "content": prompt}]
     written: list[tuple[int, int]] = []
@@ -390,10 +402,12 @@ def relate_regions(mapping: dict, characterisations: dict[int, dict], path: Path
                    progress=None, log=None) -> list[tuple[int, int]]:
     """Record a relation for every touching pair, resuming a partial file.
 
-    The relations already on disk are read first, so a completed pair is
-    never regenerated, and the toolbox refuses a duplicate write as well,
-    so a model that repeats a pair cannot append one. Only edges whose two
-    endpoints are characterised are attempted, because a relation is
+    The native channel's orchestration: it reads the relations already
+    on disk, bounds the loop with a round budget drawn from the measured
+    throughput, and reports progress per round and per relation. The
+    toolbox refuses a pair that already has a relation, so an interrupted
+    run resumes without regenerating a completed one. Only edges whose
+    two endpoints are characterised are attempted, because a relation is
     written between characterisations only. `stop` is the corpus's words
     that say nothing, handed to the toolbox so its `compare_regions` reads
     a characterisation in any language (`architecture.md`, Language).
@@ -454,3 +468,134 @@ def relate_regions(mapping: dict, characterisations: dict[int, dict], path: Path
         else:
             log(f"relations: {written}/{total} written in {run.rounds} rounds ({seconds:.0f}s)")
     return missing
+
+
+# --- the structured channel ------------------------------------------------
+#
+# The native channel asks the model to name a tool; the structured channel
+# asks it for a relation and takes the answer in whatever shape it arrives.
+# This is the channel that ships. The pair is named by the orchestration
+# here, so each call is a question about two regions and nothing else: the
+# model's part stays local, which is what `product.md`'s approach asks of
+# it, and the corpus stays out of the prompt because the prompt is built
+# from characterisations only.
+
+
+PAIR_PROMPT = """Two regions of a corpus of notes, each with its characterisation. \
+State in one sentence how they touch: what they have in common, and where \
+they differ. Use the write_relation tool.
+
+"""
+
+MAX_PAIR_ATTEMPTS = 3
+
+
+def _characterisation_block(region: int, characterisation: dict) -> str:
+    """One region's characterisation, as the prompt shows it."""
+    topics = ", ".join(characterisation["topics"])
+    claims = " ".join(characterisation["key_claims"])
+    return (f"Region {region}: {characterisation['about']}\n"
+            f"Topics: {topics}\nClaims: {claims}")
+
+
+def pair_prompt(source: int, target: int, characterisations: dict[int, dict]) -> str:
+    """The prompt for one pair: two characterisations, and no note.
+
+    The pair is named by the orchestration, so the prompt carries no map,
+    no other region and no note — the two characterisations and the
+    sentence that joins them are the whole of the model's world for this
+    call, which is the local work the relation step exists to delegate
+    (`product.md`, Approach).
+    """
+    blocks = "\n\n".join(
+        _characterisation_block(region, characterisations[region])
+        for region in (source, target)
+    )
+    return PAIR_PROMPT + blocks + "\n"
+
+
+def _ask_pair(prompt: str, pair: tuple[int, int], characterisations: dict[int, dict],
+              llm, log=None):
+    """The relation for one pair, or None when no answer held up.
+
+    The answer is validated the way the storage layer validates a
+    relation — two distinct characterised regions and a non-empty sentence
+    — and the pair it names must be the pair that was asked: here the
+    orchestration chose the pair, so an answer naming another one is a
+    malformed answer rather than a different relation. A malformed answer
+    is retried, up to `MAX_PAIR_ATTEMPTS` times; a pair that still has
+    none is left missing, so the next run retries only it.
+    """
+    source, target = pair
+    for attempt in range(1, MAX_PAIR_ATTEMPTS + 1):
+        try:
+            arguments = llm(prompt, WRITE_RELATION)
+            if not isinstance(arguments, dict):
+                raise InvalidRelation(f"answer was {type(arguments).__name__}, not an object")
+            record = validate_relation(arguments.get("source"), arguments.get("target"),
+                                       arguments.get("statement"), characterisations)
+        except (ModelError, InvalidRelation) as err:
+            if log is not None:
+                log(f"  ({source},{target}): attempt {attempt}/{MAX_PAIR_ATTEMPTS} "
+                    f"rejected — {err}")
+            continue
+        if (record["source"], record["target"]) != pair:
+            if log is not None:
+                log(f"  ({source},{target}): attempt {attempt}/{MAX_PAIR_ATTEMPTS} "
+                    f"rejected — named ({record['source']},{record['target']})")
+            continue
+        return record
+    return None
+
+
+def relate_pairs(mapping: dict, characterisations: dict[int, dict], path: Path,
+                 llm=structured, *, clock=time.monotonic,
+                 progress=None, log=None, on_pair=None) -> list[tuple[int, int]]:
+    """One relation per touching pair, each asked for on its own.
+
+    The pairs come from the map's edges and each pair gets its own call:
+    the two characterisations in the prompt, one relation out. Only edges
+    whose two endpoints have a characterisation are asked about, because a
+    relation is written between characterisations only.
+
+    A pair already on disk is never asked again, so an interrupted run
+    resumes at the first missing one, and the relations are written in the
+    same line file the native loop writes, so one page renders either.
+    Returns the pairs still missing when the run ended.
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    linefile.drop_torn_tail(path)
+    relatable = relatable_edges(mapping, characterisations)
+    done = read_relations(path)
+    missing = [pair for pair in relatable if pair not in done]
+    total = len(relatable)
+
+    for position, (source, target) in enumerate(missing, start=1):
+        if progress is not None:
+            progress("relation", position, total)
+        started = clock()
+        record = _ask_pair(pair_prompt(source, target, characterisations),
+                           (source, target), characterisations, llm, log)
+        seconds = clock() - started
+        if record is None:
+            if log is not None:
+                log(f"  ({source},{target}): no relation after {MAX_PAIR_ATTEMPTS} attempts")
+            continue
+        linefile.append(path, record)
+        if on_pair is not None:
+            on_pair(record, seconds)
+        if progress is not None:
+            progress("written", len(read_relations(path)), total)
+        if log is not None:
+            log(f"  ({source},{target}): {record['statement']} ({seconds:.0f}s)")
+
+    still_missing = [pair for pair in relatable if pair not in read_relations(path)]
+    if log is not None:
+        written = total - len(still_missing)
+        if still_missing:
+            log(f"relations: {written}/{total} written — {len(still_missing)} missing; "
+                f"next run retries only those")
+        else:
+            log(f"relations: {written}/{total} written")
+    return still_missing

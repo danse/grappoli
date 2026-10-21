@@ -13,8 +13,17 @@ were run, under `history/<date>/<step>.md` — the relation loop's are
 | `structure.md`, `structure-heterogeneous.md` | the map's rule | `scripts/benchmark_structure.py` |
 | `throughput.md` | generation speed | `scripts/benchmark_throughput.py` |
 | `characterisation.md` | the characteriser | `scripts/benchmark_characterisation.py` |
-| `relations.md` | the relation loop | `scripts/benchmark_relations.py` |
+| `relations.md` | the relation loop | `scripts/benchmark_relations.py`, `scripts/benchmark_relation_loop.py` |
 | `measurement.md` | the four numbers | `grappoli measure` |
+
+Two instruments answer two questions about the relation step, and the
+difference is what they do with an answer. `benchmark_relations.py`
+asks the task at three conversation sizes in both channels and records
+whether a well-formed relation came back: the shape of the answer, which
+is what the channel decision turned on. `benchmark_relation_loop.py`
+runs the shipped loop over every touching pair of a map and judges each
+statement against the notes of the two regions it names: whether the
+answer is true, which the shape says nothing about.
 
 Each record is read on its own. A decision that needs several of them at
 once — which model, whether a step earns its cost — is settled with the
@@ -46,9 +55,19 @@ In order, it runs:
 3. **characterisation** — one first attempt per region, per model.
 4. **read** — a real `grappoli read` per model, on a copy of the corpus,
    recording what it left behind.
-5. **relations** — the granularity probe at each conversation size, both
-   channels, per model.
-6. **measure** — the four numbers once per judge. A judge named `nli` is
+5. **relations** — the relation task at each conversation size, both
+   channels, per model: whether a well-formed relation comes back, and
+   what it cost.
+6. **relation_loop** — the shipped loop over each cell's touching pairs:
+   the statement it wrote for each pair, the seconds that cost, and the
+   statement judged against the notes of the two regions it names. The
+   relations go to a file of their own, so the file the `read` step left
+   is what that step recorded — which means the batch pays for the
+   relation calls twice: once in the `read` step, on the shipped path,
+   and once here, where the cost of each pair is recorded. The second
+   pass is what makes the per-pair cost and the page readable on their
+   own.
+7. **measure** — the four numbers once per judge. A judge named `nli` is
    the NLI cross-encoder, decoupled from every model by construction; any
    other name is a generation model, and each model's characterisations
    are read by every judge named, so a map is scored by each.
@@ -90,12 +109,12 @@ away and runs the lot again. Progress goes to stderr; redirect it to keep
 a log.
 
 The JSON is keyed by step, then corpus, then model, then judge for
-`measure`. A `meta` block records the run's date, its command, the
-`build_map` defaults it ran under, the models and judges, and each
-corpus's path, reference and note count, so the record reads without
-another file beside it. The record's shape and its resume are pinned in
-`tests/test_suite.py`; the model calls behind the steps are not run under
-pytest.
+`measure` and for `relation_loop`. A `meta` block records the run's date,
+its command, the `build_map` defaults it ran under, the models and
+judges, and each corpus's path, reference and note count, so the record
+reads without another file beside it. The record's shape and its resume
+are pinned in `tests/test_suite.py`; the model calls behind the steps are
+not run under pytest.
 
 The `probe_*.py` scripts are not part of the batch: they pin phrasing
 questions rather than decide anything, and their findings live under

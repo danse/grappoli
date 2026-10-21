@@ -2,25 +2,30 @@
 
 Items to be done, delete once done:
 
-- Should the shipped relation loop move to the structured channel? The
-  native one is the loop's settled shape — the model, not the
-  orchestration, chooses what to read and which pair to relate — and it
-  writes nothing: `grappoli read` left every pair missing on both models
-  in all six cells of the 2026-10-20 batch, the 0.5B naming no tool at
-  all and the 3B's arguments malformed every time
-  (`benchmarks/relations.md`, "What is not settled"). The structured
-  channel is valid in all 18 cells of the same batch, at a call per pair
-  (81–269 s each) against a native whole-map call that returns nothing
-  (225–986 s). What it costs is the shape: one relation per call, so the
-  orchestration has to enumerate the pairs and the model's choice of what
-  to read goes with it. So the question is not which channel parses but
-  what the loop is for — a map with no relations, or a map whose relations
-  the orchestration enumerated. Settle it by building the structured loop
-  and reading what it writes: the probe measures whether a call parses,
-  not whether the relation it returns is true to the notes. Note the
-  standing decision it would meet: the native channel shipped because it
-  is the only one where the loop recovers
-  (`benchmarks/relations.md`, "What the shape rests on").
+- Make the model relate rather than paraphrase. One live run of the
+  shipped path (multilingual corpus, 0.5B, 2026-10-21) wrote two
+  relations, both well-formed and both about one region's notes: the
+  kayak loading and the film in one, the forward stroke in the other,
+  with the other region of each pair nowhere in the sentence
+  (`benchmarks/relations.md`, "What the shape rests on"). The prompt
+  asks for one sentence about how two regions touch, and the model
+  answers with the material it has. What settles it is what the prompt
+  leaves out — the probe's pair-size prompt carried only each region's
+  `about` and the answer was shorter — and whether this model can write
+  a relation at all, or whether the honest answer is that the relation
+  step needs a model that can.
+- Should the four measurements police the relations? They score the map, the
+  characterisations and their claims; a relation is not among them, so a
+  statement about two regions that the notes do not hold would pass every
+  measurement and stand on the page (`architecture.md`, Measurements). The
+  batch's `relation_loop` step reads each statement against the notes of
+  the two regions it names, but it measures the relation step once per
+  batch rather than scoring every map a reader is given
+  (`benchmarks/relations.md`, "What is not settled"). What settles it is
+  what the four are for: they police the characterisation, and the
+  relation is the other claim on the page — whether the shipped step
+  deserves the same scrutiny, and whether a relation belongs in the four
+  or beside them.
 - Improve the multilingual map. The default rule scores ARI -0.044 on the
   mixed Italian/English corpus and nothing in the sweep beats 0.212, so
   the rule is not the whole of it: the encoder's margin collapses there
